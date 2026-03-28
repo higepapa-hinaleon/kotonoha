@@ -6,7 +6,7 @@ service firebase.storage {
     // 新パス構造: documents/{organizationId}/{groupId}/...
     match /documents/{organizationId}/{allPaths=**} {
       allow read: if request.auth != null
-        && firestore.get(/databases/kotonoha/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+        && firestore.get(/databases/kotonoha-ai-chat/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
       allow write: if false;
     }
 

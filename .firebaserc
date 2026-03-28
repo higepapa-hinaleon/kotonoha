@@ -9,6 +9,14 @@
           "akebono-lab.firebasestorage.app"
         ]
       }
+    },
+    "kotonoha-ai-chat": {
+      "storage": {
+        "rules": [
+          "kotonoha-ai-chat"
+        ]
+      }
     }
-  }
+  },
+  "etags": {}
 }

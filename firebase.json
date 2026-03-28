@@ -1,17 +1,18 @@
 {
   "firestore": {
-    "database": "kotonoha",
+    "database": "kotonoha-ai-chat",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
   "storage": [
     {
+      "bucket": "kotonoha-ai-chat",
       "target": "rules",
       "rules": "storage.rules"
     }
   ],
   "hosting": {
-    "site": "kotonoha",
+    "site": "kotonoha-ai-chat",
     "public": ".output/public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
