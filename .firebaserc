@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "akebono-lab"
+  },
+  "targets": {
+    "akebono-lab": {
+      "storage": {
+        "rules": [
+          "akebono-lab.firebasestorage.app"
+        ]
+      }
+    }
+  }
+}

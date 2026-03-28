@@ -1,0 +1,35 @@
+{
+  "firestore": {
+    "database": "kotonoha",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": [
+    {
+      "target": "rules",
+      "rules": "storage.rules"
+    }
+  ],
+  "hosting": {
+    "site": "kotonoha",
+    "public": ".output/public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "/embed/**",
+        "headers": [
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "kotonoha",
+          "region": "asia-northeast1"
+        }
+      }
+    ]
+  }
+}

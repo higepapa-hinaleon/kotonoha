@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // ドキュメントファイル: 同一組織の認証済みユーザーのみ読み取り可能
+    // 書き込みはサーバーサイド（Admin SDK）で制御するため、クライアントからは拒否
+    // 新パス構造: documents/{organizationId}/{groupId}/...
+    match /documents/{organizationId}/{allPaths=**} {
+      allow read: if request.auth != null
+        && firestore.get(/databases/kotonoha/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+      allow write: if false;
+    }
+
+    // その他のパスは拒否
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

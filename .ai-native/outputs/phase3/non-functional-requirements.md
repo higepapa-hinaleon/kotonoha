@@ -1,0 +1,89 @@
+# Phase 3: 非機能要件定義
+
+## パフォーマンス要件
+
+| 項目 | 基準値 | 測定条件 | 備考 |
+|------|--------|---------|------|
+| 画面初期表示 | 200ms以下 | CDN経由、キャッシュ有効時 | SPA（ssr: false）のため初回ロードはやや大きい |
+| チャット応答時間 | 3-5秒 | RAG検索 + Gemini生成含む | LLM処理時間が支配的 |
+| 検索・フィルタ | 100ms以下 | Firestoreインデックス利用時 | 複合インデックス事前定義 |
+| ドキュメント処理 | 非同期 | バックグラウンド処理 | ステータス追跡（uploading→processing→ready→error） |
+| ベクトル検索 | 500ms以下 | Firestore Vector Search | 768次元、flatインデックス |
+| 埋め込み生成 | 1-2秒/バッチ | Vertex AI、最大250テキスト/バッチ | 2層キャッシュで削減（L1: メモリ30分、L2: Firestore 7日） |
+
+## セキュリティ要件
+
+### 認証
+- **方式:** Firebase Authentication
+- **対応プロバイダ:** メール/パスワード、Google OAuth
+- **トークン:** Firebase ID Token（Bearer Token）
+- **トークン検証:** サーバーサイドでFirebase Admin SDKにより検証
+
+### 認可
+- **ロール:** admin（管理者）、member（一般ユーザー）
+- **実装層:**
+  - クライアント: ルートミドルウェアによるページ保護
+  - サーバー: APIミドルウェアによるBearer Token検証
+  - データベース: Firestore Security Rulesによる組織単位アクセス制御
+  - ストレージ: Cloud Storage Security Rules（管理者のみアップロード可）
+
+### データ保護
+- **機密度:** 組織内部文書（中〜高）
+- **通信:** HTTPS必須（Cloud Run標準）
+- **CORS:** ホワイトリスト方式（NUXT_CORS_ALLOWED_ORIGINS）
+- **公開API:** /api/chat/send、/api/services、/api/settings/form-url のみ認証任意
+
+### データ機密度分類
+
+| データ種別 | 機密度 | 保護方針 |
+|-----------|--------|---------|
+| 組織内部文書 | 高 | 組織単位アクセス制御、Storage Rules |
+| 会話データ | 中 | ユーザー単位アクセス制御 |
+| ユーザー情報 | 中 | Firebase Auth管理、最小限の情報保持 |
+| FAQ・レポート | 低〜中 | 組織単位アクセス制御 |
+| ボット設定 | 低 | 管理者のみ変更可 |
+
+## 可用性要件
+
+| 項目 | 要件 |
+|------|------|
+| 稼働時間 | 24/365（Cloud Run + Firebase） |
+| SLA | Cloud Run: 99.95%、Firestore: 99.999% |
+| リージョン | asia-northeast1（東京） |
+| 自動復旧 | Cloud Runコンテナ自動再起動 |
+| デプロイ | ゼロダウンタイムデプロイ（Cloud Run ローリングアップデート） |
+
+## スケーラビリティ要件
+
+| 項目 | 初期 | スケール時 |
+|------|------|-----------|
+| 同時接続ユーザー | 〜50/組織 | Cloud Run自動スケーリング |
+| ドキュメント数 | 〜100/サービス | Firestoreクォータ内 |
+| チャンク数 | 〜10,000/サービス | ベクトルインデックスのスケーラビリティに依存 |
+| ベクトル検索 | Firestore native | 大規模時はVertex AI Vector Searchへ移行計画あり |
+
+## データ保全要件
+
+| 項目 | 方針 |
+|------|------|
+| データバックアップ | Firestore自動バックアップ（日次） |
+| ファイル保管 | Cloud Storage冗長化（マルチリージョン対応可） |
+| 障害復旧 | Firestore Point-in-Time Recovery |
+| データ保持期間 | 無期限（明示的削除まで） |
+
+## 動作環境
+
+| 項目 | 要件 |
+|------|------|
+| 対応ブラウザ | Chrome、Firefox、Safari、Edge（最新2バージョン） |
+| モバイル対応 | レスポンシブデザイン（768px/1024pxブレークポイント） |
+| 外部埋め込み | Web Component対応ブラウザ（Shadow DOM v1） |
+
+## 監視・ログ
+
+| 項目 | 方針 |
+|------|------|
+| アプリケーションログ | Cloud Run標準出力 → Cloud Logging |
+| エラー監視 | Cloud Error Reporting |
+| パフォーマンス監視 | Cloud Run メトリクス |
+| コスト監視 | Blazeプラン予算アラート |

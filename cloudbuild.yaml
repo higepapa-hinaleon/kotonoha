@@ -1,0 +1,58 @@
+steps:
+  # Docker イメージをビルド
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-t"
+      - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/kotonoha/app:$COMMIT_SHA"
+      - "."
+
+  # Artifact Registry にプッシュ
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/kotonoha/app:$COMMIT_SHA"
+
+  # Cloud Run にデプロイ
+  # --allow-unauthenticated: チャットAPIはゲスト（ウィジェット）からのアクセスを許可する設計。
+  #   管理系エンドポイントはアプリケーション層の Firebase Auth ミドルウェアで保護。
+  # --service-account: 最小権限の原則に基づき、専用サービスアカウントを指定。
+  #   事前に以下の権限を付与: Firestore, Cloud Storage, Vertex AI, Cloud Logging
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "kotonoha"
+      - "--image"
+      - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/kotonoha/app:$COMMIT_SHA"
+      - "--region"
+      - "asia-northeast1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--memory"
+      - "1Gi"
+      - "--cpu"
+      - "1"
+      - "--min-instances"
+      - "1"
+      - "--max-instances"
+      - "3"
+      - "--startup-probe=httpGet.port=8080,httpGet.path=/api/health,initialDelaySeconds=30,periodSeconds=10,failureThreshold=5,timeoutSeconds=5"
+      - "--liveness-probe=httpGet.port=8080,httpGet.path=/api/health,periodSeconds=15,failureThreshold=3,timeoutSeconds=5"
+      - "--timeout"
+      - "300"
+      - "--update-env-vars"
+      - "NUXT_FIREBASE_DATABASE_ID=kotonoha,NUXT_PUBLIC_FIREBASE_DATABASE_ID=kotonoha"
+
+images:
+  - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/kotonoha/app:$COMMIT_SHA"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# 専用サービスアカウントを使用する場合は、Cloud Build トリガーの設定または
+# gcloud コマンドで --service-account フラグを追加:
+#   --service-account=kotonoha-bot-runner@PROJECT_ID.iam.gserviceaccount.com
+# 未設定の場合はデフォルトの Compute Engine サービスアカウントが使用される

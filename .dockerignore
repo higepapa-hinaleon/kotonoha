@@ -1,0 +1,11 @@
+node_modules
+.nuxt
+.output
+.env
+.env.*
+.git
+.github
+tests
+*.md
+.firebase
+.firebaserc
