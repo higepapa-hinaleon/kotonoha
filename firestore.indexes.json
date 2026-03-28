@@ -1,262 +1,284 @@
 {
-    "indexes": [
-        {
-            "collectionGroup": "groups",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "organizationId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "conversations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "userId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "documentChunks",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" },
-                { "fieldPath": "embedding", "vectorConfig": { "dimension": 768, "flat": {} } }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "documents",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "documents",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "faqs",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "frequency", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "faqs",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "frequency", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "updatedAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "category", "order": "ASCENDING" },
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "improvementRequests",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "conversationId", "order": "ASCENDING" },
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "services",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "createdAt", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "weeklyReports",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "periodStart", "order": "DESCENDING" },
-                { "fieldPath": "__name__", "order": "DESCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "feedbackChunks",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "serviceId", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" },
-                { "fieldPath": "embedding", "vectorConfig": { "dimension": 768, "flat": {} } }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "invitations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "organizationId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "invitations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "email", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "organizationId", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        },
-        {
-            "collectionGroup": "invitations",
-            "queryScope": "COLLECTION",
-            "fields": [
-                { "fieldPath": "email", "order": "ASCENDING" },
-                { "fieldPath": "groupId", "order": "ASCENDING" },
-                { "fieldPath": "status", "order": "ASCENDING" },
-                { "fieldPath": "__name__", "order": "ASCENDING" }
-            ],
-            "density": "SPARSE_ALL"
-        }
-    ],
-    "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organizationId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "documentChunks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" },
+        { "fieldPath": "embedding", "vectorConfig": { "dimension": 768, "flat": {} } }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "documents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "documents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "faqs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "frequency", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "faqs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "frequency", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "improvementRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "conversationId", "order": "ASCENDING" },
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organizationId", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "weeklyReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "periodStart", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "feedbackChunks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "serviceId", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" },
+        { "fieldPath": "embedding", "vectorConfig": { "dimension": 768, "flat": {} } }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "invitations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organizationId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "invitations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "email", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "organizationId", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "invitations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "email", "order": "ASCENDING" },
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ],
+      "density": "SPARSE_ALL"
+    }
+  ],
+  "fieldOverrides": []
 }

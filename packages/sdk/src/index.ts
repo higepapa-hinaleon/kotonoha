@@ -7,11 +7,7 @@ export type {
   Service,
 } from "./types";
 
-import type {
-  kotonohaChatClientOptions,
-  ChatSendResponse,
-  Service,
-} from "./types";
+import type { kotonohaChatClientOptions, ChatSendResponse, Service } from "./types";
 
 /**
  * kotonoha AI チャット SDK クライアント
@@ -51,8 +47,11 @@ export class kotonohaChatClient {
   }
 
   /** 利用可能なサービス一覧を取得する */
-  async getServices(): Promise<Service[]> {
-    const res = await this.fetch<Service[]>("/api/services");
+  async getServices(options?: { groupId?: string }): Promise<Service[]> {
+    const params = new URLSearchParams();
+    if (options?.groupId) params.set("groupId", options.groupId);
+    const query = params.toString();
+    const res = await this.fetch<Service[]>(`/api/services${query ? `?${query}` : ""}`);
     return res.filter((s) => s.isActive);
   }
 
@@ -102,9 +101,7 @@ export class kotonohaChatClient {
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      throw new Error(
-        `kotonohaChatClient: ${res.status} ${res.statusText} - ${body}`,
-      );
+      throw new Error(`kotonohaChatClient: ${res.status} ${res.statusText} - ${body}`);
     }
 
     return res.json() as Promise<T>;

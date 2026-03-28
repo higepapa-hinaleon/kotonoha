@@ -1,168 +1,195 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>kotonoha AI チャットウィジェット サンプル</title>
-  <script type="module" src="/embed/kotonoha-chat-widget.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #f3f4f6;
-      padding: 2rem;
-      color: #1f2937;
-    }
-    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .description { color: #6b7280; font-size: 0.875rem; margin-bottom: 1.5rem; }
-
-    .demo-area {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 1000px;
-    }
-
-    @media (max-width: 768px) {
-      .demo-area { grid-template-columns: 1fr; }
-    }
-
-    .demo-card {
-      background: #fff;
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .demo-card h2 {
-      font-size: 1rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .demo-card p {
-      font-size: 0.8125rem;
-      color: #6b7280;
-      margin-bottom: 1rem;
-    }
-
-    /* ウィジェットのサイズ指定 */
-    kotonoha-chat-widget {
-      height: 450px;
-    }
-
-    /* テーマ B: カスタムカラー */
-    .theme-custom kotonoha-chat-widget {
-      --kotonoha-primary: #059669;
-      --kotonoha-primary-hover: #047857;
-      --kotonoha-radius: 1rem;
-    }
-
-    /* サービス選択 UI */
-    .service-selector {
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .service-selector label {
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: #374151;
-    }
-    .service-selector select {
-      flex: 1;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      font-size: 0.8125rem;
-    }
-    .service-selector .status {
-      font-size: 0.75rem;
-      color: #9ca3af;
-    }
-  </style>
-</head>
-<body>
-  <h1>kotonoha AI チャットウィジェット サンプルページ</h1>
-  <p class="description">
-    <code>&lt;kotonoha-chat-widget&gt;</code> Web Component の埋め込みデモです。
-    サービスを選択するとウィジェットが有効になります。
-  </p>
-
-  <div class="service-selector">
-    <label for="service-select">サービス:</label>
-    <select id="service-select">
-      <option value="">読み込み中...</option>
-    </select>
-    <span class="status" id="service-status"></span>
-  </div>
-
-  <div class="demo-area">
-    <!-- デフォルトテーマ -->
-    <div class="demo-card">
-      <h2>デフォルトテーマ</h2>
-      <p>CSS Custom Properties 未指定の標準スタイル</p>
-      <kotonoha-chat-widget
-        id="widget-default"
-        api-base-url=""
-        service-id=""
-      ></kotonoha-chat-widget>
-    </div>
-
-    <!-- カスタムテーマ -->
-    <div class="demo-card theme-custom">
-      <h2>カスタムテーマ</h2>
-      <p><code>--kotonoha-primary: #059669; --kotonoha-radius: 1rem;</code></p>
-      <kotonoha-chat-widget
-        id="widget-custom"
-        api-base-url=""
-        service-id=""
-        placeholder="何でもお聞きください..."
-      ></kotonoha-chat-widget>
-    </div>
-  </div>
-
-  <script type="module">
-    const API_BASE = window.location.origin;
-    const selectEl = document.getElementById("service-select");
-    const statusEl = document.getElementById("service-status");
-    const widgetDefault = document.getElementById("widget-default");
-    const widgetCustom = document.getElementById("widget-custom");
-
-    // ウィジェットに API ベース URL をセット
-    widgetDefault.setAttribute("api-base-url", API_BASE);
-    widgetCustom.setAttribute("api-base-url", API_BASE);
-
-    // サービス一覧を取得してセレクトに反映
-    try {
-      const res = await fetch(`${API_BASE}/api/services`);
-      const services = await res.json();
-      const active = services.filter(s => s.isActive);
-
-      if (active.length === 0) {
-        selectEl.innerHTML = '<option value="">有効なサービスがありません</option>';
-        statusEl.textContent = "";
-      } else {
-        selectEl.innerHTML = active
-          .map(s => `<option value="${s.id}">${s.name}</option>`)
-          .join("");
-        // 初期値をセット
-        applyService(active[0].id);
-        statusEl.textContent = `${active.length} 件のサービス`;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kotonoha AI チャットウィジェット サンプル</title>
+    <script type="module" src="/embed/kotonoha-chat-widget.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    } catch {
-      selectEl.innerHTML = '<option value="">サービスの取得に失敗しました</option>';
-      statusEl.textContent = "API に接続できません";
-    }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #f3f4f6;
+        padding: 2rem;
+        color: #1f2937;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .description {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+      }
 
-    selectEl.addEventListener("change", () => {
-      applyService(selectEl.value);
-    });
+      .demo-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1000px;
+      }
 
-    function applyService(serviceId) {
-      widgetDefault.setAttribute("service-id", serviceId);
-      widgetCustom.setAttribute("service-id", serviceId);
-    }
-  </script>
-</body>
+      @media (max-width: 768px) {
+        .demo-area {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .demo-card {
+        background: #fff;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .demo-card h2 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .demo-card p {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-bottom: 1rem;
+      }
+
+      /* ウィジェットのサイズ指定 */
+      kotonoha-chat-widget {
+        height: 450px;
+      }
+
+      /* テーマ B: カスタムカラー */
+      .theme-custom kotonoha-chat-widget {
+        --kotonoha-primary: #059669;
+        --kotonoha-primary-hover: #047857;
+        --kotonoha-radius: 1rem;
+      }
+
+      /* サービス選択 UI */
+      .service-selector {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .service-selector label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #374151;
+      }
+      .service-selector select {
+        flex: 1;
+        padding: 0.375rem 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        font-size: 0.8125rem;
+      }
+      .service-selector .status {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>kotonoha AI チャットウィジェット サンプルページ</h1>
+    <p class="description">
+      <code>&lt;kotonoha-chat-widget&gt;</code> Web Component の埋め込みデモです。
+      サービスを選択するとウィジェットが有効になります。
+    </p>
+
+    <div class="service-selector">
+      <label for="service-select">サービス:</label>
+      <select id="service-select">
+        <option value="">読み込み中...</option>
+      </select>
+      <span class="status" id="service-status"></span>
+    </div>
+
+    <div class="demo-area">
+      <!-- デフォルトテーマ -->
+      <div class="demo-card">
+        <h2>デフォルトテーマ</h2>
+        <p>CSS Custom Properties 未指定の標準スタイル</p>
+        <kotonoha-chat-widget
+          id="widget-default"
+          api-base-url=""
+          service-id=""
+        ></kotonoha-chat-widget>
+      </div>
+
+      <!-- カスタムテーマ -->
+      <div class="demo-card theme-custom">
+        <h2>カスタムテーマ</h2>
+        <p><code>--kotonoha-primary: #059669; --kotonoha-radius: 1rem;</code></p>
+        <kotonoha-chat-widget
+          id="widget-custom"
+          api-base-url=""
+          service-id=""
+          placeholder="何でもお聞きください..."
+        ></kotonoha-chat-widget>
+      </div>
+    </div>
+
+    <script type="module">
+      const API_BASE = window.location.origin;
+      const urlParams = new URLSearchParams(window.location.search);
+      const groupId = urlParams.get("groupId") || "";
+      const selectEl = document.getElementById("service-select");
+      const statusEl = document.getElementById("service-status");
+      const widgetDefault = document.getElementById("widget-default");
+      const widgetCustom = document.getElementById("widget-custom");
+
+      // ウィジェットに API ベース URL をセット
+      widgetDefault.setAttribute("api-base-url", API_BASE);
+      widgetCustom.setAttribute("api-base-url", API_BASE);
+
+      // サービス一覧を取得してセレクトに反映
+      try {
+        const serviceUrl = groupId
+          ? `${API_BASE}/api/services?groupId=${encodeURIComponent(groupId)}`
+          : `${API_BASE}/api/services`;
+        const res = await fetch(serviceUrl);
+        const services = await res.json();
+        const active = services.filter((s) => s.isActive);
+
+        if (active.length === 0) {
+          selectEl.innerHTML = groupId
+            ? '<option value="">有効なサービスがありません</option>'
+            : '<option value="">groupId を URL パラメータで指定してください (例: ?groupId=xxx)</option>';
+          statusEl.textContent = "";
+        } else {
+          selectEl.innerHTML = "";
+          active.forEach((s) => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = s.name;
+            selectEl.appendChild(opt);
+          });
+          // 初期値をセット
+          applyService(active[0].id);
+          statusEl.textContent = `${active.length} 件のサービス`;
+        }
+      } catch {
+        selectEl.innerHTML = '<option value="">サービスの取得に失敗しました</option>';
+        statusEl.textContent = "API に接続できません";
+      }
+
+      selectEl.addEventListener("change", () => {
+        applyService(selectEl.value);
+      });
+
+      function applyService(serviceId) {
+        widgetDefault.setAttribute("service-id", serviceId);
+        widgetCustom.setAttribute("service-id", serviceId);
+      }
+    </script>
+  </body>
 </html>
