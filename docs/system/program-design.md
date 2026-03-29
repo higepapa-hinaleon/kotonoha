@@ -44,7 +44,8 @@ shared/types/
 
 | 型名                  | コレクション                  | 説明                             | 主要フィールド                                                     |
 | --------------------- | ----------------------------- | -------------------------------- | ------------------------------------------------------------------ |
-| `Organization`        | `organizations`               | 組織（最上位テナント）           | `plan: "free" \| "standard" \| "premium"`                          |
+| `Organization`        | `organizations`               | 組織（最上位テナント）           | `plan: "starter" \| "business" \| "enterprise"`                    |
+| `Contract`            | `contracts`                   | 契約（組織ごとの契約履歴）       | `organizationId`, `planId`, `status`, `startDate`, `endDate`       |
 | `Group`               | `groups`                      | グループ（組織内の部門・チーム） | `organizationId`, `isActive`                                       |
 | `UserGroupMembership` | `userGroupMemberships`        | ユーザー・グループ紐付け         | ID形式: `${userId}_${groupId}`                                     |
 | `User`                | `users`                       | ユーザー                         | `role: "system_admin" \| "admin" \| "member"`                      |
@@ -394,7 +395,7 @@ async function addUserToGroup(
 async function findOrCreateDefaultOrganization(db?: Firestore): Promise<string>;
 ```
 
-- 既存組織がなければ「デフォルト組織」（free プラン）を自動作成
+- 既存組織がなければ「デフォルト組織」（starter プラン）を自動作成
 
 ### 3.14 server/utils/constants.ts
 

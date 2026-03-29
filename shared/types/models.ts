@@ -2,11 +2,26 @@
 // Firestore モデル型定義 (Phase 4 データ設計準拠)
 // ==================================================
 
+import type { PlanId } from "../plans";
+
 /** 組織 */
 export interface Organization {
   id: string;
   name: string;
-  plan: "free" | "standard" | "premium";
+  plan: PlanId;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 契約 */
+export interface Contract {
+  id: string;
+  organizationId: string;
+  planId: PlanId;
+  status: "active" | "suspended" | "expired" | "cancelled";
+  startDate: string;
+  endDate: string;
+  note: string;
   createdAt: string;
   updatedAt: string;
 }

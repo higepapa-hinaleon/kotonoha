@@ -81,6 +81,21 @@ export interface SettingsUpdateRequest {
   botConfig?: Partial<import("./models").BotConfig>;
 }
 
+/** 組織更新リクエスト */
+export interface OrganizationUpdateRequest {
+  name?: string;
+  plan?: import("../plans").PlanId;
+}
+
+/** 契約作成・更新リクエスト */
+export interface ContractUpsertRequest {
+  planId: import("../plans").PlanId;
+  status?: "active" | "suspended" | "expired" | "cancelled";
+  startDate: string;
+  endDate: string;
+  note?: string;
+}
+
 /** ダッシュボード集計レスポンス */
 export interface DashboardSummary {
   totalConversations: number;

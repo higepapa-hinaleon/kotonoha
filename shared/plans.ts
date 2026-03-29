@@ -1,0 +1,140 @@
+// ==================================================
+// プラン定義 (Single Source of Truth)
+// ランディングページ・バックオフィス・バックエンドで共用
+// ==================================================
+
+export type PlanId = "starter" | "business" | "enterprise";
+
+/** プランごとのリソース上限 (-1 = 無制限) */
+export interface PlanFeatureLimits {
+  maxGroups: number;
+  maxServices: number;
+  maxDocuments: number;
+  maxMonthlyChats: number;
+  maxUsers: number;
+  maxWidgetSites: number;
+}
+
+/** プランごとの機能フラグ */
+export interface PlanFeatureFlags {
+  faqAutoGeneration: boolean;
+  weeklyReports: boolean;
+  ragDiagnostics: boolean;
+  customSso: boolean;
+}
+
+/** プラン定義 */
+export interface PlanDefinition {
+  id: PlanId;
+  displayName: string;
+  price: string;
+  description: string;
+  limits: PlanFeatureLimits;
+  features: PlanFeatureFlags;
+  /** ランディングページでハイライト表示するか */
+  highlighted: boolean;
+  /** ランディングページ表示用の機能リスト */
+  landingFeatures: string[];
+}
+
+export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
+  starter: {
+    id: "starter",
+    displayName: "Starter",
+    price: "50,000",
+    description: "まず試したい中小企業・スタートアップ向け",
+    limits: {
+      maxGroups: 1,
+      maxServices: 3,
+      maxDocuments: 100,
+      maxMonthlyChats: 1_000,
+      maxUsers: 5,
+      maxWidgetSites: 1,
+    },
+    features: {
+      faqAutoGeneration: false,
+      weeklyReports: false,
+      ragDiagnostics: false,
+      customSso: false,
+    },
+    highlighted: false,
+    landingFeatures: [
+      "グループ数: 1",
+      "サービス数: 3",
+      "ドキュメント: 100件",
+      "月間チャット: 1,000回",
+      "ユーザー数: 5",
+      "メールサポート",
+    ],
+  },
+  business: {
+    id: "business",
+    displayName: "Business",
+    price: "150,000",
+    description: "本格導入する中堅企業向け",
+    limits: {
+      maxGroups: 5,
+      maxServices: 10,
+      maxDocuments: 500,
+      maxMonthlyChats: 10_000,
+      maxUsers: 20,
+      maxWidgetSites: 5,
+    },
+    features: {
+      faqAutoGeneration: true,
+      weeklyReports: true,
+      ragDiagnostics: true,
+      customSso: false,
+    },
+    highlighted: true,
+    landingFeatures: [
+      "グループ数: 5",
+      "サービス数: 10",
+      "ドキュメント: 500件",
+      "月間チャット: 10,000回",
+      "ユーザー数: 20",
+      "FAQ自動生成",
+      "週次レポート",
+      "RAG診断ツール",
+      "SLA 99.5%",
+    ],
+  },
+  enterprise: {
+    id: "enterprise",
+    displayName: "Enterprise",
+    price: "個別見積",
+    description: "大企業・金融・官公庁向け",
+    limits: {
+      maxGroups: -1,
+      maxServices: -1,
+      maxDocuments: -1,
+      maxMonthlyChats: -1,
+      maxUsers: -1,
+      maxWidgetSites: -1,
+    },
+    features: {
+      faqAutoGeneration: true,
+      weeklyReports: true,
+      ragDiagnostics: true,
+      customSso: true,
+    },
+    highlighted: false,
+    landingFeatures: [
+      "全て無制限",
+      "カスタムSSO",
+      "専任サポート担当",
+      "SLA 99.9%",
+      "オンプレミス相談可",
+    ],
+  },
+};
+
+/** プラン一覧（表示順） */
+export const PLAN_LIST: PlanDefinition[] = [
+  PLAN_DEFINITIONS.starter,
+  PLAN_DEFINITIONS.business,
+  PLAN_DEFINITIONS.enterprise,
+];
+
+/** プランIDの配列（バリデーション用） */
+export const VALID_PLAN_IDS: PlanId[] = ["starter", "business", "enterprise"];

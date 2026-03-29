@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { PLAN_LIST } from "~~/shared/plans";
+
 definePageMeta({
   layout: false,
 });
@@ -75,46 +77,13 @@ const useCases = [
   },
 ];
 
-const plans = [
-  {
-    name: "Starter",
-    price: "50,000",
-    description: "まず試したい中小企業・スタートアップ向け",
-    features: [
-      "グループ数: 1",
-      "サービス数: 3",
-      "ドキュメント: 100件",
-      "月間チャット: 1,000回",
-      "ユーザー数: 5",
-      "メールサポート",
-    ],
-    highlighted: false,
-  },
-  {
-    name: "Business",
-    price: "150,000",
-    description: "本格導入する中堅企業向け",
-    features: [
-      "グループ数: 5",
-      "サービス数: 10",
-      "ドキュメント: 500件",
-      "月間チャット: 10,000回",
-      "ユーザー数: 20",
-      "FAQ自動生成",
-      "週次レポート",
-      "RAG診断ツール",
-      "SLA 99.5%",
-    ],
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "個別見積",
-    description: "大企業・金融・官公庁向け",
-    features: ["全て無制限", "カスタムSSO", "専任サポート担当", "SLA 99.9%", "オンプレミス相談可"],
-    highlighted: false,
-  },
-];
+const plans = PLAN_LIST.map((plan) => ({
+  name: plan.displayName,
+  price: plan.price,
+  description: plan.description,
+  features: plan.landingFeatures,
+  highlighted: plan.highlighted,
+}));
 
 const mobileMenuOpen = ref(false);
 </script>
