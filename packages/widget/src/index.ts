@@ -256,7 +256,7 @@ class kotonohaChatWidget extends HTMLElement {
     if (msg.role === "assistant" && msg.sources && msg.sources.length > 0) {
       extras += this.renderSources(msg.sources);
     }
-    if (msg.role === "assistant" && msg.formUrl) {
+    if (msg.role === "assistant" && msg.formUrl && /^https?:\/\//i.test(msg.formUrl)) {
       extras += `
         <div class="kotonoha-form-guide">
           <p>より詳しいサポートが必要な場合：
@@ -301,34 +301,133 @@ class kotonohaChatWidget extends HTMLElement {
   private renderMarkdown(text: string): string {
     let html = this.escapeHtml(text);
 
-    // コードブロック
+    // コードブロック（最優先で保護、CRLF対応）
+    const codeBlocks: string[] = [];
+    const cbNonce = Math.random().toString(36).slice(2, 10);
     html = html.replace(
-      /```(\w*)\n([\s\S]*?)```/g,
-      "<pre><code>$2</code></pre>",
+      /```(\w*)\r?\n([\s\S]*?)```/g,
+      (_match, _lang, code) => {
+        const idx = codeBlocks.length;
+        codeBlocks.push(`<pre><code>${code}</code></pre>`);
+        return `\n%%CB_${cbNonce}_${idx}%%\n`;
+      },
     );
     // インラインコード
     html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+    // 行単位の処理（見出し、リスト、引用、水平線）— インライン変換より先に実行
+    const lines = html.split("\n");
+    const processed: string[] = [];
+    let inUl = false;
+    let inOl = false;
+    let inBlockquote = false;
+    const cbPlaceholderRe = new RegExp(`^%%CB_${cbNonce}_\\d+%%$`);
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // コードブロックプレースホルダーはそのまま通す
+      if (cbPlaceholderRe.test(line.trim())) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        processed.push(line);
+        continue;
+      }
+
+      // 水平線（--- / ___ 3つ以上。*** はbold/italicと衝突するため除外）
+      if (/^(?:---+|___+)\s*$/.test(line)) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        processed.push("<hr>");
+        continue;
+      }
+
+      // 見出し（# ～ ###）
+      const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
+      if (headingMatch) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        // # → h3, ## → h4, ### → h5（ウィジェット内のサイズ感に合わせる）
+        const level = headingMatch[1].length + 2;
+        processed.push(`<h${level}>${headingMatch[2]}</h${level}>`);
+        continue;
+      }
+
+      // 引用（> ）— 連続行をマージ
+      const quoteMatch = line.match(/^&gt;\s?(.*)$/);
+      if (quoteMatch) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (!inBlockquote) { processed.push("<blockquote>"); inBlockquote = true; }
+        else { processed.push("<br>"); }
+        processed.push(quoteMatch[1]);
+        continue;
+      }
+      if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+
+      // 箇条書きリスト（- / * ）
+      const ulMatch = line.match(/^[\-\*]\s+(.+)$/);
+      if (ulMatch) {
+        if (inOl) { processed.push("</ol>"); inOl = false; }
+        if (!inUl) { processed.push("<ul>"); inUl = true; }
+        processed.push(`<li>${ulMatch[1]}</li>`);
+        continue;
+      }
+
+      // 番号付きリスト（1. 2. ...）
+      const olMatch = line.match(/^\d+\.\s+(.+)$/);
+      if (olMatch) {
+        if (inUl) { processed.push("</ul>"); inUl = false; }
+        if (!inOl) { processed.push("<ol>"); inOl = true; }
+        processed.push(`<li>${olMatch[1]}</li>`);
+        continue;
+      }
+
+      // リスト以外の行が来たらリストを閉じる
+      if (inUl) { processed.push("</ul>"); inUl = false; }
+      if (inOl) { processed.push("</ol>"); inOl = false; }
+      processed.push(line);
+    }
+    // 末尾のブロック要素を閉じる
+    if (inUl) processed.push("</ul>");
+    if (inOl) processed.push("</ol>");
+    if (inBlockquote) processed.push("</blockquote>");
+
+    html = processed.join("\n");
+
+    // インライン変換（ブロック処理後に実行）
+    // 取り消し線
+    html = html.replace(/~~(.+?)~~/g, "<del>$1</del>");
     // 太字
     html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    // 斜体
-    html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    // 斜体（単独の * のみ）
+    html = html.replace(/(?<!\w)\*(?!\s)(.+?)(?<!\s)\*(?!\w)/g, "<em>$1</em>");
     // リンク（javascript: 等の危険なスキームを排除、URL内の引用符をサニタイズ）
     html = html.replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
       (_match: string, text: string, url: string) => {
-        // escapeHtml 済みの &amp; 等をデコードしてから検証
         const decodedUrl = url.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
         if (/^https?:\/\//i.test(decodedUrl)) {
-          // href 属性に安全な URL を再エスケープして挿入
           const safeUrl = decodedUrl.replace(/"/g, "&quot;");
           return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
         }
         return text;
       },
     );
-    // 改行 → <br> (コードブロック外)
+
+    // コードブロックを復元
+    const cbRestoreRe = new RegExp(`%%CB_${cbNonce}_(\\d+)%%`, "g");
+    html = html.replace(cbRestoreRe, (_match, idx) => {
+      const block = codeBlocks[Number(idx)];
+      return block !== undefined ? block : "";
+    });
+
+    // 改行 → <br>（ブロック要素内部を除外）
     html = html.replace(
-      /(?:<pre>[\s\S]*?<\/pre>)|(\n)/g,
+      /(?:<pre>[\s\S]*?<\/pre>)|(?:<ul>[\s\S]*?<\/ul>)|(?:<ol>[\s\S]*?<\/ol>)|(?:<blockquote>[\s\S]*?<\/blockquote>)|(\n)/g,
       (match, newline) => {
         if (newline) return "<br>";
         return match;

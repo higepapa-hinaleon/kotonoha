@@ -109,11 +109,72 @@ export const widgetStyles = /* css */ `
 
   .kotonoha-bubble--assistant code {
     font-size: 0.8125rem;
+    background: var(--kotonoha-bg-secondary);
+    padding: 0.125em 0.25em;
+    border-radius: 0.2em;
+  }
+
+  .kotonoha-bubble--assistant pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
   }
 
   .kotonoha-bubble--assistant a {
     color: var(--kotonoha-primary);
     text-decoration: underline;
+  }
+
+  .kotonoha-bubble--assistant h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 0.6em 0 0.3em;
+  }
+
+  .kotonoha-bubble--assistant h4 {
+    font-size: 1em;
+    font-weight: 700;
+    margin: 0.5em 0 0.25em;
+  }
+
+  .kotonoha-bubble--assistant h5 {
+    font-size: 0.95em;
+    font-weight: 600;
+    margin: 0.4em 0 0.2em;
+  }
+
+  .kotonoha-bubble--assistant h3:first-child,
+  .kotonoha-bubble--assistant h4:first-child,
+  .kotonoha-bubble--assistant h5:first-child {
+    margin-top: 0;
+  }
+
+  .kotonoha-bubble--assistant ul,
+  .kotonoha-bubble--assistant ol {
+    margin: 0.4em 0;
+    padding-left: 1.5em;
+  }
+
+  .kotonoha-bubble--assistant li {
+    margin: 0.15em 0;
+  }
+
+  .kotonoha-bubble--assistant blockquote {
+    border-left: 3px solid var(--kotonoha-border);
+    padding-left: 0.75em;
+    margin: 0.4em 0;
+    color: var(--kotonoha-text-secondary);
+  }
+
+  .kotonoha-bubble--assistant hr {
+    border: none;
+    border-top: 1px solid var(--kotonoha-border);
+    margin: 0.5em 0;
+  }
+
+  .kotonoha-bubble--assistant del {
+    text-decoration: line-through;
+    opacity: 0.7;
   }
 
   /* ソース表示 */
