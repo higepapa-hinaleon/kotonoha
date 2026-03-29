@@ -29,6 +29,7 @@ export interface ChatSendResponse {
 export interface Service {
   id: string;
   organizationId: string;
+  groupId: string;
   name: string;
   description: string;
   isActive: boolean;

@@ -1,14 +1,23 @@
-class n {
+class i {
   constructor(e) {
-    this.baseUrl = e.baseUrl.replace(/\/+$/, ""), this.authToken = e.authToken;
+    this.baseUrl = e.baseUrl.replace(/\/+$/, ""), this.authToken = e.authToken, this.userName = e.userName, this.userId = e.userId;
   }
   /** 認証トークンを更新する */
   setAuthToken(e) {
     this.authToken = e;
   }
+  /** ユーザー情報を更新する */
+  setUserInfo(e) {
+    this.userName = e.userName, this.userId = e.userId;
+  }
   /** 利用可能なサービス一覧を取得する */
-  async getServices() {
-    return (await this.fetch("/api/services")).filter((e) => e.isActive);
+  async getServices(e) {
+    const t = new URLSearchParams();
+    e != null && e.groupId && t.set("groupId", e.groupId);
+    const o = t.toString();
+    return (await this.fetch(
+      `/api/services${o ? `?${o}` : ""}`
+    )).filter((s) => s.isActive);
   }
   /** チャットメッセージを送信する */
   async sendMessage(e) {
@@ -29,24 +38,28 @@ class n {
     )).formUrl || "";
   }
   async fetch(e, t) {
-    const s = {
+    const o = {
       ...t == null ? void 0 : t.headers
     };
-    this.authToken && (s.Authorization = `Bearer ${this.authToken}`);
-    const r = await fetch(`${this.baseUrl}${e}`, {
+    this.authToken && (o.Authorization = `Bearer ${this.authToken}`), this.userName && (o["X-kotonoha-User-Name"] = this.sanitizeHeaderValue(this.userName)), this.userId && (o["X-kotonoha-User-Id"] = this.sanitizeHeaderValue(this.userId));
+    const s = await fetch(`${this.baseUrl}${e}`, {
       ...t,
-      headers: s
+      headers: o
     });
-    if (!r.ok) {
-      const a = await r.text().catch(() => "");
+    if (!s.ok) {
+      const r = await s.text().catch(() => "");
       throw new Error(
-        `kotonohaChatClient: ${r.status} ${r.statusText} - ${a}`
+        `kotonohaChatClient: ${s.status} ${s.statusText} - ${r}`
       );
     }
-    return r.json();
+    return s.json();
+  }
+  /** ヘッダー値のサニタイズ（CRLF除去・長さ制限） */
+  sanitizeHeaderValue(e) {
+    return e.replace(/[\r\n\0<>]/g, "").slice(0, 200);
   }
 }
-const o = (
+const d = (
   /* css */
   `
   :host {
@@ -325,18 +338,18 @@ const o = (
   }
 `
 );
-class d extends HTMLElement {
+class h extends HTMLElement {
   constructor() {
     super(), this.client = null, this.messages = [], this.sending = !1, this.errorMessage = "", this.shadow = this.attachShadow({ mode: "open" });
   }
   static get observedAttributes() {
-    return ["api-base-url", "service-id", "auth-token", "placeholder"];
+    return ["api-base-url", "service-id", "auth-token", "placeholder", "user-name", "user-id"];
   }
   connectedCallback() {
     this.render(), this.bindElements(), this.bindEvents(), this.initClient();
   }
-  attributeChangedCallback(e, t, s) {
-    t !== s && this.messagesEl && ((e === "api-base-url" || e === "auth-token") && this.initClient(), e === "service-id" && (this.messages = [], this.conversationId = void 0, this.renderMessages()), e === "placeholder" && this.inputEl && (this.inputEl.placeholder = s || "質問を入力..."));
+  attributeChangedCallback(e, t, o) {
+    t !== o && this.messagesEl && ((e === "api-base-url" || e === "auth-token" || e === "user-name" || e === "user-id") && this.initClient(), e === "service-id" && (this.messages = [], this.conversationId = void 0, this.renderMessages()), e === "placeholder" && this.inputEl && (this.inputEl.placeholder = o || "質問を入力..."));
   }
   get apiBaseUrl() {
     return this.getAttribute("api-base-url") || "";
@@ -350,15 +363,23 @@ class d extends HTMLElement {
   get placeholderText() {
     return this.getAttribute("placeholder") || "質問を入力...";
   }
+  get userName() {
+    return this.getAttribute("user-name") || "";
+  }
+  get externalUserId() {
+    return this.getAttribute("user-id") || "";
+  }
   initClient() {
-    this.apiBaseUrl && (this.client = new n({
+    this.apiBaseUrl && (this.client = new i({
       baseUrl: this.apiBaseUrl,
-      authToken: this.authToken || void 0
+      authToken: this.authToken || void 0,
+      userName: this.userName || void 0,
+      userId: this.externalUserId || void 0
     }));
   }
   render() {
     this.shadow.innerHTML = `
-      <style>${o}</style>
+      <style>${d}</style>
       <div class="kotonoha-chat-container">
         <div class="kotonoha-messages" data-ref="messages">
           <div class="kotonoha-messages-empty">質問を入力してください</div>
@@ -432,17 +453,17 @@ class d extends HTMLElement {
         </div>
       `), this.messagesEl.innerHTML = e, this.messagesEl.scrollTop = this.messagesEl.scrollHeight, this.messagesEl.querySelectorAll(".kotonoha-sources-toggle").forEach((t) => {
       t.addEventListener("click", () => {
-        const s = t.nextElementSibling;
-        s && (s.style.display = s.style.display === "none" ? "block" : "none");
+        const o = t.nextElementSibling;
+        o && (o.style.display = o.style.display === "none" ? "block" : "none");
       });
     });
   }
   renderMessage(e) {
-    const t = `kotonoha-message--${e.role}`, s = `kotonoha-bubble--${e.role}`;
-    let r;
-    e.role === "assistant" ? r = this.renderMarkdown(e.content) : r = `<div style="white-space:pre-wrap">${this.escapeHtml(e.content)}</div>`;
-    let a = "";
-    return e.role === "assistant" && e.sources && e.sources.length > 0 && (a += this.renderSources(e.sources)), e.role === "assistant" && e.formUrl && (a += `
+    const t = `kotonoha-message--${e.role}`, o = `kotonoha-bubble--${e.role}`;
+    let s;
+    e.role === "assistant" ? s = this.renderMarkdown(e.content) : s = `<div style="white-space:pre-wrap">${this.escapeHtml(e.content)}</div>`;
+    let r = "";
+    return e.role === "assistant" && e.sources && e.sources.length > 0 && (r += this.renderSources(e.sources)), e.role === "assistant" && e.formUrl && (r += `
         <div class="kotonoha-form-guide">
           <p>より詳しいサポートが必要な場合：
             <a href="${this.escapeHtml(e.formUrl)}" target="_blank" rel="noopener noreferrer">お問い合わせフォーム</a>
@@ -450,20 +471,20 @@ class d extends HTMLElement {
         </div>
       `), `
       <div class="kotonoha-message ${t}">
-        <div class="kotonoha-bubble ${s}">
+        <div class="kotonoha-bubble ${o}">
+          ${s}
           ${r}
-          ${a}
         </div>
       </div>
     `;
   }
   renderSources(e) {
     const t = e.map(
-      (s) => `
+      (o) => `
       <div class="kotonoha-source-item">
-        <div class="kotonoha-source-title">${this.escapeHtml(s.documentTitle)}</div>
-        <div class="kotonoha-source-content">${this.escapeHtml(s.chunkContent)}...</div>
-        <div class="kotonoha-source-similarity">類似度: ${(s.similarity * 100).toFixed(0)}%</div>
+        <div class="kotonoha-source-title">${this.escapeHtml(o.documentTitle)}</div>
+        <div class="kotonoha-source-content">${this.escapeHtml(o.chunkContent)}...</div>
+        <div class="kotonoha-source-similarity">類似度: ${(o.similarity * 100).toFixed(0)}%</div>
       </div>
     `
     ).join("");
@@ -482,10 +503,13 @@ class d extends HTMLElement {
       "<pre><code>$2</code></pre>"
     ), t = t.replace(/`([^`]+)`/g, "<code>$1</code>"), t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"), t = t.replace(/\*(.+?)\*/g, "<em>$1</em>"), t = t.replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+      (o, s, r) => {
+        const a = r.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+        return /^https?:\/\//i.test(a) ? `<a href="${a.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer">${s}</a>` : s;
+      }
     ), t = t.replace(
       /(?:<pre>[\s\S]*?<\/pre>)|(\n)/g,
-      (s, r) => r ? "<br>" : s
+      (o, s) => s ? "<br>" : o
     ), t;
   }
   escapeHtml(e) {
@@ -505,7 +529,7 @@ class d extends HTMLElement {
     this.inputEl.value = e, await this.handleSend();
   }
 }
-customElements.get("kotonoha-chat-widget") || customElements.define("kotonoha-chat-widget", d);
+customElements.get("kotonoha-chat-widget") || customElements.define("kotonoha-chat-widget", h);
 export {
-  d as kotonohaChatWidget
+  h as kotonohaChatWidget
 };
