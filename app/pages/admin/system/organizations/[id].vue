@@ -137,13 +137,10 @@ async function saveContract() {
   try {
     if (editingContract.value) {
       // 更新
-      await apiFetch(
-        `/api/system/organizations/${orgId}/contracts/${editingContract.value.id}`,
-        {
-          method: "PUT",
-          body: contractForm.value,
-        },
-      );
+      await apiFetch(`/api/system/organizations/${orgId}/contracts/${editingContract.value.id}`, {
+        method: "PUT",
+        body: contractForm.value,
+      });
       show("契約を更新しました", "success");
     } else {
       // 作成
@@ -155,9 +152,7 @@ async function saveContract() {
     }
     showContractDialog.value = false;
     // 契約一覧を再取得
-    contracts.value = await apiFetch<Contract[]>(
-      `/api/system/organizations/${orgId}/contracts`,
-    );
+    contracts.value = await apiFetch<Contract[]>(`/api/system/organizations/${orgId}/contracts`);
   } finally {
     savingContract.value = false;
   }
@@ -169,10 +164,7 @@ onMounted(fetchData);
 <template>
   <div class="space-y-6">
     <div class="flex items-center gap-3">
-      <NuxtLink
-        to="/admin/system/organizations"
-        class="text-sm text-gray-500 hover:text-gray-700"
-      >
+      <NuxtLink to="/admin/system/organizations" class="text-sm text-gray-500 hover:text-gray-700">
         &larr; 組織一覧
       </NuxtLink>
     </div>
@@ -190,7 +182,7 @@ onMounted(fetchData);
               v-model="editName"
               type="text"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            >
+            />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700">プラン</label>
@@ -279,19 +271,37 @@ onMounted(fetchData);
               <div class="mt-1 space-y-1 text-xs">
                 <p>
                   FAQ自動生成:
-                  <span :class="PLAN_DEFINITIONS[org.plan].features.faqAutoGeneration ? 'text-green-600' : 'text-gray-400'">
+                  <span
+                    :class="
+                      PLAN_DEFINITIONS[org.plan].features.faqAutoGeneration
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    "
+                  >
                     {{ PLAN_DEFINITIONS[org.plan].features.faqAutoGeneration ? "有効" : "無効" }}
                   </span>
                 </p>
                 <p>
                   週次レポート:
-                  <span :class="PLAN_DEFINITIONS[org.plan].features.weeklyReports ? 'text-green-600' : 'text-gray-400'">
+                  <span
+                    :class="
+                      PLAN_DEFINITIONS[org.plan].features.weeklyReports
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    "
+                  >
                     {{ PLAN_DEFINITIONS[org.plan].features.weeklyReports ? "有効" : "無効" }}
                   </span>
                 </p>
                 <p>
                   RAG診断:
-                  <span :class="PLAN_DEFINITIONS[org.plan].features.ragDiagnostics ? 'text-green-600' : 'text-gray-400'">
+                  <span
+                    :class="
+                      PLAN_DEFINITIONS[org.plan].features.ragDiagnostics
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    "
+                  >
                     {{ PLAN_DEFINITIONS[org.plan].features.ragDiagnostics ? "有効" : "無効" }}
                   </span>
                 </p>
@@ -316,10 +326,7 @@ onMounted(fetchData);
           </button>
         </div>
 
-        <div
-          v-if="contracts.length === 0"
-          class="py-4 text-center text-sm text-gray-500"
-        >
+        <div v-if="contracts.length === 0" class="py-4 text-center text-sm text-gray-500">
           契約がありません
         </div>
 
@@ -451,7 +458,7 @@ onMounted(fetchData);
                   v-model="contractForm.startDate"
                   type="date"
                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                >
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700">終了日</label>
@@ -459,7 +466,7 @@ onMounted(fetchData);
                   v-model="contractForm.endDate"
                   type="date"
                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                >
+                />
               </div>
             </div>
             <div>

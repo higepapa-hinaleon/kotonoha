@@ -251,27 +251,27 @@ erDiagram
 
 ### 3.1 organizations（組織）
 
-| フィールド | 型                                | 必須 | デフォルト | 説明            |
-| ---------- | --------------------------------- | ---- | ---------- | --------------- |
-| id         | string                            | ○    | 自動生成   | ドキュメント ID |
-| name       | string                            | ○    | -          | 組織名          |
+| フィールド | 型                                      | 必須 | デフォルト | 説明            |
+| ---------- | --------------------------------------- | ---- | ---------- | --------------- |
+| id         | string                                  | ○    | 自動生成   | ドキュメント ID |
+| name       | string                                  | ○    | -          | 組織名          |
 | plan       | "starter" \| "business" \| "enterprise" | ○    | "starter"  | 契約プラン      |
-| createdAt  | string (ISO 8601)                 | ○    | 現在時刻   | 作成日時        |
-| updatedAt  | string (ISO 8601)                 | ○    | 現在時刻   | 更新日時        |
+| createdAt  | string (ISO 8601)                       | ○    | 現在時刻   | 作成日時        |
+| updatedAt  | string (ISO 8601)                       | ○    | 現在時刻   | 更新日時        |
 
 ### 3.1.1 contracts（契約）
 
-| フィールド      | 型                                                     | 必須 | デフォルト | 説明            |
-| --------------- | ------------------------------------------------------ | ---- | ---------- | --------------- |
-| id              | string                                                 | ○    | 自動生成   | ドキュメント ID |
-| organizationId  | string                                                 | ○    | -          | 組織 ID         |
-| planId          | "starter" \| "business" \| "enterprise"                | ○    | -          | 契約プラン      |
-| status          | "active" \| "suspended" \| "expired" \| "cancelled"    | ○    | "active"   | 契約ステータス  |
-| startDate       | string (ISO 8601)                                      | ○    | -          | 契約開始日      |
-| endDate         | string (ISO 8601)                                      | ○    | -          | 契約終了日      |
-| note            | string                                                 | -    | ""         | 備考            |
-| createdAt       | string (ISO 8601)                                      | ○    | 現在時刻   | 作成日時        |
-| updatedAt       | string (ISO 8601)                                      | ○    | 現在時刻   | 更新日時        |
+| フィールド     | 型                                                  | 必須 | デフォルト | 説明            |
+| -------------- | --------------------------------------------------- | ---- | ---------- | --------------- |
+| id             | string                                              | ○    | 自動生成   | ドキュメント ID |
+| organizationId | string                                              | ○    | -          | 組織 ID         |
+| planId         | "starter" \| "business" \| "enterprise"             | ○    | -          | 契約プラン      |
+| status         | "active" \| "suspended" \| "expired" \| "cancelled" | ○    | "active"   | 契約ステータス  |
+| startDate      | string (ISO 8601)                                   | ○    | -          | 契約開始日      |
+| endDate        | string (ISO 8601)                                   | ○    | -          | 契約終了日      |
+| note           | string                                              | -    | ""         | 備考            |
+| createdAt      | string (ISO 8601)                                   | ○    | 現在時刻   | 作成日時        |
+| updatedAt      | string (ISO 8601)                                   | ○    | 現在時刻   | 更新日時        |
 
 ### 3.2 groups（グループ）
 

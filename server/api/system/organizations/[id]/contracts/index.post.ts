@@ -32,7 +32,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "開始日と終了日は必須です" });
   }
   if (!DATE_REGEX.test(body.startDate) || !DATE_REGEX.test(body.endDate)) {
-    throw createError({ statusCode: 400, statusMessage: "日付形式が正しくありません（YYYY-MM-DD）" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
+    });
   }
   if (body.startDate > body.endDate) {
     throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
