@@ -36,6 +36,8 @@ const adminNavItems: NavItem[] = [
   { label: "教育モード", to: "/admin/learning", icon: "learning" },
   { label: "レポート", to: "/admin/reports", icon: "reports" },
   { label: "RAGテスト", to: "/admin/rag-test", icon: "rag-test" },
+  { label: "ウィジェット設定", to: "/admin/widget-config", icon: "widget-config" },
+  { label: "マニュアル", to: "/admin/manual", icon: "manual" },
 ];
 
 const memberNavItems: NavItem[] = [
