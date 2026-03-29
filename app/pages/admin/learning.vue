@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { Service } from "~~/shared/types/models";
+import type { Service, ImprovementRequest } from "~~/shared/types/models";
 import type { ChatSendResponse } from "~~/shared/types/api";
-import type { ImprovementRequest } from "~~/shared/types/models";
 
 definePageMeta({
   layout: "admin",
@@ -152,12 +151,16 @@ onMounted(fetchServices);
     <!-- ヘッダー -->
     <div class="flex items-center gap-4 rounded-t-lg border border-gray-200 bg-white px-4 py-3">
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+        <span
+          class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800"
+        >
           教育モード
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <label for="learn-service-select" class="text-sm font-medium text-gray-600">サービス:</label>
+        <label for="learn-service-select" class="text-sm font-medium text-gray-600"
+          >サービス:</label
+        >
         <select
           id="learn-service-select"
           v-model="selectedServiceId"
@@ -180,14 +183,32 @@ onMounted(fetchServices);
     </div>
 
     <!-- メッセージエリア -->
-    <div ref="messagesContainer" class="flex-1 overflow-y-auto border-x border-gray-200 bg-gray-50 px-4 py-4">
+    <div
+      ref="messagesContainer"
+      class="flex-1 overflow-y-auto border-x border-gray-200 bg-gray-50 px-4 py-4"
+    >
       <!-- 空状態 -->
-      <div v-if="messages.length === 0" class="flex h-full flex-col items-center justify-center text-center">
-        <svg class="mb-3 h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      <div
+        v-if="messages.length === 0"
+        class="flex h-full flex-col items-center justify-center text-center"
+      >
+        <svg
+          class="mb-3 h-12 w-12 text-gray-300"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="1"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          />
         </svg>
         <p class="text-sm font-medium text-gray-500">ボットに質問して回答を確認してください</p>
-        <p class="mt-1 text-xs text-gray-400">回答が不正確な場合は「訂正する」から訂正情報を追加できます。AIは次回以降、訂正情報を優先して回答を生成します</p>
+        <p class="mt-1 text-xs text-gray-400">
+          回答が不正確な場合は「訂正する」から訂正情報を追加できます。AIは次回以降、訂正情報を優先して回答を生成します
+        </p>
       </div>
 
       <!-- メッセージ一覧 -->
@@ -205,14 +226,23 @@ onMounted(fetchServices);
             <div class="max-w-[85%] sm:max-w-[75%]">
               <!-- 訂正済み -->
               <div v-if="msg.corrected" class="flex items-center gap-1.5 text-xs text-green-600">
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg
+                  class="h-3.5 w-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 訂正済み
               </div>
 
               <!-- 訂正フォーム -->
-              <div v-else-if="correctingIndex === i" class="mt-1 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <div
+                v-else-if="correctingIndex === i"
+                class="mt-1 rounded-lg border border-amber-200 bg-amber-50 p-3"
+              >
                 <p class="mb-2 text-xs font-medium text-amber-800">訂正情報を入力してください：</p>
                 <textarea
                   v-model="correctionText"
@@ -245,8 +275,18 @@ onMounted(fetchServices);
                 :disabled="sending"
                 @click="startCorrection(i)"
               >
-                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <svg
+                  class="h-3.5 w-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
                 訂正する
               </button>
@@ -259,8 +299,19 @@ onMounted(fetchServices);
           <div class="rounded-lg border border-gray-200 bg-white px-4 py-3">
             <div class="flex items-center gap-2 text-sm text-gray-400">
               <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
               回答を生成中...
             </div>
@@ -272,10 +323,7 @@ onMounted(fetchServices);
     <!-- 入力エリア -->
     <div class="rounded-b-lg border border-gray-200 bg-white px-4 py-3">
       <div class="mx-auto max-w-3xl">
-        <MessageInput
-          :disabled="!selectedServiceId || sending"
-          @send="handleSend"
-        />
+        <MessageInput :disabled="!selectedServiceId || sending" @send="handleSend" />
       </div>
     </div>
   </div>

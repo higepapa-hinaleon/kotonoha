@@ -194,7 +194,9 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 
   for (let i = 0; i < uncachedTexts.length; i += batchSize) {
     const batch = uncachedTexts.slice(i, i + batchSize);
-    console.info(`[embeddings] Calling Vertex AI (${location}/${modelId}) for ${batch.length} texts`);
+    console.info(
+      `[embeddings] Calling Vertex AI (${location}/${modelId}) for ${batch.length} texts`,
+    );
 
     // トークン上限超過テキストを切り詰め（安全弁）
     // 1) 推定トークン数が安全閾値を超える場合は切り詰め
@@ -206,7 +208,9 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
       }
       if (text.length > HARD_CHAR_LIMIT || estimateTokenCount(text) > SAFE_EMBEDDING_TOKENS) {
         const maxChars = estimateMaxChars(SAFE_EMBEDDING_TOKENS);
-        console.warn(`[embeddings] Text (${text.length} chars, ~${estimateTokenCount(text)} tokens) exceeds safe limit, truncating to ${maxChars} chars`);
+        console.warn(
+          `[embeddings] Text (${text.length} chars, ~${estimateTokenCount(text)} tokens) exceeds safe limit, truncating to ${maxChars} chars`,
+        );
         return text.slice(0, maxChars);
       }
       return text;
@@ -226,7 +230,9 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
     });
 
     const embeddings = response.predictions.map((p) => p.embeddings.values);
-    console.info(`[embeddings] Received ${embeddings.length} embeddings, dimension=${embeddings[0]?.length}`);
+    console.info(
+      `[embeddings] Received ${embeddings.length} embeddings, dimension=${embeddings[0]?.length}`,
+    );
     apiEmbeddings.push(...embeddings);
   }
 

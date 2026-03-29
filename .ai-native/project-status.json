@@ -22,7 +22,10 @@
     {
       "phase": 3,
       "status": "completed",
-      "outputs": ["outputs/phase3/functional-requirements.md", "outputs/phase3/non-functional-requirements.md"],
+      "outputs": [
+        "outputs/phase3/functional-requirements.md",
+        "outputs/phase3/non-functional-requirements.md"
+      ],
       "completedAt": "2026-03-24"
     },
     {
@@ -34,7 +37,12 @@
     {
       "phase": 5,
       "status": "completed",
-      "outputs": ["outputs/phase5/architecture.md", "outputs/phase5/screen-design.md", "outputs/phase5/api-design.md", "outputs/phase5/data-design.md"],
+      "outputs": [
+        "outputs/phase5/architecture.md",
+        "outputs/phase5/screen-design.md",
+        "outputs/phase5/api-design.md",
+        "outputs/phase5/data-design.md"
+      ],
       "completedAt": "2026-03-24"
     },
     {

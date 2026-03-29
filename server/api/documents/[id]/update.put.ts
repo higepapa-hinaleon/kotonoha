@@ -44,11 +44,17 @@ export default defineEventHandler(async (event) => {
   }
 
   const mimeType = fileField.type || "application/octet-stream";
-  if (!ALLOWED_MIME_TYPES.includes(mimeType as typeof ALLOWED_MIME_TYPES[number])) {
-    throw createError({ statusCode: 400, statusMessage: "対応形式: PDF, TXT, Markdown, DOCX, HTML, CSV, JSON" });
+  if (!ALLOWED_MIME_TYPES.includes(mimeType as (typeof ALLOWED_MIME_TYPES)[number])) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "対応形式: PDF, TXT, Markdown, DOCX, HTML, CSV, JSON",
+    });
   }
   if (fileField.data.length > MAX_UPLOAD_SIZE_BYTES) {
-    throw createError({ statusCode: 400, statusMessage: `ファイルサイズが上限（${MAX_UPLOAD_SIZE_BYTES / 1024 / 1024}MB）を超えています` });
+    throw createError({
+      statusCode: 400,
+      statusMessage: `ファイルサイズが上限（${MAX_UPLOAD_SIZE_BYTES / 1024 / 1024}MB）を超えています`,
+    });
   }
   const now = new Date().toISOString();
   const currentVersion = document.version || 1;
@@ -59,23 +65,29 @@ export default defineEventHandler(async (event) => {
     try {
       tags = JSON.parse(tagsRaw);
     } catch {
-      tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+      tags = tagsRaw
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
   }
 
   // 1. 旧バージョンの情報をサブコレクションに保存
-  await docRef.collection("versions").doc(`v${currentVersion}`).set({
-    version: currentVersion,
-    title: document.title,
-    type: document.type,
-    tags: document.tags || [],
-    storagePath: document.storagePath,
-    mimeType: document.mimeType,
-    fileSize: document.fileSize,
-    fileHash: document.fileHash || "",
-    chunkCount: document.chunkCount,
-    archivedAt: now,
-  });
+  await docRef
+    .collection("versions")
+    .doc(`v${currentVersion}`)
+    .set({
+      version: currentVersion,
+      title: document.title,
+      type: document.type,
+      tags: document.tags || [],
+      storagePath: document.storagePath,
+      mimeType: document.mimeType,
+      fileSize: document.fileSize,
+      fileHash: document.fileHash || "",
+      chunkCount: document.chunkCount,
+      archivedAt: now,
+    });
 
   // 2. 新ファイルをCloud Storageにアップロード
   const fileName = fileField.filename || `${Date.now()}.bin`;

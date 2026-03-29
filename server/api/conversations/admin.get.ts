@@ -3,7 +3,7 @@ import { verifyGroupAdmin } from "~~/server/utils/auth";
 import type { Conversation } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
-  const { user, groupId } = await verifyGroupAdmin(event);
+  const { user: _user, groupId } = await verifyGroupAdmin(event);
   const query = getQuery(event);
   const db = getAdminFirestore();
 
@@ -34,17 +34,15 @@ export default defineEventHandler(async (event) => {
   })) as Conversation[];
 
   // ext: プレフィクス付きユーザーIDはFirebaseユーザーではないため除外
-  const userIds = [...new Set(
-    conversations
-      .map((c) => c.userId)
-      .filter((id) => id !== "guest" && !id.startsWith("ext:")),
-  )];
+  const userIds = [
+    ...new Set(
+      conversations.map((c) => c.userId).filter((id) => id !== "guest" && !id.startsWith("ext:")),
+    ),
+  ];
   const userMap = new Map<string, string>();
 
   if (userIds.length > 0) {
-    const userDocs = await Promise.all(
-      userIds.map((uid) => db.collection("users").doc(uid).get()),
-    );
+    const userDocs = await Promise.all(userIds.map((uid) => db.collection("users").doc(uid).get()));
     userDocs.forEach((doc) => {
       if (doc.exists) {
         userMap.set(doc.id, doc.data()?.displayName || doc.data()?.email || "不明");

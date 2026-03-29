@@ -39,10 +39,7 @@ export default defineEventHandler(async (event) => {
   const qaPairs: { question: string; answer: string }[] = [];
 
   for (const convDoc of conversationsSnap.docs) {
-    const messagesSnap = await convDoc.ref
-      .collection("messages")
-      .orderBy("createdAt", "asc")
-      .get();
+    const messagesSnap = await convDoc.ref.collection("messages").orderBy("createdAt", "asc").get();
 
     const messages = messagesSnap.docs.map((d) => d.data());
 

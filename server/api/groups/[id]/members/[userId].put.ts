@@ -5,11 +5,15 @@ export default defineEventHandler(async (event) => {
   const systemAdmin = await verifySystemAdmin(event);
   const id = getRouterParam(event, "id");
   const userId = getRouterParam(event, "userId");
-  if (!id || !userId) throw createError({ statusCode: 400, statusMessage: "パラメータが不足しています" });
+  if (!id || !userId)
+    throw createError({ statusCode: 400, statusMessage: "パラメータが不足しています" });
 
   const body = await readBody(event);
   if (!body.role || !["admin", "member"].includes(body.role)) {
-    throw createError({ statusCode: 400, statusMessage: "roleは admin または member で指定してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "roleは admin または member で指定してください",
+    });
   }
 
   const db = getAdminFirestore();

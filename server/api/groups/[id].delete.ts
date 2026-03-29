@@ -20,7 +20,11 @@ export default defineEventHandler(async (event) => {
   // グループに紐づくサービスが存在する場合は削除を拒否
   const services = await db.collection("services").where("groupId", "==", id).limit(1).get();
   if (!services.empty) {
-    throw createError({ statusCode: 400, statusMessage: "サービスが存在するグループは削除できません。先にサービスを移動または削除してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        "サービスが存在するグループは削除できません。先にサービスを移動または削除してください",
+    });
   }
 
   // メンバーシップを削除

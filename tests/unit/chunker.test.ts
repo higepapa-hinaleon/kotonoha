@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  estimateTokenCount,
-  splitTextIntoChunks,
-  extractText,
-} from "~~/server/utils/chunker";
+import { estimateTokenCount, splitTextIntoChunks, extractText } from "~~/server/utils/chunker";
 
 describe("estimateTokenCount", () => {
   it("日本語テキストのトークン数を推定する", () => {
@@ -56,9 +52,7 @@ describe("splitTextIntoChunks", () => {
   });
 
   it("chunkIndexが連番になる", () => {
-    const text = Array(5)
-      .fill("あ".repeat(200))
-      .join("\n\n");
+    const text = Array(5).fill("あ".repeat(200)).join("\n\n");
 
     const chunks = splitTextIntoChunks(text, { maxTokens: 350, overlapTokens: 50 });
     chunks.forEach((chunk, i) => {

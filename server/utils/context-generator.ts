@@ -34,7 +34,10 @@ ${fullText.slice(0, 8000)}
         contents: [{ role: "user", parts: [{ text: prompt }] }],
       }),
       new Promise<never>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error("Document summary generation timeout")), EXTERNAL_API_TIMEOUT_MS);
+        timeoutId = setTimeout(
+          () => reject(new Error("Document summary generation timeout")),
+          EXTERNAL_API_TIMEOUT_MS,
+        );
       }),
     ]);
     clearTimeout(timeoutId);

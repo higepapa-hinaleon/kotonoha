@@ -8,9 +8,9 @@ import { describe, it, expect } from "vitest";
 
 describe("API Types", () => {
   it("ChatSendRequest の型が正しく定義されている", async () => {
-    const { ChatSendRequest } = await import("~~/shared/types/api") as Record<string, unknown>;
+    const apiTypes = await import("~~/shared/types/api");
     // TypeScript の型定義のみのため、インポートが成功すること自体がテスト
-    expect(true).toBe(true);
+    expect(apiTypes).toBeDefined();
   });
 
   it("モデル型が正しく定義されている", async () => {

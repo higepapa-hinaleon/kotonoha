@@ -8,12 +8,18 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
   if (!body.role || !["system_admin", "admin", "member"].includes(body.role)) {
-    throw createError({ statusCode: 400, statusMessage: "roleは system_admin, admin, member のいずれかで指定してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "roleは system_admin, admin, member のいずれかで指定してください",
+    });
   }
 
   // 自分自身の system_admin を剥奪することは禁止
   if (id === admin.id && body.role !== "system_admin") {
-    throw createError({ statusCode: 400, statusMessage: "自分自身のシステム管理者権限を変更することはできません" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "自分自身のシステム管理者権限を変更することはできません",
+    });
   }
 
   const db = getAdminFirestore();

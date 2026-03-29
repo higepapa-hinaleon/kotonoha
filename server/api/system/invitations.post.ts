@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!["admin", "member"].includes(body.role)) {
-    throw createError({ statusCode: 400, statusMessage: "role は admin または member を指定してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "role は admin または member を指定してください",
+    });
   }
 
   // グループが同一組織に属するか確認

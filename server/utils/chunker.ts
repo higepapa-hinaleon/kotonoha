@@ -203,8 +203,9 @@ export function splitTextIntoParentChildChunks(
  */
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   try {
-    const pdfParse = await import("pdf-parse").then((m) => m.default || m);
-    const result = await pdfParse(buffer);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfParse = await import("pdf-parse").then((m: any) => m.default || m);
+    const result = await (pdfParse as (buf: Buffer) => Promise<{ text: string }>)(buffer);
     return result.text;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
@@ -335,7 +336,7 @@ function splitCsvRecords(text: string): string[] {
 export function extractTextFromCsv(buffer: Buffer): string {
   // BOM除去
   let text = buffer.toString("utf-8");
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
 
   const records = splitCsvRecords(text);
 
@@ -347,9 +348,7 @@ export function extractTextFromCsv(buffer: Buffer): string {
   // 各データ行をヘッダー付きテキストに変換
   const rows = records.slice(1).map((record) => {
     const values = parseCsvLine(record);
-    return headers
-      .map((header, i) => `${header}: ${values[i] || ""}`)
-      .join(" / ");
+    return headers.map((header, i) => `${header}: ${values[i] || ""}`).join(" / ");
   });
 
   return rows.join("\n\n");

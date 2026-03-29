@@ -26,7 +26,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
     }
     // system_admin はグループ未割当でも全管理ページにアクセス可能
     // ただし activeGroupId もない場合、グループスコープページはシステム管理へリダイレクト
-    if (isSystemAdmin.value && !hasGroups.value && !activeGroupId.value && !to.path.startsWith("/admin/system")) {
+    if (
+      isSystemAdmin.value &&
+      !hasGroups.value &&
+      !activeGroupId.value &&
+      !to.path.startsWith("/admin/system")
+    ) {
       return navigateTo("/admin/system/groups");
     }
   }

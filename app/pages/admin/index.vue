@@ -82,7 +82,9 @@ async function openFeedbackModal(conversationId: string) {
   feedbackNote.value = "";
   try {
     const [convData, improvements] = await Promise.all([
-      apiFetch<{ conversation: Conversation; messages: Message[] }>(`/api/conversations/${conversationId}`),
+      apiFetch<{ conversation: Conversation; messages: Message[] }>(
+        `/api/conversations/${conversationId}`,
+      ),
       apiFetch<ImprovementRequest[]>(`/api/improvements?conversationId=${conversationId}`),
     ]);
     feedbackConversation.value = convData.conversation;
@@ -167,13 +169,19 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           class="mb-2 flex items-center gap-1 text-sm text-primary-600 hover:text-primary-800"
           @click="backToGroupOverview"
         >
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
           グループ概要に戻る
         </button>
         <h1 class="text-xl font-bold text-gray-900">
-          {{ serviceSummary?.serviceName || '読み込み中...' }}
+          {{ serviceSummary?.serviceName || "読み込み中..." }}
         </h1>
         <p class="text-sm text-gray-500">サービス別ダッシュボード</p>
       </div>
@@ -185,15 +193,23 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
         <div class="mb-8 grid gap-4 sm:grid-cols-3">
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">会話数</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900">{{ serviceSummary.totalConversations }}</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+              {{ serviceSummary.totalConversations }}
+            </p>
           </div>
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Bot解決率</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900">{{ (serviceSummary.resolutionRate * 100).toFixed(1) }}%</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+              {{ (serviceSummary.resolutionRate * 100).toFixed(1) }}%
+            </p>
           </div>
           <div class="rounded-lg border border-gray-200 bg-white p-5">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">未対応の改善要望</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900">{{ serviceSummary.improvementRequestCount }}</p>
+            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+              未対応の改善要望
+            </p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+              {{ serviceSummary.improvementRequestCount }}
+            </p>
           </div>
         </div>
 
@@ -222,7 +238,10 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           <!-- 未解決の会話 -->
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <h2 class="mb-4 text-sm font-semibold text-gray-900">エスカレーション済み（未解決）</h2>
-            <div v-if="serviceSummary.recentUnresolved.length === 0" class="py-4 text-center text-sm text-gray-400">
+            <div
+              v-if="serviceSummary.recentUnresolved.length === 0"
+              class="py-4 text-center text-sm text-gray-400"
+            >
               未解決の会話はありません
             </div>
             <div v-else class="divide-y divide-gray-100">
@@ -252,7 +271,9 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
     <template v-else>
       <h1 class="mb-6 text-xl font-bold text-gray-900">
         ダッシュボード
-        <span v-if="currentGroup" class="text-base font-normal text-gray-500">- {{ currentGroup.name }}</span>
+        <span v-if="currentGroup" class="text-base font-normal text-gray-500"
+          >- {{ currentGroup.name }}</span
+        >
       </h1>
 
       <div v-if="loading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
@@ -266,11 +287,17 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           </div>
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Bot解決率</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900">{{ (summary.resolutionRate * 100).toFixed(1) }}%</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+              {{ (summary.resolutionRate * 100).toFixed(1) }}%
+            </p>
           </div>
           <div class="rounded-lg border border-gray-200 bg-white p-5">
-            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">未対応の改善要望</p>
-            <p class="mt-2 text-2xl font-bold text-gray-900">{{ summary.improvementRequestCount }}</p>
+            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+              未対応の改善要望
+            </p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">
+              {{ summary.improvementRequestCount }}
+            </p>
           </div>
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <p class="text-xs font-medium uppercase tracking-wider text-gray-500">直近7日間</p>
@@ -305,7 +332,10 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
         <!-- サービス別カード -->
         <div class="mb-6">
           <h2 class="mb-4 text-sm font-semibold text-gray-900">サービス別</h2>
-          <div v-if="summary.serviceDistribution.length === 0" class="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-400">
+          <div
+            v-if="summary.serviceDistribution.length === 0"
+            class="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-400"
+          >
             データがありません
           </div>
           <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -316,8 +346,16 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
               @click="selectService(svc.serviceId)"
             >
               <div class="mb-3 flex items-center justify-between">
-                <span class="truncate text-sm font-semibold text-gray-900">{{ svc.serviceName }}</span>
-                <svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <span class="truncate text-sm font-semibold text-gray-900">{{
+                  svc.serviceName
+                }}</span>
+                <svg
+                  class="h-4 w-4 shrink-0 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </div>
@@ -328,7 +366,9 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">Bot解決率</p>
-                  <p class="text-lg font-bold text-gray-900">{{ (svc.resolutionRate * 100).toFixed(0) }}%</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ (svc.resolutionRate * 100).toFixed(0) }}%
+                  </p>
                 </div>
               </div>
             </button>
@@ -339,7 +379,10 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           <!-- 未解決の会話 -->
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <h2 class="mb-4 text-sm font-semibold text-gray-900">エスカレーション済み（未解決）</h2>
-            <div v-if="summary.recentUnresolved.length === 0" class="py-4 text-center text-sm text-gray-400">
+            <div
+              v-if="summary.recentUnresolved.length === 0"
+              class="py-4 text-center text-sm text-gray-400"
+            >
               未解決の会話はありません
             </div>
             <div v-else class="divide-y divide-gray-100">
@@ -365,22 +408,36 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           <!-- ドキュメント利用状況 -->
           <div class="rounded-lg border border-gray-200 bg-white p-5">
             <h2 class="mb-4 text-sm font-semibold text-gray-900">ドキュメント利用状況</h2>
-            <div v-if="summary.topReferencedDocs.length === 0 && summary.unreferencedDocCount === 0" class="py-4 text-center text-sm text-gray-400">
+            <div
+              v-if="summary.topReferencedDocs.length === 0 && summary.unreferencedDocCount === 0"
+              class="py-4 text-center text-sm text-gray-400"
+            >
               ドキュメントがありません
             </div>
             <template v-else>
               <div v-if="summary.topReferencedDocs.length > 0" class="mb-3">
                 <p class="mb-2 text-xs font-medium text-gray-500">参照回数の多いドキュメント</p>
                 <div class="space-y-1.5">
-                  <div v-for="doc in summary.topReferencedDocs" :key="doc.id" class="flex items-center justify-between text-sm">
-                    <NuxtLink :to="`/admin/documents/${doc.id}`" class="truncate text-gray-700 hover:text-primary-600">{{ doc.title }}</NuxtLink>
-                    <span class="ml-2 shrink-0 text-xs text-gray-400">{{ doc.referenceCount }}回</span>
+                  <div
+                    v-for="doc in summary.topReferencedDocs"
+                    :key="doc.id"
+                    class="flex items-center justify-between text-sm"
+                  >
+                    <NuxtLink
+                      :to="`/admin/documents/${doc.id}`"
+                      class="truncate text-gray-700 hover:text-primary-600"
+                      >{{ doc.title }}</NuxtLink
+                    >
+                    <span class="ml-2 shrink-0 text-xs text-gray-400"
+                      >{{ doc.referenceCount }}回</span
+                    >
                   </div>
                 </div>
               </div>
               <div v-if="summary.unreferencedDocCount > 0">
                 <p class="text-xs font-medium text-gray-500">
-                  未参照ドキュメント: <span class="text-amber-600">{{ summary.unreferencedDocCount }}件</span>
+                  未参照ドキュメント:
+                  <span class="text-amber-600">{{ summary.unreferencedDocCount }}件</span>
                 </p>
               </div>
             </template>
@@ -407,20 +464,36 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
           <div class="flex max-h-[80vh] w-full max-w-lg flex-col rounded-lg bg-white shadow-xl">
             <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h3 class="text-lg font-semibold text-gray-900">フィードバック</h3>
-              <button aria-label="閉じる" class="text-gray-400 hover:text-gray-600" @click="closeFeedbackModal">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <button
+                aria-label="閉じる"
+                class="text-gray-400 hover:text-gray-600"
+                @click="closeFeedbackModal"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             <div class="flex-1 overflow-y-auto px-6 py-4">
-              <div v-if="feedbackLoading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
+              <div v-if="feedbackLoading" class="py-12 text-center text-sm text-gray-400">
+                読み込み中...
+              </div>
               <template v-else-if="feedbackConversation">
-                <p class="mb-1 text-sm font-medium text-gray-900">{{ feedbackConversation.title }}</p>
+                <p class="mb-1 text-sm font-medium text-gray-900">
+                  {{ feedbackConversation.title }}
+                </p>
                 <div class="mb-4 flex items-center gap-2">
                   <StatusBadge :status="feedbackConversation.status" size="sm" />
-                  <span class="text-xs text-gray-400">{{ formatDate(feedbackConversation.createdAt) }}</span>
+                  <span class="text-xs text-gray-400">{{
+                    formatDate(feedbackConversation.createdAt)
+                  }}</span>
                 </div>
 
                 <div v-if="existingImprovement" class="mb-4 flex items-center gap-2">
@@ -432,15 +505,27 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
                   class="mb-4 flex items-center gap-1.5 text-sm text-primary-600 hover:underline"
                   @click="showConversationLogModal = true"
                 >
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                    />
                   </svg>
                   対話ログを見る
                 </button>
 
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-xs font-medium text-gray-600">正しい回答（AIへのフィードバック）</label>
+                    <label class="block text-xs font-medium text-gray-600"
+                      >正しい回答（AIへのフィードバック）</label
+                    >
                     <p class="mt-0.5 text-xs text-gray-400">
                       AIが次回から参考にする正しい回答を記入してください。保存時にステータスが「完了」になり反映されます。
                     </p>
@@ -495,37 +580,65 @@ watch(activeGroupId, () => fetchDashboard(), { immediate: true });
               <h3 class="text-lg font-semibold text-gray-900">
                 {{ feedbackConversation?.title || "対話ログ" }}
               </h3>
-              <button aria-label="閉じる" class="text-gray-400 hover:text-gray-600" @click="showConversationLogModal = false">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <button
+                aria-label="閉じる"
+                class="text-gray-400 hover:text-gray-600"
+                @click="showConversationLogModal = false"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             <div class="flex-1 overflow-y-auto px-6 py-4">
-              <div v-if="feedbackMessages.length === 0" class="py-12 text-center text-sm text-gray-400">メッセージがありません</div>
+              <div
+                v-if="feedbackMessages.length === 0"
+                class="py-12 text-center text-sm text-gray-400"
+              >
+                メッセージがありません
+              </div>
               <div v-else class="space-y-3">
                 <div
                   v-for="msg in feedbackMessages"
                   :key="msg.id"
                   class="rounded-lg border p-3"
-                  :class="msg.role === 'user' ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'"
+                  :class="
+                    msg.role === 'user' ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'
+                  "
                 >
                   <div class="mb-1.5 flex items-center justify-between">
-                    <span class="text-xs font-medium" :class="msg.role === 'user' ? 'text-blue-600' : 'text-gray-600'">
+                    <span
+                      class="text-xs font-medium"
+                      :class="msg.role === 'user' ? 'text-blue-600' : 'text-gray-600'"
+                    >
                       {{ msg.role === "user" ? "ユーザー" : "ボット" }}
                     </span>
                     <div class="flex items-center gap-2">
-                      <span v-if="msg.confidence !== null && msg.confidence !== undefined" class="text-xs text-gray-400">
+                      <span
+                        v-if="msg.confidence !== null && msg.confidence !== undefined"
+                        class="text-xs text-gray-400"
+                      >
                         確信度: {{ (msg.confidence * 100).toFixed(0) }}%
                       </span>
                       <span class="text-xs text-gray-400">{{ formatDate(msg.createdAt) }}</span>
                     </div>
                   </div>
                   <MarkdownContent v-if="msg.role === 'assistant'" :content="msg.content" />
-                  <div v-else class="whitespace-pre-wrap text-sm text-gray-900">{{ msg.content }}</div>
+                  <div v-else class="whitespace-pre-wrap text-sm text-gray-900">
+                    {{ msg.content }}
+                  </div>
 
-                  <div v-if="msg.sources && msg.sources.length > 0" class="mt-2 border-t border-gray-100 pt-1.5">
+                  <div
+                    v-if="msg.sources && msg.sources.length > 0"
+                    class="mt-2 border-t border-gray-100 pt-1.5"
+                  >
                     <p class="mb-0.5 text-xs font-medium text-gray-500">参照元:</p>
                     <div v-for="(src, i) in msg.sources" :key="i" class="text-xs text-gray-400">
                       {{ src.documentTitle }} (類似度: {{ (src.similarity * 100).toFixed(0) }}%)

@@ -60,7 +60,9 @@ export async function generateChatResponse(
   if (options.feedbackContext) {
     console.warn(`[gemini] Feedback context integrated (${options.feedbackContext.length} chars)`);
   }
-  console.warn(`[gemini] Generating response with ${ragResults.length} RAG chunks, combined context length=${combinedContext.length} chars`);
+  console.warn(
+    `[gemini] Generating response with ${ragResults.length} RAG chunks, combined context length=${combinedContext.length} chars`,
+  );
 
   // 会話履歴を構築
   const contents = [];
@@ -102,7 +104,9 @@ export async function generateChatResponse(
     .replace(/[（(]参照[\d,\s、]+[）)]/g, "")
     .trim();
 
-  console.warn(`[gemini] Response generated: ${cleanContent.length} chars, confidence=${confidence}`);
+  console.warn(
+    `[gemini] Response generated: ${cleanContent.length} chars, confidence=${confidence}`,
+  );
 
   return {
     content: cleanContent,

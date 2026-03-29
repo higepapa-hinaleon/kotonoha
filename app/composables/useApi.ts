@@ -30,19 +30,23 @@ export function useApi() {
     }
 
     try {
-      return await $fetch<T>(url, {
-        ...options,
+      return (await $fetch(url, {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(options as any),
         headers: {
           ...options.headers,
           ...headers,
         },
-      });
+      })) as T;
     } catch (error) {
       if (error instanceof FetchError) {
         const status = error.response?.status;
         if (status && status >= 400 && status < 500) {
           const serverMessage = error.data?.statusMessage || error.data?.message;
-          show(serverMessage || "リクエストに問題がありました。入力内容を確認してください。", "error");
+          show(
+            serverMessage || "リクエストに問題がありました。入力内容を確認してください。",
+            "error",
+          );
         } else if (status && status >= 500) {
           show("サーバーエラーが発生しました。しばらく経ってからお試しください。", "error");
         } else {

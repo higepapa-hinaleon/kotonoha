@@ -14,7 +14,9 @@ vi.stubGlobal("createError", (opts: { statusCode: number; statusMessage: string 
   return err;
 });
 
+// eslint-disable-next-line import/first
 import { generateStructuredJson } from "~~/server/utils/ai-generator";
+// eslint-disable-next-line import/first
 import { getGenerativeModel } from "~~/server/utils/vertex-ai";
 
 function mockGeminiResponse(text: string) {

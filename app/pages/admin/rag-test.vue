@@ -165,11 +165,15 @@ onMounted(fetchServices);
         <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <dt class="text-xs text-gray-500">ドキュメント数</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900">{{ diagnostics.documentCount }}</dd>
+            <dd class="mt-1 text-lg font-semibold text-gray-900">
+              {{ diagnostics.documentCount }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-gray-500">Ready</dt>
-            <dd class="mt-1 text-lg font-semibold text-green-600">{{ diagnostics.readyDocumentCount }}</dd>
+            <dd class="mt-1 text-lg font-semibold text-green-600">
+              {{ diagnostics.readyDocumentCount }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-gray-500">チャンク数</dt>
@@ -177,7 +181,9 @@ onMounted(fetchServices);
           </div>
           <div>
             <dt class="text-xs text-gray-500">RAG topK</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900">{{ diagnostics.botConfig.ragTopK }}</dd>
+            <dd class="mt-1 text-lg font-semibold text-gray-900">
+              {{ diagnostics.botConfig.ragTopK }}
+            </dd>
           </div>
         </dl>
       </div>
@@ -231,7 +237,10 @@ onMounted(fetchServices);
         </div>
 
         <!-- エラー -->
-        <div v-if="diagnostics.searchTest.error" class="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div
+          v-if="diagnostics.searchTest.error"
+          class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+        >
           {{ diagnostics.searchTest.error }}
         </div>
 
@@ -251,7 +260,7 @@ onMounted(fetchServices);
                 類似度: {{ (result.similarity * 100).toFixed(1) }}%
               </span>
             </div>
-            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ result.contentPreview }}</p>
+            <p class="whitespace-pre-wrap text-sm text-gray-700">{{ result.contentPreview }}</p>
             <p class="mt-1 text-xs text-gray-400">チャンクID: {{ result.chunkId }}</p>
           </div>
         </div>

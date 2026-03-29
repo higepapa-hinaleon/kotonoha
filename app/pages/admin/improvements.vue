@@ -125,7 +125,12 @@ function getServiceName(serviceId: string): string {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return new Date(dateStr).toLocaleDateString("ja-JP", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 const categoryLabels: Record<string, string> = {
@@ -181,18 +186,33 @@ onMounted(fetchData);
     <div class="grid gap-6 lg:grid-cols-5">
       <!-- 一覧（カード型） -->
       <div class="lg:col-span-2">
-        <div class="max-h-[calc(100vh-220px)] overflow-y-auto rounded-lg border border-gray-200 bg-white">
-          <div v-if="loading" class="px-4 py-12 text-center text-sm text-gray-400">読み込み中...</div>
-          <div v-else-if="improvements.length === 0" class="px-4 py-12 text-center text-sm text-gray-400">改善要望がありません</div>
+        <div
+          class="max-h-[calc(100vh-220px)] overflow-y-auto rounded-lg border border-gray-200 bg-white"
+        >
+          <div v-if="loading" class="px-4 py-12 text-center text-sm text-gray-400">
+            読み込み中...
+          </div>
+          <div
+            v-else-if="improvements.length === 0"
+            class="px-4 py-12 text-center text-sm text-gray-400"
+          >
+            改善要望がありません
+          </div>
           <div v-else>
             <div
               v-for="item in improvements"
               :key="item.id"
               class="cursor-pointer border-b border-gray-100 px-4 py-3 transition-colors last:border-b-0 hover:bg-gray-50"
-              :class="selectedItem?.id === item.id ? 'border-l-2 !border-l-primary-500 bg-primary-50' : 'border-l-2 border-l-transparent'"
+              :class="
+                selectedItem?.id === item.id
+                  ? 'border-l-2 !border-l-primary-500 bg-primary-50'
+                  : 'border-l-2 border-l-transparent'
+              "
               @click="selectItem(item)"
             >
-              <p class="line-clamp-2 text-sm text-gray-900">{{ parseSummary(item.summary).question }}</p>
+              <p class="line-clamp-2 text-sm text-gray-900">
+                {{ parseSummary(item.summary).question }}
+              </p>
               <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
                 <span
                   v-if="parseSummary(item.summary).reason"
@@ -220,8 +240,13 @@ onMounted(fetchData);
       <div v-if="selectedItem" class="rounded-lg border border-gray-200 bg-white p-5 lg:col-span-3">
         <h3 class="mb-3 text-sm font-semibold text-gray-900">詳細</h3>
         <p class="mb-3 text-sm text-gray-900">{{ parseSummary(selectedItem.summary).question }}</p>
-        <div v-if="parseSummary(selectedItem.summary).reason" class="mb-3 flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+        <div
+          v-if="parseSummary(selectedItem.summary).reason"
+          class="mb-3 flex flex-wrap items-center gap-2"
+        >
+          <span
+            class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700"
+          >
             {{ parseSummary(selectedItem.summary).reason }}
           </span>
           <span
@@ -249,7 +274,10 @@ onMounted(fetchData);
           <div class="flex gap-3">
             <div>
               <label class="block text-xs font-medium text-gray-600">優先度</label>
-              <select v-model="editPriority" class="mt-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm">
+              <select
+                v-model="editPriority"
+                class="mt-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+              >
                 <option value="high">高</option>
                 <option value="medium">中</option>
                 <option value="low">低</option>
@@ -257,7 +285,10 @@ onMounted(fetchData);
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-600">ステータス</label>
-              <select v-model="editStatus" class="mt-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm">
+              <select
+                v-model="editStatus"
+                class="mt-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+              >
                 <option value="open">未着手</option>
                 <option value="in_progress">対応中</option>
                 <option value="resolved">完了</option>
@@ -295,7 +326,10 @@ onMounted(fetchData);
           </button>
         </div>
       </div>
-      <div v-else class="flex items-center justify-center rounded-lg border border-dashed border-gray-300 p-12 lg:col-span-3">
+      <div
+        v-else
+        class="flex items-center justify-center rounded-lg border border-dashed border-gray-300 p-12 lg:col-span-3"
+      >
         <p class="text-sm text-gray-400">要望を選択してください</p>
       </div>
     </div>
@@ -324,14 +358,22 @@ onMounted(fetchData);
                 </h3>
                 <div v-if="modalConversation" class="mt-1 flex items-center gap-2">
                   <StatusBadge :status="modalConversation.status" size="sm" />
-                  <span class="text-xs text-gray-400">{{ formatDate(modalConversation.createdAt) }}</span>
+                  <span class="text-xs text-gray-400">{{
+                    formatDate(modalConversation.createdAt)
+                  }}</span>
                 </div>
               </div>
               <button
                 class="text-gray-400 hover:text-gray-600"
                 @click="showConversationModal = false"
               >
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -339,29 +381,44 @@ onMounted(fetchData);
 
             <!-- メッセージ一覧 -->
             <div class="flex-1 overflow-y-auto px-6 py-4">
-              <div v-if="conversationLoading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
+              <div v-if="conversationLoading" class="py-12 text-center text-sm text-gray-400">
+                読み込み中...
+              </div>
               <div v-else class="space-y-3">
                 <div
                   v-for="msg in modalMessages"
                   :key="msg.id"
                   class="rounded-lg border p-3"
-                  :class="msg.role === 'user' ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'"
+                  :class="
+                    msg.role === 'user' ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'
+                  "
                 >
                   <div class="mb-1.5 flex items-center justify-between">
-                    <span class="text-xs font-medium" :class="msg.role === 'user' ? 'text-blue-600' : 'text-gray-600'">
+                    <span
+                      class="text-xs font-medium"
+                      :class="msg.role === 'user' ? 'text-blue-600' : 'text-gray-600'"
+                    >
                       {{ msg.role === "user" ? "ユーザー" : "ボット" }}
                     </span>
                     <div class="flex items-center gap-2">
-                      <span v-if="msg.confidence !== null && msg.confidence !== undefined" class="text-xs text-gray-400">
+                      <span
+                        v-if="msg.confidence !== null && msg.confidence !== undefined"
+                        class="text-xs text-gray-400"
+                      >
                         確信度: {{ (msg.confidence * 100).toFixed(0) }}%
                       </span>
                       <span class="text-xs text-gray-400">{{ formatDate(msg.createdAt) }}</span>
                     </div>
                   </div>
                   <MarkdownContent v-if="msg.role === 'assistant'" :content="msg.content" />
-                  <div v-else class="whitespace-pre-wrap text-sm text-gray-900">{{ msg.content }}</div>
+                  <div v-else class="whitespace-pre-wrap text-sm text-gray-900">
+                    {{ msg.content }}
+                  </div>
 
-                  <div v-if="msg.sources && msg.sources.length > 0" class="mt-2 border-t border-gray-100 pt-1.5">
+                  <div
+                    v-if="msg.sources && msg.sources.length > 0"
+                    class="mt-2 border-t border-gray-100 pt-1.5"
+                  >
                     <p class="mb-0.5 text-xs font-medium text-gray-500">参照元:</p>
                     <div v-for="(src, i) in msg.sources" :key="i" class="text-xs text-gray-400">
                       {{ src.documentTitle }} (類似度: {{ (src.similarity * 100).toFixed(0) }}%)

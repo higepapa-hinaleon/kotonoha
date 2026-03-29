@@ -34,10 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // メッセージを取得
-  const messagesSnapshot = await convRef
-    .collection("messages")
-    .orderBy("createdAt", "asc")
-    .get();
+  const messagesSnapshot = await convRef.collection("messages").orderBy("createdAt", "asc").get();
 
   const messages: Message[] = messagesSnapshot.docs.map((doc) => ({
     id: doc.id,

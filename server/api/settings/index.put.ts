@@ -20,17 +20,29 @@ export default defineEventHandler(async (event) => {
   // 数値パラメータのバリデーション
   if (body.botConfig) {
     if (body.botConfig.confidenceThreshold !== undefined) {
-      body.botConfig.confidenceThreshold = Math.max(0, Math.min(1, body.botConfig.confidenceThreshold));
+      body.botConfig.confidenceThreshold = Math.max(
+        0,
+        Math.min(1, body.botConfig.confidenceThreshold),
+      );
     }
     if (body.botConfig.ragTopK !== undefined) {
       body.botConfig.ragTopK = Math.max(1, Math.min(100, Math.floor(body.botConfig.ragTopK)));
     }
     if (body.botConfig.ragSimilarityThreshold !== undefined) {
-      body.botConfig.ragSimilarityThreshold = Math.max(0, Math.min(1, body.botConfig.ragSimilarityThreshold));
+      body.botConfig.ragSimilarityThreshold = Math.max(
+        0,
+        Math.min(1, body.botConfig.ragSimilarityThreshold),
+      );
     }
-    if (body.botConfig.systemPrompt !== undefined && typeof body.botConfig.systemPrompt === "string") {
+    if (
+      body.botConfig.systemPrompt !== undefined &&
+      typeof body.botConfig.systemPrompt === "string"
+    ) {
       if (body.botConfig.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
-        throw createError({ statusCode: 400, statusMessage: `システムプロンプトが長すぎます（上限${MAX_SYSTEM_PROMPT_LENGTH.toLocaleString()}文字）` });
+        throw createError({
+          statusCode: 400,
+          statusMessage: `システムプロンプトが長すぎます（上限${MAX_SYSTEM_PROMPT_LENGTH.toLocaleString()}文字）`,
+        });
       }
     }
   }
@@ -38,11 +50,7 @@ export default defineEventHandler(async (event) => {
   const db = getAdminFirestore();
   const now = new Date().toISOString();
 
-  const snapshot = await db
-    .collection("settings")
-    .where("groupId", "==", groupId)
-    .limit(1)
-    .get();
+  const snapshot = await db.collection("settings").where("groupId", "==", groupId).limit(1).get();
 
   if (snapshot.empty) {
     // 新規作成
@@ -54,7 +62,8 @@ export default defineEventHandler(async (event) => {
       botConfig: {
         confidenceThreshold: body.botConfig?.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD,
         ragTopK: body.botConfig?.ragTopK ?? DEFAULT_RAG_TOP_K,
-        ragSimilarityThreshold: body.botConfig?.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD,
+        ragSimilarityThreshold:
+          body.botConfig?.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD,
         enableMultiQuery: body.botConfig?.enableMultiQuery ?? false,
         enableHyde: body.botConfig?.enableHyde ?? false,
         systemPrompt: body.botConfig?.systemPrompt ?? DEFAULT_SYSTEM_PROMPT,
@@ -73,10 +82,15 @@ export default defineEventHandler(async (event) => {
   if (body.googleFormUrl !== undefined) updated.googleFormUrl = body.googleFormUrl;
   if (body.botConfig) {
     updated.botConfig = {
-      confidenceThreshold: body.botConfig.confidenceThreshold ?? existing.botConfig.confidenceThreshold,
+      confidenceThreshold:
+        body.botConfig.confidenceThreshold ?? existing.botConfig.confidenceThreshold,
       ragTopK: body.botConfig.ragTopK ?? existing.botConfig.ragTopK,
-      ragSimilarityThreshold: body.botConfig.ragSimilarityThreshold ?? existing.botConfig.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD,
-      enableMultiQuery: body.botConfig.enableMultiQuery ?? existing.botConfig.enableMultiQuery ?? false,
+      ragSimilarityThreshold:
+        body.botConfig.ragSimilarityThreshold ??
+        existing.botConfig.ragSimilarityThreshold ??
+        DEFAULT_RAG_SIMILARITY_THRESHOLD,
+      enableMultiQuery:
+        body.botConfig.enableMultiQuery ?? existing.botConfig.enableMultiQuery ?? false,
       enableHyde: body.botConfig.enableHyde ?? existing.botConfig.enableHyde ?? false,
       systemPrompt: body.botConfig.systemPrompt ?? existing.botConfig.systemPrompt,
     };

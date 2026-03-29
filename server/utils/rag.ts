@@ -29,8 +29,10 @@ export async function searchRelevantChunks(
   const similarityThreshold = options.similarityThreshold ?? 0.4;
 
   // クエリをベクトル化（pre-computed vectorがあればスキップ）
-  const queryEmbedding = options.queryVector || await generateEmbedding(query);
-  console.warn(`[rag] Searching chunks: group=${options.groupId}, service=${options.serviceId}, initialTopK=${initialTopK}`);
+  const queryEmbedding = options.queryVector || (await generateEmbedding(query));
+  console.warn(
+    `[rag] Searching chunks: group=${options.groupId}, service=${options.serviceId}, initialTopK=${initialTopK}`,
+  );
 
   const db = getAdminFirestore();
 
@@ -61,7 +63,9 @@ export async function searchRelevantChunks(
 
   // 1. 類似度閾値でフィルタリング
   const filtered = allResults.filter((r) => r.similarity >= similarityThreshold);
-  console.warn(`[rag] After threshold filter (>=${similarityThreshold}): ${filtered.length} chunks`);
+  console.warn(
+    `[rag] After threshold filter (>=${similarityThreshold}): ${filtered.length} chunks`,
+  );
 
   // 2. 同一parentの重複排除（親子チャンク構造対応）
   const deduplicated = deduplicateByParent(filtered);
@@ -71,7 +75,9 @@ export async function searchRelevantChunks(
   const dynamicResults = applyDynamicTopK(deduplicated, targetTopK);
 
   for (const r of dynamicResults) {
-    console.warn(`[rag]   chunk=${r.chunk.id}, similarity=${r.similarity.toFixed(3)}, section="${r.chunk.sectionTitle || ""}", content=${r.chunk.content?.slice(0, 60)}...`);
+    console.warn(
+      `[rag]   chunk=${r.chunk.id}, similarity=${r.similarity.toFixed(3)}, section="${r.chunk.sectionTitle || ""}", content=${r.chunk.content?.slice(0, 60)}...`,
+    );
   }
 
   // 参照カウンターの非同期更新（レスポンスをブロックしない）
@@ -194,7 +200,9 @@ export async function storeFeedbackEmbedding(params: {
   const now = new Date().toISOString();
 
   // 質問テキストのベクトルを生成
-  console.warn(`[feedback-rag] Generating embedding for feedback question: "${params.question.slice(0, 60)}..."`);
+  console.warn(
+    `[feedback-rag] Generating embedding for feedback question: "${params.question.slice(0, 60)}..."`,
+  );
   const embedding = await generateEmbedding(params.question);
 
   // 既存の feedbackChunk を検索（同じ improvementId）
@@ -217,12 +225,19 @@ export async function storeFeedbackEmbedding(params: {
 
   if (existingSnap.empty) {
     // 新規作成
-    await db.collection("feedbackChunks").doc().set({ ...data, createdAt: now });
-    console.warn(`[feedback-rag] Created new feedback chunk for improvement=${params.improvementId}`);
+    await db
+      .collection("feedbackChunks")
+      .doc()
+      .set({ ...data, createdAt: now });
+    console.warn(
+      `[feedback-rag] Created new feedback chunk for improvement=${params.improvementId}`,
+    );
   } else {
     // 更新
     await existingSnap.docs[0].ref.update(data);
-    console.warn(`[feedback-rag] Updated existing feedback chunk for improvement=${params.improvementId}`);
+    console.warn(
+      `[feedback-rag] Updated existing feedback chunk for improvement=${params.improvementId}`,
+    );
   }
 }
 
@@ -258,7 +273,7 @@ export async function searchFeedbackChunks(
 ): Promise<{ question: string; correctedAnswer: string; similarity: number }[]> {
   const topK = options.topK || 3;
 
-  const queryEmbedding = options.queryVector || await generateEmbedding(query);
+  const queryEmbedding = options.queryVector || (await generateEmbedding(query));
   const db = getAdminFirestore();
 
   try {

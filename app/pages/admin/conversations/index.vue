@@ -48,9 +48,7 @@ const filteredConversations = computed(() => {
   if (!searchKeyword.value) return conversations.value;
   const kw = searchKeyword.value.toLowerCase();
   return conversations.value.filter(
-    (c) =>
-      c.title.toLowerCase().includes(kw) ||
-      c.userName.toLowerCase().includes(kw),
+    (c) => c.title.toLowerCase().includes(kw) || c.userName.toLowerCase().includes(kw),
   );
 });
 
@@ -95,7 +93,11 @@ onMounted(fetchData);
 
     <!-- フィルタ -->
     <div class="mb-4 flex flex-wrap gap-3">
-      <SearchFilter v-model="searchKeyword" placeholder="タイトル・ユーザー名で検索..." class="w-64" />
+      <SearchFilter
+        v-model="searchKeyword"
+        placeholder="タイトル・ユーザー名で検索..."
+        class="w-64"
+      />
       <select v-model="filterServiceId" class="rounded-md border border-gray-300 px-3 py-2 text-sm">
         <option value="">全サービス</option>
         <option v-for="svc in services" :key="svc.id" :value="svc.id">{{ svc.name }}</option>
@@ -117,7 +119,10 @@ onMounted(fetchData);
     <div v-if="loading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
 
     <!-- 空状態 -->
-    <div v-else-if="filteredConversations.length === 0" class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400">
+    <div
+      v-else-if="filteredConversations.length === 0"
+      class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400"
+    >
       会話がありません
     </div>
 
@@ -136,7 +141,11 @@ onMounted(fetchData);
           </div>
           <div class="space-y-1 text-xs text-gray-500">
             <div class="flex items-center gap-1">
-              <span v-if="conv.channel === 'widget'" class="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700">ウィジェット</span>
+              <span
+                v-if="conv.channel === 'widget'"
+                class="inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700"
+                >ウィジェット</span
+              >
               <span>{{ conv.userName }}</span>
             </div>
             <div class="flex items-center justify-between">
@@ -152,11 +161,31 @@ onMounted(fetchData);
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">タイトル</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ユーザー</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">サービス</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">状態</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">日時</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                タイトル
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                ユーザー
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                サービス
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                状態
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                日時
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
@@ -166,14 +195,26 @@ onMounted(fetchData);
               class="cursor-pointer hover:bg-gray-50"
               @click="navigateTo(`/admin/conversations/${conv.id}`)"
             >
-              <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">{{ conv.title }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
+                {{ conv.title }}
+              </td>
               <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-                <span v-if="conv.channel === 'widget'" class="mr-1 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700">ウィジェット</span>
+                <span
+                  v-if="conv.channel === 'widget'"
+                  class="mr-1 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-700"
+                  >ウィジェット</span
+                >
                 {{ conv.userName }}
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{{ getServiceName(conv.serviceId) }}</td>
-              <td class="whitespace-nowrap px-4 py-3"><StatusBadge :status="conv.status" size="sm" /></td>
-              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{{ formatDate(conv.createdAt) }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                {{ getServiceName(conv.serviceId) }}
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <StatusBadge :status="conv.status" size="sm" />
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                {{ formatDate(conv.createdAt) }}
+              </td>
             </tr>
           </tbody>
         </table>

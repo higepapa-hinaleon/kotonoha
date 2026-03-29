@@ -21,20 +21,27 @@ export default defineEventHandler(async (event) => {
   const title = formData.find((f) => f.name === "title")?.data.toString();
   const type = formData.find((f) => f.name === "type")?.data.toString() as "business" | "system";
   const tagsRaw = formData.find((f) => f.name === "tags")?.data.toString();
-  const skipDuplicateCheck = formData.find((f) => f.name === "skipDuplicateCheck")?.data.toString() === "true";
+  const skipDuplicateCheck =
+    formData.find((f) => f.name === "skipDuplicateCheck")?.data.toString() === "true";
 
   if (!fileField?.data || !serviceId || !title) {
     throw createError({ statusCode: 400, statusMessage: "file, serviceId, title は必須です" });
   }
 
   const mimeType = fileField.type || "application/octet-stream";
-  if (!ALLOWED_MIME_TYPES.includes(mimeType as typeof ALLOWED_MIME_TYPES[number])) {
-    throw createError({ statusCode: 400, statusMessage: "対応形式: PDF, TXT, Markdown, DOCX, HTML, CSV, JSON" });
+  if (!ALLOWED_MIME_TYPES.includes(mimeType as (typeof ALLOWED_MIME_TYPES)[number])) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "対応形式: PDF, TXT, Markdown, DOCX, HTML, CSV, JSON",
+    });
   }
 
   // ファイルサイズ制限
   if (fileField.data.length > MAX_UPLOAD_SIZE_BYTES) {
-    throw createError({ statusCode: 400, statusMessage: `ファイルサイズが上限（${MAX_UPLOAD_SIZE_BYTES / 1024 / 1024}MB）を超えています` });
+    throw createError({
+      statusCode: 400,
+      statusMessage: `ファイルサイズが上限（${MAX_UPLOAD_SIZE_BYTES / 1024 / 1024}MB）を超えています`,
+    });
   }
 
   // タグのパース
@@ -43,7 +50,10 @@ export default defineEventHandler(async (event) => {
     try {
       tags = JSON.parse(tagsRaw);
     } catch {
-      tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+      tags = tagsRaw
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
   }
 

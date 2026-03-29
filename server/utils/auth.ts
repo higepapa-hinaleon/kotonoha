@@ -62,9 +62,21 @@ export async function verifySystemAdmin(event: H3Event): Promise<User> {
 /**
  * ウィジェット経由のゲストユーザー識別情報をヘッダーから取得する
  */
-export function resolveExternalUser(event: H3Event): { externalUserName?: string; externalUserId?: string; guestUserId: string } {
-  const externalUserName = (getHeader(event, "x-kotonoha-user-name") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200) || undefined;
-  const externalUserId = (getHeader(event, "x-kotonoha-user-id") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200) || undefined;
+export function resolveExternalUser(event: H3Event): {
+  externalUserName?: string;
+  externalUserId?: string;
+  guestUserId: string;
+} {
+  const externalUserName =
+    (getHeader(event, "x-kotonoha-user-name") || "")
+      .replace(/[\r\n\0<>]/g, "")
+      .trim()
+      .slice(0, 200) || undefined;
+  const externalUserId =
+    (getHeader(event, "x-kotonoha-user-id") || "")
+      .replace(/[\r\n\0<>]/g, "")
+      .trim()
+      .slice(0, 200) || undefined;
   const guestUserId = externalUserId ? `ext:${externalUserId}` : "guest";
   return { externalUserName, externalUserId, guestUserId };
 }
@@ -100,9 +112,7 @@ export async function resolveGroupId(event: H3Event, user: User): Promise<string
  * グループメンバー権限を検証する（system_admin はバイパス）
  * ユーザーとグループIDを返す
  */
-export async function verifyGroupMember(
-  event: H3Event,
-): Promise<{ user: User; groupId: string }> {
+export async function verifyGroupMember(event: H3Event): Promise<{ user: User; groupId: string }> {
   const user = await verifyAuth(event);
   // resolveGroupId 内でメンバーシップ検証済み（system_admin はバイパス）
   const groupId = await resolveGroupId(event, user);
@@ -114,9 +124,7 @@ export async function verifyGroupMember(
  * グループ管理者権限を検証する（system_admin はバイパス）
  * ユーザーとグループIDを返す
  */
-export async function verifyGroupAdmin(
-  event: H3Event,
-): Promise<{ user: User; groupId: string }> {
+export async function verifyGroupAdmin(event: H3Event): Promise<{ user: User; groupId: string }> {
   const user = await verifyAuth(event);
   const groupId = await resolveGroupId(event, user);
 

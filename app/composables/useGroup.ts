@@ -54,14 +54,14 @@ export function useGroup() {
     }
   }
 
-  const currentGroup = computed(() =>
-    groupState.groups.find((g) => g.id === groupState.activeGroupId) || null,
+  const currentGroup = computed(
+    () => groupState.groups.find((g) => g.id === groupState.activeGroupId) || null,
   );
 
   const hasGroups = computed(() => groupState.memberships.length > 0);
 
-  const currentMembership = computed(() =>
-    groupState.memberships.find((m) => m.groupId === groupState.activeGroupId) || null,
+  const currentMembership = computed(
+    () => groupState.memberships.find((m) => m.groupId === groupState.activeGroupId) || null,
   );
 
   const isGroupAdmin = computed(() => {

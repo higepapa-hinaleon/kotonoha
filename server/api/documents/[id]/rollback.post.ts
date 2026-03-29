@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
   const targetVersion = body?.version;
 
   if (!targetVersion || typeof targetVersion !== "number") {
-    throw createError({ statusCode: 400, statusMessage: "ロールバック先のバージョン番号が必要です" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "ロールバック先のバージョン番号が必要です",
+    });
   }
 
   const db = getAdminFirestore();
@@ -37,7 +40,10 @@ export default defineEventHandler(async (event) => {
   // 指定バージョンの情報を取得
   const versionSnap = await docRef.collection("versions").doc(`v${targetVersion}`).get();
   if (!versionSnap.exists) {
-    throw createError({ statusCode: 404, statusMessage: `バージョン ${targetVersion} が見つかりません` });
+    throw createError({
+      statusCode: 404,
+      statusMessage: `バージョン ${targetVersion} が見つかりません`,
+    });
   }
 
   const versionData = versionSnap.data()!;
@@ -45,18 +51,21 @@ export default defineEventHandler(async (event) => {
   const currentVersion = document.version || 1;
 
   // 現在のバージョンをアーカイブ
-  await docRef.collection("versions").doc(`v${currentVersion}`).set({
-    version: currentVersion,
-    title: document.title,
-    type: document.type,
-    tags: document.tags || [],
-    storagePath: document.storagePath,
-    mimeType: document.mimeType,
-    fileSize: document.fileSize,
-    fileHash: document.fileHash || "",
-    chunkCount: document.chunkCount,
-    archivedAt: now,
-  });
+  await docRef
+    .collection("versions")
+    .doc(`v${currentVersion}`)
+    .set({
+      version: currentVersion,
+      title: document.title,
+      type: document.type,
+      tags: document.tags || [],
+      storagePath: document.storagePath,
+      mimeType: document.mimeType,
+      fileSize: document.fileSize,
+      fileHash: document.fileHash || "",
+      chunkCount: document.chunkCount,
+      archivedAt: now,
+    });
 
   // ドキュメントを指定バージョンの情報に復元（新しいバージョン番号で）
   await docRef.update({

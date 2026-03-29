@@ -40,8 +40,18 @@ const showSources = ref(false);
             class="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
             @click="showSources = !showSources"
           >
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             参照元 ({{ sources.length }}件)
             <svg
@@ -71,10 +81,7 @@ const showSources = ref(false);
         </div>
 
         <!-- 確信度が低い場合のフォーム案内 -->
-        <div
-          v-if="formUrl"
-          class="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800"
-        >
+        <div v-if="formUrl" class="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
           <p>より詳しいサポートが必要な場合は、こちらからお問い合わせください：</p>
           <a
             :href="formUrl"
@@ -82,8 +89,18 @@ const showSources = ref(false);
             rel="noopener noreferrer"
             class="mt-1 inline-flex items-center gap-1 font-medium text-amber-700 underline hover:text-amber-900"
           >
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <svg
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
             </svg>
             お問い合わせフォーム
           </a>
@@ -96,28 +113,52 @@ const showSources = ref(false);
             <button
               aria-label="この回答は役に立った"
               class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
-              :class="feedback === 'positive'
-                ? 'bg-green-100 text-green-700'
-                : 'text-gray-400 hover:bg-green-50 hover:text-green-600'"
+              :class="
+                feedback === 'positive'
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-400 hover:bg-green-50 hover:text-green-600'
+              "
               :disabled="!!feedback"
               @click="emit('feedback', 'positive')"
             >
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"
+                />
               </svg>
               はい
             </button>
             <button
               aria-label="この回答は役に立たなかった"
               class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
-              :class="feedback === 'negative'
-                ? 'bg-red-100 text-red-700'
-                : 'text-gray-400 hover:bg-red-50 hover:text-red-600'"
+              :class="
+                feedback === 'negative'
+                  ? 'bg-red-100 text-red-700'
+                  : 'text-gray-400 hover:bg-red-50 hover:text-red-600'
+              "
               :disabled="!!feedback"
               @click="emit('feedback', 'negative')"
             >
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z" />
+              <svg
+                class="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z"
+                />
               </svg>
               いいえ
             </button>

@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
   if (user.role !== "system_admin") {
     const isMember = await isGroupMember(user.id, body.groupId);
     if (!isMember) {
-      throw createError({ statusCode: 403, statusMessage: "このグループへのアクセス権がありません" });
+      throw createError({
+        statusCode: 403,
+        statusMessage: "このグループへのアクセス権がありません",
+      });
     }
   }
 

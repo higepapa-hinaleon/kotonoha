@@ -11,10 +11,16 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<ChatFeedbackRequest>(event);
 
   if (!body.conversationId || !body.messageId || !body.feedback) {
-    throw createError({ statusCode: 400, statusMessage: "conversationId, messageId, feedback は必須です" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "conversationId, messageId, feedback は必須です",
+    });
   }
   if (body.feedback !== "positive" && body.feedback !== "negative") {
-    throw createError({ statusCode: 400, statusMessage: "feedback は positive または negative を指定してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "feedback は positive または negative を指定してください",
+    });
   }
   if (body.conversationId.length > MAX_ID_LENGTH || body.messageId.length > MAX_ID_LENGTH) {
     throw createError({ statusCode: 400, statusMessage: "無効なIDです" });
@@ -24,7 +30,10 @@ export default defineEventHandler(async (event) => {
   const clientIp = getRequestIP(event) || "unknown";
   const rateLimitKey = user ? `feedback:user:${user.id}` : `feedback:ip:${clientIp}`;
   if (!checkRateLimit(rateLimitKey, FEEDBACK_RATE_LIMIT)) {
-    throw createError({ statusCode: 429, statusMessage: "リクエストが多すぎます。しばらく待ってから再試行してください" });
+    throw createError({
+      statusCode: 429,
+      statusMessage: "リクエストが多すぎます。しばらく待ってから再試行してください",
+    });
   }
 
   const db = getAdminFirestore();
@@ -62,7 +71,10 @@ export default defineEventHandler(async (event) => {
 
   const messageData = messageDoc.data()!;
   if (messageData.role !== "assistant") {
-    throw createError({ statusCode: 400, statusMessage: "フィードバックはアシスタントのメッセージにのみ送信できます" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "フィードバックはアシスタントのメッセージにのみ送信できます",
+    });
   }
 
   // フィードバックを保存
@@ -92,21 +104,24 @@ export default defineEventHandler(async (event) => {
 
         const originalQuestion = prevMessages.docs[0]?.data()?.content || "";
 
-        await db.collection("improvementRequests").doc().set({
-        organizationId: convData.organizationId,
-        groupId: convData.groupId,
-        serviceId: convData.serviceId,
-        conversationId: body.conversationId,
-        category: "other",
-        summary: `ユーザーが回答に低評価: ${originalQuestion.slice(0, 100)}`,
-        originalQuestion,
-        priority: "medium",
-        status: "open",
-        adminNote: "",
-        correctedAnswer: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        });
+        await db
+          .collection("improvementRequests")
+          .doc()
+          .set({
+            organizationId: convData.organizationId,
+            groupId: convData.groupId,
+            serviceId: convData.serviceId,
+            conversationId: body.conversationId,
+            category: "other",
+            summary: `ユーザーが回答に低評価: ${originalQuestion.slice(0, 100)}`,
+            originalQuestion,
+            priority: "medium",
+            status: "open",
+            adminNote: "",
+            correctedAnswer: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
       }
     } catch (err) {
       console.error("[feedback] Failed to create improvement request:", err);

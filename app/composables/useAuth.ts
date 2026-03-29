@@ -66,9 +66,12 @@ export function useAuth() {
   async function fetchUser() {
     try {
       const token = await getIdToken();
-      const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>("/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>(
+        "/api/auth/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const { groupMemberships, ...userData } = data;
       authState.user = userData;
       const completeInit = initializeUserGroups(userData, groupMemberships);
@@ -77,10 +80,13 @@ export function useAuth() {
       // ユーザーがFirestoreに未登録の場合、自動登録
       try {
         const token = await getIdToken();
-        const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>("/api/auth/register", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>(
+          "/api/auth/register",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const { groupMemberships, ...userData } = data;
         authState.user = userData;
         const completeInit = initializeUserGroups(userData, groupMemberships);

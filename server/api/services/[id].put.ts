@@ -4,7 +4,7 @@ import type { ServiceUpsertRequest } from "~~/shared/types/api";
 import type { Service } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
-  const { user, groupId } = await verifyGroupAdmin(event);
+  const { user: _user, groupId } = await verifyGroupAdmin(event);
   const id = getRouterParam(event, "id");
   const body = await readBody<ServiceUpsertRequest>(event);
 

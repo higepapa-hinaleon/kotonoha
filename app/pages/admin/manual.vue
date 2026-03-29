@@ -46,7 +46,11 @@ function scrollToSection(id: string) {
           v-for="sec in sections"
           :key="sec.id"
           class="block w-full rounded px-2 py-1 text-left text-xs transition-colors"
-          :class="activeSection === sec.id ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'"
+          :class="
+            activeSection === sec.id
+              ? 'bg-primary-50 font-medium text-primary-700'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+          "
           @click="scrollToSection(sec.id)"
         >
           {{ sec.title }}
@@ -62,24 +66,35 @@ function scrollToSection(id: string) {
       <section id="manual-overview">
         <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">概要</h2>
         <div class="space-y-2 text-sm text-gray-700">
-          <p>Kotonoha は、社内ドキュメントを活用したAIチャットサポートシステムです。管理者はドキュメントをアップロードし、サービスごとにAIチャットボットを運用できます。利用者はチャット画面またはウィジェットから質問すると、AIが関連ドキュメントをもとに回答します。</p>
+          <p>
+            Kotonoha
+            は、社内ドキュメントを活用したAIチャットサポートシステムです。管理者はドキュメントをアップロードし、サービスごとにAIチャットボットを運用できます。利用者はチャット画面またはウィジェットから質問すると、AIが関連ドキュメントをもとに回答します。
+          </p>
           <p>本マニュアルでは、管理画面の各機能と利用者向けチャット画面の使い方を説明します。</p>
         </div>
       </section>
 
       <!-- ログイン -->
       <section id="manual-login">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">ログイン</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          ログイン
+        </h2>
         <ManualScreenshot id="login-page" alt="ログイン画面" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>メールアドレス/パスワード、またはGoogleアカウントでログインできます。初回ログイン時にユーザーが自動登録されます。</p>
-          <p>ログイン後、所属グループが割り当てられていない場合は「グループ未割当」画面が表示されます。管理者にグループへの追加を依頼してください。</p>
+          <p>
+            メールアドレス/パスワード、またはGoogleアカウントでログインできます。初回ログイン時にユーザーが自動登録されます。
+          </p>
+          <p>
+            ログイン後、所属グループが割り当てられていない場合は「グループ未割当」画面が表示されます。管理者にグループへの追加を依頼してください。
+          </p>
         </div>
       </section>
 
       <!-- ダッシュボード -->
       <section id="manual-dashboard">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">ダッシュボード</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          ダッシュボード
+        </h2>
         <ManualScreenshot id="dashboard-overview" alt="ダッシュボード全体" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>ダッシュボードでは以下の情報を一覧できます：</p>
@@ -91,15 +106,23 @@ function scrollToSection(id: string) {
             <li><strong>未解決の会話</strong> — 直近のエスカレーション・未解決案件</li>
           </ul>
         </div>
-        <ManualScreenshot id="dashboard-feedback" alt="ダッシュボード - フィードバック管理セクション" height="h-36" />
+        <ManualScreenshot
+          id="dashboard-feedback"
+          alt="ダッシュボード - フィードバック管理セクション"
+          height="h-36"
+        />
       </section>
 
       <!-- サービス管理 -->
       <section id="manual-services">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">サービス管理</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          サービス管理
+        </h2>
         <ManualScreenshot id="services-list" alt="サービス一覧画面" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>サービスはAIチャットボットの単位です。「社内ネットワーク」「人事制度」など、問い合わせカテゴリごとにサービスを作成します。</p>
+          <p>
+            サービスはAIチャットボットの単位です。「社内ネットワーク」「人事制度」など、問い合わせカテゴリごとにサービスを作成します。
+          </p>
           <h3 class="mt-3 text-sm font-semibold text-gray-800">サービスの作成・編集</h3>
           <ManualScreenshot id="services-modal" alt="サービス作成/編集モーダル" height="h-40" />
           <ul class="ml-4 list-disc space-y-1">
@@ -113,12 +136,18 @@ function scrollToSection(id: string) {
 
       <!-- ドキュメント管理 -->
       <section id="manual-documents">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">ドキュメント管理</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          ドキュメント管理
+        </h2>
         <ManualScreenshot id="documents-list" alt="ドキュメント一覧画面（フィルタ付き）" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>AIの回答の元となるドキュメントを管理します。サービスに紐づけてアップロードします。</p>
           <h3 class="mt-3 text-sm font-semibold text-gray-800">アップロード</h3>
-          <ManualScreenshot id="documents-upload" alt="ドキュメントアップロードモーダル" height="h-40" />
+          <ManualScreenshot
+            id="documents-upload"
+            alt="ドキュメントアップロードモーダル"
+            height="h-40"
+          />
           <ul class="ml-4 list-disc space-y-1">
             <li>対応形式: PDF、テキスト、Markdown 等</li>
             <li>アップロード後、自動的にチャンク分割とベクトル化が実行されます</li>
@@ -135,7 +164,9 @@ function scrollToSection(id: string) {
 
       <!-- サポート履歴 -->
       <section id="manual-conversations">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">サポート履歴</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          サポート履歴
+        </h2>
         <ManualScreenshot id="conversations-list" alt="サポート履歴一覧（フィルタ付き）" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>利用者とAIの会話履歴を確認できます。ステータスやサービスでフィルタリング可能です。</p>
@@ -148,16 +179,22 @@ function scrollToSection(id: string) {
           </ul>
           <h3 class="mt-3 text-sm font-semibold text-gray-800">会話詳細</h3>
           <ManualScreenshot id="conversation-detail" alt="会話詳細画面（メッセージ一覧）" />
-          <p>会話をクリックすると、メッセージのやり取り、参照元ドキュメント、確信度スコアを確認できます。</p>
+          <p>
+            会話をクリックすると、メッセージのやり取り、参照元ドキュメント、確信度スコアを確認できます。
+          </p>
         </div>
       </section>
 
       <!-- 改善要望 -->
       <section id="manual-improvements">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">改善要望</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          改善要望
+        </h2>
         <ManualScreenshot id="improvements-list" alt="改善要望一覧" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>AIが適切に回答できなかったケースを記録・管理します。カテゴリ・優先度・ステータスで分類できます。</p>
+          <p>
+            AIが適切に回答できなかったケースを記録・管理します。カテゴリ・優先度・ステータスで分類できます。
+          </p>
           <h3 class="mt-3 text-sm font-semibold text-gray-800">カテゴリ</h3>
           <ul class="ml-4 list-disc space-y-1">
             <li><strong>ドキュメント不足</strong> — 必要な情報がドキュメントにない</li>
@@ -171,21 +208,29 @@ function scrollToSection(id: string) {
 
       <!-- FAQ管理 -->
       <section id="manual-faqs">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">FAQ管理</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          FAQ管理
+        </h2>
         <ManualScreenshot id="faqs-list" alt="FAQ一覧画面" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>よくある質問とその回答を管理します。手動作成と、会話履歴からのAI自動生成の2つの方法があります。</p>
+          <p>
+            よくある質問とその回答を管理します。手動作成と、会話履歴からのAI自動生成の2つの方法があります。
+          </p>
           <ul class="ml-4 list-disc space-y-1">
             <li><strong>手動作成</strong> — 質問と回答を直接入力して作成</li>
             <li><strong>AI自動生成</strong> — 会話データからAIがFAQ候補を自動生成</li>
-            <li><strong>公開/非公開</strong> — 公開に設定したFAQはチャット回答の参考に使用されます</li>
+            <li>
+              <strong>公開/非公開</strong> — 公開に設定したFAQはチャット回答の参考に使用されます
+            </li>
           </ul>
         </div>
       </section>
 
       <!-- 教育モード -->
       <section id="manual-learning">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">教育モード</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          教育モード
+        </h2>
         <ManualScreenshot id="learning-mode" alt="教育モード画面（テスト実行中）" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>AIの回答品質をインタラクティブにテストし、回答の修正指示を与えることができます。</p>
@@ -199,7 +244,9 @@ function scrollToSection(id: string) {
 
       <!-- レポート -->
       <section id="manual-reports">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">レポート</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          レポート
+        </h2>
         <ManualScreenshot id="reports-list" alt="レポート一覧・生成画面" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>週次レポートを生成・閲覧できます。レポートには以下が含まれます：</p>
@@ -213,12 +260,16 @@ function scrollToSection(id: string) {
 
       <!-- RAGテスト -->
       <section id="manual-rag-test">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">RAGテスト</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          RAGテスト
+        </h2>
         <ManualScreenshot id="rag-test" alt="RAGテスト画面（検索結果表示）" />
         <div class="space-y-2 text-sm text-gray-700">
           <p>ドキュメント検索（RAG: Retrieval-Augmented Generation）の動作を検証できます。</p>
           <ul class="ml-4 list-disc space-y-1">
-            <li>テストクエリを入力すると、ヒットしたドキュメントチャンクと類似度スコアが表示されます</li>
+            <li>
+              テストクエリを入力すると、ヒットしたドキュメントチャンクと類似度スコアが表示されます
+            </li>
             <li>ドキュメントの追加・更新後に検索精度を確認する際に活用してください</li>
           </ul>
         </div>
@@ -230,7 +281,10 @@ function scrollToSection(id: string) {
         <ManualScreenshot id="settings" alt="設定画面" />
         <div class="space-y-2 text-sm text-gray-700">
           <h3 class="text-sm font-semibold text-gray-800">エスカレーション設定</h3>
-          <p>デフォルトのGoogle フォーム URLを設定します。サービスごとに個別設定がない場合にこのURLが使用されます。</p>
+          <p>
+            デフォルトのGoogle フォーム
+            URLを設定します。サービスごとに個別設定がない場合にこのURLが使用されます。
+          </p>
           <h3 class="mt-3 text-sm font-semibold text-gray-800">ボット設定</h3>
           <ul class="ml-4 list-disc space-y-1">
             <li><strong>確信度しきい値</strong> — この値未満の回答は自動でエスカレーション</li>
@@ -242,13 +296,19 @@ function scrollToSection(id: string) {
 
       <!-- ウィジェット設定 -->
       <section id="manual-widget">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">ウィジェット設定</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          ウィジェット設定
+        </h2>
         <ManualScreenshot id="widget-config" alt="ウィジェット設定画面（埋め込みコード表示）" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>外部サイトにチャットウィジェットを埋め込むための設定情報とコードサンプルを確認できます。</p>
+          <p>
+            外部サイトにチャットウィジェットを埋め込むための設定情報とコードサンプルを確認できます。
+          </p>
           <ul class="ml-4 list-disc space-y-1">
             <li>サービスを選択すると、そのサービス用の埋め込みコードが自動生成されます</li>
-            <li>基本埋め込み、ユーザー情報付き、テーマカスタマイズ付き、iframe の4パターンを提供</li>
+            <li>
+              基本埋め込み、ユーザー情報付き、テーマカスタマイズ付き、iframe の4パターンを提供
+            </li>
             <li>属性リファレンスとCSS変数一覧で詳細なカスタマイズが可能</li>
           </ul>
         </div>
@@ -256,10 +316,14 @@ function scrollToSection(id: string) {
 
       <!-- チャット（利用者向け） -->
       <section id="manual-chat">
-        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">チャット（利用者向け）</h2>
+        <h2 class="mb-3 border-b border-gray-200 pb-2 text-lg font-semibold text-gray-900">
+          チャット（利用者向け）
+        </h2>
         <ManualScreenshot id="chat-main" alt="チャット画面（会話中）" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>利用者がAIに質問するための画面です。サービスを選択して質問を入力すると、登録されたドキュメントに基づいてAIが回答します。</p>
+          <p>
+            利用者がAIに質問するための画面です。サービスを選択して質問を入力すると、登録されたドキュメントに基づいてAIが回答します。
+          </p>
           <ul class="ml-4 list-disc space-y-1">
             <li>回答には参照元ドキュメントと類似度スコアが表示されます</li>
             <li>AIが解決できない場合はお問い合わせフォームへのリンクが表示されます</li>

@@ -24,8 +24,7 @@ export async function generateStructuredJson<T>(
 
   // JSON部分を抽出（```json ブロック or 直接 JSON）
   const jsonMatch =
-    responseText.match(/```json\s*\n?([\s\S]*?)\n?\s*```/) ||
-    responseText.match(/(\{[\s\S]*\})/);
+    responseText.match(/```json\s*\n?([\s\S]*?)\n?\s*```/) || responseText.match(/(\{[\s\S]*\})/);
 
   if (!jsonMatch || !jsonMatch[1]) {
     throw createError({

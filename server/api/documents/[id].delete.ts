@@ -4,7 +4,7 @@ import { BATCH_SIZE_LIMIT } from "~~/server/utils/constants";
 import type { Document } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
-  const { user, groupId } = await verifyGroupAdmin(event);
+  const { user: _user, groupId } = await verifyGroupAdmin(event);
   const id = getRouterParam(event, "id");
 
   if (!id) {
@@ -25,10 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 関連チャンクを削除（500件超対応: ensureBatch パターン）
-  const chunksSnapshot = await db
-    .collection("documentChunks")
-    .where("documentId", "==", id)
-    .get();
+  const chunksSnapshot = await db.collection("documentChunks").where("documentId", "==", id).get();
 
   const batches: FirebaseFirestore.WriteBatch[] = [];
   let currentBatch = db.batch();
@@ -64,7 +61,10 @@ export default defineEventHandler(async (event) => {
     await storage.bucket().file(existing.storagePath).delete();
   } catch (storageError) {
     // ストレージ削除失敗はログのみ（ファイルが既に無い場合等、主要フローをブロックしない）
-    console.warn(`[documents] Storage file deletion failed for ${existing.storagePath}:`, storageError);
+    console.warn(
+      `[documents] Storage file deletion failed for ${existing.storagePath}:`,
+      storageError,
+    );
   }
 
   return { success: true };

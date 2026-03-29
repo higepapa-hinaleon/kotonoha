@@ -140,7 +140,14 @@ async function handleUpload() {
 
   uploading.value = true;
   try {
-    await doUpload(uploadFile.value, uploadServiceId.value, uploadTitle.value, uploadType.value, uploadTags.value, false);
+    await doUpload(
+      uploadFile.value,
+      uploadServiceId.value,
+      uploadTitle.value,
+      uploadType.value,
+      uploadTags.value,
+      false,
+    );
     showUploadModal.value = false;
     show("ドキュメントをアップロードしました", "success");
     await fetchData();
@@ -165,7 +172,10 @@ async function doUpload(
   formData.append("title", title);
   formData.append("type", type);
   if (tags.trim()) {
-    const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const tagList = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
     formData.append("tags", JSON.stringify(tagList));
   }
   if (skipDuplicateCheck) {
@@ -175,7 +185,9 @@ async function doUpload(
   const { getIdToken } = useAuth();
   const token = await getIdToken();
 
-  const result = await $fetch<Document & { duplicate?: boolean; existingDocument?: { id: string; title: string } }>("/api/documents/upload", {
+  const result = await $fetch<
+    Document & { duplicate?: boolean; existingDocument?: { id: string; title: string } }
+  >("/api/documents/upload", {
     method: "POST",
     body: formData,
     headers: { Authorization: `Bearer ${token}` },
@@ -368,10 +380,7 @@ onUnmounted(() => {
 
     <!-- フィルタ -->
     <div class="mb-4 flex flex-wrap gap-3">
-      <select
-        v-model="filterServiceId"
-        class="rounded-md border border-gray-300 px-3 py-2 text-sm"
-      >
+      <select v-model="filterServiceId" class="rounded-md border border-gray-300 px-3 py-2 text-sm">
         <option value="">全サービス</option>
         <option v-for="svc in services" :key="svc.id" :value="svc.id">
           {{ svc.name }}
@@ -393,7 +402,10 @@ onUnmounted(() => {
     <div v-if="loading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
 
     <!-- 空状態 -->
-    <div v-else-if="filteredDocuments.length === 0" class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400">
+    <div
+      v-else-if="filteredDocuments.length === 0"
+      class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400"
+    >
       ドキュメントがまだ登録されていません
     </div>
 
@@ -413,7 +425,9 @@ onUnmounted(() => {
               >
                 {{ doc.title }}
               </NuxtLink>
-              <span v-if="doc.version > 1" class="ml-1 text-xs text-gray-400">v{{ doc.version }}</span>
+              <span v-if="doc.version > 1" class="ml-1 text-xs text-gray-400"
+                >v{{ doc.version }}</span
+              >
             </div>
             <StatusBadge :status="doc.status" size="sm" class="shrink-0" />
           </div>
@@ -459,13 +473,41 @@ onUnmounted(() => {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">タイトル</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">サービス</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">種別</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">タグ</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">状態</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">チャンク</th>
-              <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">操作</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                タイトル
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                サービス
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                種別
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                タグ
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                状態
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                チャンク
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                操作
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
@@ -477,7 +519,9 @@ onUnmounted(() => {
                 >
                   {{ doc.title }}
                 </NuxtLink>
-                <span v-if="doc.version > 1" class="ml-1 text-xs text-gray-400">v{{ doc.version }}</span>
+                <span v-if="doc.version > 1" class="ml-1 text-xs text-gray-400"
+                  >v{{ doc.version }}</span
+                >
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
                 {{ getServiceName(doc.serviceId) }}
@@ -567,11 +611,21 @@ onUnmounted(() => {
                 <label class="block text-sm font-medium text-gray-700">種別</label>
                 <div class="mt-1 flex gap-4">
                   <label class="flex items-center gap-1.5 text-sm">
-                    <input v-model="uploadType" type="radio" value="business" class="text-primary-600" />
+                    <input
+                      v-model="uploadType"
+                      type="radio"
+                      value="business"
+                      class="text-primary-600"
+                    />
                     業務
                   </label>
                   <label class="flex items-center gap-1.5 text-sm">
-                    <input v-model="uploadType" type="radio" value="system" class="text-primary-600" />
+                    <input
+                      v-model="uploadType"
+                      type="radio"
+                      value="system"
+                      class="text-primary-600"
+                    />
                     システム
                   </label>
                 </div>
@@ -658,11 +712,23 @@ onUnmounted(() => {
                 <label class="block text-sm font-medium text-gray-700">種別</label>
                 <div class="mt-1 flex gap-4">
                   <label class="flex items-center gap-1.5 text-sm">
-                    <input v-model="bulkType" type="radio" value="business" class="text-primary-600" :disabled="bulkUploading" />
+                    <input
+                      v-model="bulkType"
+                      type="radio"
+                      value="business"
+                      class="text-primary-600"
+                      :disabled="bulkUploading"
+                    />
                     業務
                   </label>
                   <label class="flex items-center gap-1.5 text-sm">
-                    <input v-model="bulkType" type="radio" value="system" class="text-primary-600" :disabled="bulkUploading" />
+                    <input
+                      v-model="bulkType"
+                      type="radio"
+                      value="system"
+                      class="text-primary-600"
+                      :disabled="bulkUploading"
+                    />
                     システム
                   </label>
                 </div>
@@ -695,7 +761,9 @@ onUnmounted(() => {
                   :key="i"
                   class="flex items-center justify-between rounded-md bg-gray-50 px-3 py-1.5 text-sm"
                 >
-                  <span class="truncate text-gray-700">{{ file.name }} ({{ (file.size / 1024).toFixed(1) }}KB)</span>
+                  <span class="truncate text-gray-700"
+                    >{{ file.name }} ({{ (file.size / 1024).toFixed(1) }}KB)</span
+                  >
                   <button
                     v-if="!bulkUploading"
                     class="ml-2 text-red-500 hover:text-red-700"
@@ -719,7 +787,6 @@ onUnmounted(() => {
                   />
                 </div>
               </div>
-
             </div>
             <div class="flex justify-end gap-3 border-t px-6 py-4">
               <button
@@ -735,7 +802,11 @@ onUnmounted(() => {
                 class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
                 @click="handleBulkUpload"
               >
-                {{ bulkUploading ? `アップロード中 (${bulkProgress}/${bulkTotal})` : `${bulkFiles.length}件をアップロード` }}
+                {{
+                  bulkUploading
+                    ? `アップロード中 (${bulkProgress}/${bulkTotal})`
+                    : `${bulkFiles.length}件をアップロード`
+                }}
               </button>
             </div>
           </div>

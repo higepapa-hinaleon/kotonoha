@@ -95,7 +95,9 @@ onMounted(fetchSettings);
                 step="0.05"
                 class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
               />
-              <p class="mt-1 text-xs text-gray-400">この値未満の場合、自動エスカレーションします (0〜1)</p>
+              <p class="mt-1 text-xs text-gray-400">
+                この値未満の場合、自動エスカレーションします (0〜1)
+              </p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">RAG 検索件数 (Top K)</label>

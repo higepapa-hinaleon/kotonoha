@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
   const systemAdmin = await verifySystemAdmin(event);
   const id = getRouterParam(event, "id");
   const userId = getRouterParam(event, "userId");
-  if (!id || !userId) throw createError({ statusCode: 400, statusMessage: "パラメータが不足しています" });
+  if (!id || !userId)
+    throw createError({ statusCode: 400, statusMessage: "パラメータが不足しています" });
 
   const db = getAdminFirestore();
 
@@ -33,7 +34,9 @@ export default defineEventHandler(async (event) => {
       .where("userId", "==", userId)
       .limit(1)
       .get();
-    const newActiveGroupId = remainingMemberships.empty ? null : remainingMemberships.docs[0].data().groupId;
+    const newActiveGroupId = remainingMemberships.empty
+      ? null
+      : remainingMemberships.docs[0].data().groupId;
     await db.collection("users").doc(userId).update({
       activeGroupId: newActiveGroupId,
       updatedAt: new Date().toISOString(),
