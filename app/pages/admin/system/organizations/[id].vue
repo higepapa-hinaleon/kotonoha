@@ -129,6 +129,10 @@ async function saveContract() {
     show("開始日と終了日は必須です", "error");
     return;
   }
+  if (contractForm.value.startDate > contractForm.value.endDate) {
+    show("開始日は終了日以前である必要があります", "error");
+    return;
+  }
   savingContract.value = true;
   try {
     if (editingContract.value) {

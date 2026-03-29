@@ -4,9 +4,13 @@ import { VALID_PLAN_IDS } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
 const VALID_STATUSES = ["active", "suspended", "expired", "cancelled"] as const;
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export default defineEventHandler(async (event) => {
-  await verifySystemAdmin(event);
+  const user = await verifySystemAdmin(event);
+  if (!user.organizationId) {
+    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
+  }
 
   const orgId = getRouterParam(event, "id");
   const contractId = getRouterParam(event, "contractId");
@@ -23,7 +27,8 @@ export default defineEventHandler(async (event) => {
   if (!contractDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "契約が見つかりません" });
   }
-  if (contractDoc.data()?.organizationId !== orgId) {
+  const existingData = contractDoc.data()!;
+  if (existingData.organizationId !== orgId) {
     throw createError({ statusCode: 403, statusMessage: "この組織の契約ではありません" });
   }
 
@@ -41,10 +46,29 @@ export default defineEventHandler(async (event) => {
     }
     updates.status = body.status;
   }
-  if (body.startDate !== undefined) updates.startDate = body.startDate;
-  if (body.endDate !== undefined) updates.endDate = body.endDate;
+  if (body.startDate !== undefined) {
+    if (!DATE_REGEX.test(body.startDate)) {
+      throw createError({ statusCode: 400, statusMessage: "日付形式が正しくありません（YYYY-MM-DD）" });
+    }
+    updates.startDate = body.startDate;
+  }
+  if (body.endDate !== undefined) {
+    if (!DATE_REGEX.test(body.endDate)) {
+      throw createError({ statusCode: 400, statusMessage: "日付形式が正しくありません（YYYY-MM-DD）" });
+    }
+    updates.endDate = body.endDate;
+  }
   if (body.note !== undefined) updates.note = (body.note || "").trim();
 
+  // 日付の整合性チェック（更新後の値で検証）
+  const finalStartDate = (updates.startDate as string) || existingData.startDate;
+  const finalEndDate = (updates.endDate as string) || existingData.endDate;
+  if (finalStartDate > finalEndDate) {
+    throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
+  }
+
   await contractRef.update(updates);
-  return { id: contractId, ...contractDoc.data(), ...updates };
+
+  const updatedDoc = await contractRef.get();
+  return { id: contractId, ...updatedDoc.data() };
 });

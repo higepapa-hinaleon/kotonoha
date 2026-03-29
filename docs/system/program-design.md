@@ -395,7 +395,7 @@ async function addUserToGroup(
 async function findOrCreateDefaultOrganization(db?: Firestore): Promise<string>;
 ```
 
-- 既存組織がなければ「デフォルト組織」（free プラン）を自動作成
+- 既存組織がなければ「デフォルト組織」（starter プラン）を自動作成
 
 ### 3.14 server/utils/constants.ts
 

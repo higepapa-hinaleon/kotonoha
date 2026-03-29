@@ -4,10 +4,13 @@ import { VALID_PLAN_IDS } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
 export default defineEventHandler(async (event) => {
-  await verifySystemAdmin(event);
+  const user = await verifySystemAdmin(event);
+  if (!user.organizationId) {
+    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
+  }
 
   const id = getRouterParam(event, "id");
-  if (!id) throw createError({ statusCode: 400, statusMessage: "IDが必要です" });
+  if (!id) throw createError({ statusCode: 400, statusMessage: "組織IDが必要です" });
 
   const body = await readBody(event);
   const db = getAdminFirestore();
@@ -35,5 +38,7 @@ export default defineEventHandler(async (event) => {
   }
 
   await orgRef.update(updates);
-  return { id, ...orgDoc.data(), ...updates };
+
+  const updatedDoc = await orgRef.get();
+  return { id, ...updatedDoc.data() };
 });
