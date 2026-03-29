@@ -33,6 +33,7 @@ export interface ChatCoreParams {
 export interface ChatCoreResult {
   conversationId: string;
   message: {
+    id: string;
     content: string;
     sources: MessageSource[];
     confidence: number;
@@ -305,6 +306,7 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   const result: ChatCoreResult = {
     conversationId,
     message: {
+      id: assistantMessageRef.id,
       content: geminiResponse.content,
       sources,
       confidence: geminiResponse.confidence,

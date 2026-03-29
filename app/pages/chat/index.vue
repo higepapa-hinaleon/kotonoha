@@ -12,6 +12,8 @@ interface ChatMessage {
   sources?: import("~~/shared/types/models").MessageSource[];
   confidence?: number | null;
   formUrl?: string;
+  messageId?: string;
+  feedback?: "positive" | "negative" | null;
 }
 
 const services = ref<Service[]>([]);
@@ -77,6 +79,8 @@ async function handleSend(messageText: string) {
       sources: response.message.sources,
       confidence: response.message.confidence,
       formUrl: response.formUrl,
+      messageId: response.message.id,
+      feedback: null,
     });
   } catch {
     messages.value.push({
@@ -103,6 +107,29 @@ async function handleServiceChange() {
   conversationId.value = undefined;
   if (selectedServiceId.value) {
     await fetchFormUrl(selectedServiceId.value);
+  }
+}
+
+// フィードバック送信
+async function handleFeedback(index: number, value: "positive" | "negative") {
+  const msg = messages.value[index];
+  if (!msg.messageId || !conversationId.value) return;
+
+  const previousFeedback = msg.feedback;
+  messages.value[index].feedback = value;
+
+  try {
+    await apiFetch("/api/chat/feedback", {
+      method: "POST",
+      body: {
+        conversationId: conversationId.value,
+        messageId: msg.messageId,
+        feedback: value,
+      },
+    });
+  } catch {
+    // 失敗時はUI状態を戻す
+    messages.value[index].feedback = previousFeedback;
   }
 }
 
@@ -150,6 +177,9 @@ onMounted(fetchServices);
           :sources="msg.sources"
           :confidence="msg.confidence"
           :form-url="msg.formUrl"
+          :message-id="msg.messageId"
+          :feedback="msg.feedback"
+          @feedback="(value) => handleFeedback(i, value)"
         />
         <!-- 送信中インジケーター -->
         <div v-if="sending" class="flex justify-start">

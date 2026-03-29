@@ -126,6 +126,7 @@ export interface Message {
   content: string;
   sources: MessageSource[];
   confidence: number | null;
+  feedback?: "positive" | "negative" | null;
   createdAt: string;
 }
 

@@ -60,6 +60,16 @@ export async function verifySystemAdmin(event: H3Event): Promise<User> {
 }
 
 /**
+ * ウィジェット経由のゲストユーザー識別情報をヘッダーから取得する
+ */
+export function resolveExternalUser(event: H3Event): { externalUserName?: string; externalUserId?: string; guestUserId: string } {
+  const externalUserName = (getHeader(event, "x-kotonoha-user-name") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200) || undefined;
+  const externalUserId = (getHeader(event, "x-kotonoha-user-id") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200) || undefined;
+  const guestUserId = externalUserId ? `ext:${externalUserId}` : "guest";
+  return { externalUserName, externalUserId, guestUserId };
+}
+
+/**
  * リクエストからアクティブなグループIDを解決する
  * 優先順: X-Group-Id ヘッダー → ?groupId クエリ → user.activeGroupId
  * メンバーシップを検証し、所属していないグループへのアクセスを拒否する

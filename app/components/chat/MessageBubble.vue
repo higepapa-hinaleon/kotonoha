@@ -7,6 +7,12 @@ defineProps<{
   sources?: MessageSource[];
   confidence?: number | null;
   formUrl?: string;
+  messageId?: string;
+  feedback?: "positive" | "negative" | null;
+}>();
+
+const emit = defineEmits<{
+  feedback: [value: "positive" | "negative"];
 }>();
 
 const showSources = ref(false);
@@ -81,6 +87,41 @@ const showSources = ref(false);
             </svg>
             お問い合わせフォーム
           </a>
+        </div>
+
+        <!-- フィードバック -->
+        <div v-if="messageId" class="mt-3 border-t border-gray-100 pt-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400">この回答は役に立ちましたか？</span>
+            <button
+              aria-label="この回答は役に立った"
+              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
+              :class="feedback === 'positive'
+                ? 'bg-green-100 text-green-700'
+                : 'text-gray-400 hover:bg-green-50 hover:text-green-600'"
+              :disabled="!!feedback"
+              @click="emit('feedback', 'positive')"
+            >
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z" />
+              </svg>
+              はい
+            </button>
+            <button
+              aria-label="この回答は役に立たなかった"
+              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
+              :class="feedback === 'negative'
+                ? 'bg-red-100 text-red-700'
+                : 'text-gray-400 hover:bg-red-50 hover:text-red-600'"
+              :disabled="!!feedback"
+              @click="emit('feedback', 'negative')"
+            >
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3H10z" />
+              </svg>
+              いいえ
+            </button>
+          </div>
         </div>
       </template>
     </div>
