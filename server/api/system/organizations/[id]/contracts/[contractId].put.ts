@@ -48,13 +48,19 @@ export default defineEventHandler(async (event) => {
   }
   if (body.startDate !== undefined) {
     if (!DATE_REGEX.test(body.startDate)) {
-      throw createError({ statusCode: 400, statusMessage: "日付形式が正しくありません（YYYY-MM-DD）" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
+      });
     }
     updates.startDate = body.startDate;
   }
   if (body.endDate !== undefined) {
     if (!DATE_REGEX.test(body.endDate)) {
-      throw createError({ statusCode: 400, statusMessage: "日付形式が正しくありません（YYYY-MM-DD）" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
+      });
     }
     updates.endDate = body.endDate;
   }
