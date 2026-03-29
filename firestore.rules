@@ -192,6 +192,13 @@ service cloud.firestore {
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
+    // ===== contracts =====
+    match /contracts/{contractId} {
+      allow read: if isAuthenticated() && isSystemAdmin()
+        && belongsToOrg(resource.data.organizationId);
+      allow write: if false; // サーバーサイドのみ（Admin SDK）
+    }
+
     // ===== settings =====
     match /settings/{settingId} {
       allow read: if isAuthenticated()

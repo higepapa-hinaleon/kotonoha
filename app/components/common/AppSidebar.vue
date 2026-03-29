@@ -45,6 +45,7 @@ const memberNavItems: NavItem[] = [{ label: "チャット", to: "/chat", icon: "
 const navItems = computed(() => (isAdmin.value ? adminNavItems : memberNavItems));
 
 const systemAdminItems: NavItem[] = [
+  { label: "組織管理", to: "/admin/system/organizations", icon: "organizations" },
   { label: "グループ管理", to: "/admin/system/groups", icon: "groups" },
   { label: "ユーザー管理", to: "/admin/system/users", icon: "users" },
 ];
