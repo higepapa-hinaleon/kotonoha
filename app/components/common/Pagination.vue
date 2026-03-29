@@ -34,10 +34,11 @@ const visiblePages = computed(() => {
 </script>
 
 <template>
-  <div v-if="totalPages > 1" class="flex items-center justify-between border-t border-gray-200 pt-4">
-    <p class="text-sm text-gray-500">
-      {{ totalItems }}件中 {{ startItem }}〜{{ endItem }}件
-    </p>
+  <div
+    v-if="totalPages > 1"
+    class="flex items-center justify-between border-t border-gray-200 pt-4"
+  >
+    <p class="text-sm text-gray-500">{{ totalItems }}件中 {{ startItem }}〜{{ endItem }}件</p>
     <nav class="flex gap-1">
       <button
         :disabled="currentPage <= 1"

@@ -15,9 +15,7 @@ export default defineEventHandler(async (event) => {
     query = query.where("groupId", "==", groupId);
   } else if (queryParams.groupId) {
     // 未認証（Widget 等）: 指定グループのアクティブサービスのみ返す
-    query = query
-      .where("groupId", "==", queryParams.groupId)
-      .where("isActive", "==", true);
+    query = query.where("groupId", "==", queryParams.groupId).where("isActive", "==", true);
   } else if (queryParams.organizationId) {
     // 未認証・organizationId指定（後方互換）: 指定組織のアクティブサービスのみ返す
     query = query

@@ -29,8 +29,12 @@ const statusConfig: Record<string, { label: string; class: string }> = {
   unpublished: { label: "非公開", class: "bg-gray-100 text-gray-600" },
 };
 
-const config = computed(() => statusConfig[props.status] || { label: props.status, class: "bg-gray-100 text-gray-600" });
-const sizeClass = computed(() => (props.size === "sm" ? "px-1.5 py-0.5 text-xs" : "px-2 py-1 text-xs"));
+const config = computed(
+  () => statusConfig[props.status] || { label: props.status, class: "bg-gray-100 text-gray-600" },
+);
+const sizeClass = computed(() =>
+  props.size === "sm" ? "px-1.5 py-0.5 text-xs" : "px-2 py-1 text-xs",
+);
 </script>
 
 <template>

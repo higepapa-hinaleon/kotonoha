@@ -87,7 +87,12 @@ export interface DashboardSummary {
   resolutionRate: number;
   improvementRequestCount: number;
   conversationTrend: { date: string; count: number }[];
-  serviceDistribution: { serviceId: string; serviceName: string; count: number; resolutionRate: number }[];
+  serviceDistribution: {
+    serviceId: string;
+    serviceName: string;
+    count: number;
+    resolutionRate: number;
+  }[];
   recentUnresolved: { id: string; title: string; createdAt: string }[];
   topReferencedDocs: { id: string; title: string; referenceCount: number; serviceId: string }[];
   unreferencedDocCount: number;

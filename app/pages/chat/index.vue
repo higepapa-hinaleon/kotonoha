@@ -41,7 +41,9 @@ async function fetchServices() {
 // 選択中のサービスに対応するフォームURLを取得
 async function fetchFormUrl(serviceId: string) {
   try {
-    const data = await apiFetch<{ formUrl: string }>(`/api/settings/form-url?serviceId=${serviceId}`);
+    const data = await apiFetch<{ formUrl: string }>(
+      `/api/settings/form-url?serviceId=${serviceId}`,
+    );
     formUrl.value = data.formUrl;
   } catch {
     formUrl.value = "";
@@ -85,7 +87,8 @@ async function handleSend(messageText: string) {
   } catch {
     messages.value.push({
       role: "assistant",
-      content: "申し訳ございません。エラーが発生しました。しばらく経ってからもう一度お試しください。",
+      content:
+        "申し訳ございません。エラーが発生しました。しばらく経ってからもう一度お試しください。",
     });
   } finally {
     sending.value = false;
@@ -160,9 +163,22 @@ onMounted(fetchServices);
     <!-- メッセージエリア -->
     <div ref="messagesContainer" class="flex-1 overflow-y-auto px-4 py-4">
       <!-- 空状態 -->
-      <div v-if="messages.length === 0" class="flex h-full flex-col items-center justify-center text-center">
-        <svg class="mb-3 h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      <div
+        v-if="messages.length === 0"
+        class="flex h-full flex-col items-center justify-center text-center"
+      >
+        <svg
+          class="mb-3 h-12 w-12 text-gray-300"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="1"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+          />
         </svg>
         <p class="text-sm text-gray-400">サービスを選択して質問してください</p>
       </div>
@@ -186,8 +202,19 @@ onMounted(fetchServices);
           <div class="rounded-lg border border-gray-200 bg-white px-4 py-3">
             <div class="flex items-center gap-2 text-sm text-gray-400">
               <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
               回答を生成中...
             </div>
@@ -199,10 +226,7 @@ onMounted(fetchServices);
     <!-- 入力エリア -->
     <div class="border-t border-gray-200 bg-white px-4 py-3">
       <div class="mx-auto max-w-3xl">
-        <MessageInput
-          :disabled="!selectedServiceId || sending"
-          @send="handleSend"
-        />
+        <MessageInput :disabled="!selectedServiceId || sending" @send="handleSend" />
       </div>
     </div>
 

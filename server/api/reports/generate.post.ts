@@ -31,7 +31,10 @@ export default defineEventHandler(async (event) => {
     .where("createdAt", "<=", body.periodEnd)
     .get();
 
-  const conversations = conversationsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const conversations = conversationsSnap.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+  })) as Array<{ id: string; status?: string; [key: string]: unknown }>;
   const totalConversations = conversations.length;
   const resolvedByBot = conversations.filter((c) => c.status === "resolved_by_bot").length;
   const escalated = conversations.filter((c) => c.status === "escalated").length;
@@ -68,10 +71,7 @@ export default defineEventHandler(async (event) => {
     serviceCountMap[sid] = (serviceCountMap[sid] || 0) + 1;
   }
 
-  const servicesSnap = await db
-    .collection("services")
-    .where("groupId", "==", groupId)
-    .get();
+  const servicesSnap = await db.collection("services").where("groupId", "==", groupId).get();
   const serviceNameMap: Record<string, string> = {};
   servicesSnap.docs.forEach((d) => {
     serviceNameMap[d.id] = d.data().name;
@@ -151,7 +151,9 @@ export default defineEventHandler(async (event) => {
   await docRef.set(report);
 
   // 古いレポートを非同期で削除（非ブロッキング）
-  const retentionDate = new Date(Date.now() - WEEKLY_REPORT_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const retentionDate = new Date(
+    Date.now() - WEEKLY_REPORT_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
   db.collection("weeklyReports")
     .where("groupId", "==", groupId)
     .where("createdAt", "<", retentionDate)

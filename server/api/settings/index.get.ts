@@ -15,11 +15,7 @@ export default defineEventHandler(async (event) => {
   }
   const db = getAdminFirestore();
 
-  const snapshot = await db
-    .collection("settings")
-    .where("groupId", "==", groupId)
-    .limit(1)
-    .get();
+  const snapshot = await db.collection("settings").where("groupId", "==", groupId).limit(1).get();
 
   if (snapshot.empty) {
     // デフォルト設定を返す

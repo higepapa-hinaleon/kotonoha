@@ -10,10 +10,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const db = getAdminFirestore();
 
-  let ref = db
-    .collection("documents")
-    .where("groupId", "==", groupId)
-    .orderBy("createdAt", "desc");
+  let ref = db.collection("documents").where("groupId", "==", groupId).orderBy("createdAt", "desc");
 
   if (query.serviceId) {
     ref = ref.where("serviceId", "==", query.serviceId);

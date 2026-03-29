@@ -40,11 +40,9 @@ const adminNavItems: NavItem[] = [
   { label: "マニュアル", to: "/admin/manual", icon: "manual" },
 ];
 
-const memberNavItems: NavItem[] = [
-  { label: "チャット", to: "/chat", icon: "chat" },
-];
+const memberNavItems: NavItem[] = [{ label: "チャット", to: "/chat", icon: "chat" }];
 
-const navItems = computed(() => isAdmin.value ? adminNavItems : memberNavItems);
+const navItems = computed(() => (isAdmin.value ? adminNavItems : memberNavItems));
 
 const systemAdminItems: NavItem[] = [
   { label: "グループ管理", to: "/admin/system/groups", icon: "groups" },
@@ -63,9 +61,12 @@ function handleNavClick() {
 }
 
 // ルート変更時にモバイルメニューを閉じる
-watch(() => route.path, () => {
-  emit("close");
-});
+watch(
+  () => route.path,
+  () => {
+    emit("close");
+  },
+);
 </script>
 
 <template>
@@ -100,33 +101,64 @@ watch(() => route.path, () => {
     >
       <div class="flex h-14 items-center justify-between border-b border-gray-200 px-4">
         <span class="text-lg font-bold text-primary-600">メニュー</span>
-        <button
-          class="rounded-md p-1.5 text-gray-400 hover:bg-gray-100"
-          @click="emit('close')"
-        >
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <button class="rounded-md p-1.5 text-gray-400 hover:bg-gray-100" @click="emit('close')">
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
       <!-- モバイル: グループセレクター -->
       <div class="shrink-0 border-b border-gray-200 px-3 py-3">
-        <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">グループ</p>
-        <div v-if="groups.length <= 1" class="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-2">
-          <svg class="h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          グループ
+        </p>
+        <div
+          v-if="groups.length <= 1"
+          class="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-2"
+        >
+          <svg
+            class="h-4 w-4 text-primary-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
           </svg>
-          <span class="truncate text-sm font-medium text-primary-700">{{ currentGroup?.name || 'グループ未選択' }}</span>
+          <span class="truncate text-sm font-medium text-primary-700">{{
+            currentGroup?.name || "グループ未選択"
+          }}</span>
         </div>
         <div v-else class="space-y-1">
           <button
             v-for="group in groups"
             :key="group.id"
             class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
-            :class="group.id === activeGroupId ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-100'"
+            :class="
+              group.id === activeGroupId
+                ? 'bg-primary-50 font-medium text-primary-700'
+                : 'text-gray-600 hover:bg-gray-100'
+            "
             @click="handleGroupSwitch(group.id)"
           >
-            <svg v-if="group.id === activeGroupId" class="h-4 w-4 shrink-0 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg
+              v-if="group.id === activeGroupId"
+              class="h-4 w-4 shrink-0 text-primary-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <span v-else class="h-4 w-4 shrink-0" />
@@ -153,7 +185,9 @@ watch(() => route.path, () => {
         </ul>
         <!-- システム管理セクション -->
         <div v-if="isSystemAdmin" class="border-t border-gray-200 pt-2">
-          <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">システム管理</p>
+          <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            システム管理
+          </p>
           <ul class="space-y-1">
             <li v-for="item in systemAdminItems" :key="item.to">
               <NuxtLink
@@ -190,26 +224,61 @@ watch(() => route.path, () => {
   </Transition>
 
   <!-- デスクトップサイドバー -->
-  <aside class="hidden w-56 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white md:flex">
+  <aside
+    class="hidden w-56 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white md:flex"
+  >
     <!-- デスクトップ: グループセレクター -->
     <div class="shrink-0 border-b border-gray-200 px-3 py-3">
       <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">グループ</p>
-      <div v-if="groups.length <= 1" class="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-2">
-        <svg class="h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      <div
+        v-if="groups.length <= 1"
+        class="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-2"
+      >
+        <svg
+          class="h-4 w-4 text-primary-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+          />
         </svg>
-        <span class="truncate text-sm font-medium text-primary-700">{{ currentGroup?.name || 'グループ未選択' }}</span>
+        <span class="truncate text-sm font-medium text-primary-700">{{
+          currentGroup?.name || "グループ未選択"
+        }}</span>
       </div>
       <div v-else class="relative">
         <button
           class="flex w-full items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm hover:bg-gray-50"
           @click="showGroupDropdown = !showGroupDropdown"
         >
-          <svg class="h-4 w-4 shrink-0 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          <svg
+            class="h-4 w-4 shrink-0 text-primary-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
           </svg>
-          <span class="flex-1 truncate text-left font-medium text-gray-900">{{ currentGroup?.name || 'グループ未選択' }}</span>
-          <svg class="h-3 w-3 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <span class="flex-1 truncate text-left font-medium text-gray-900">{{
+            currentGroup?.name || "グループ未選択"
+          }}</span>
+          <svg
+            class="h-3 w-3 shrink-0 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
@@ -229,10 +298,19 @@ watch(() => route.path, () => {
               v-for="group in groups"
               :key="group.id"
               class="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50"
-              :class="group.id === activeGroupId ? 'text-primary-700 bg-primary-50' : 'text-gray-700'"
+              :class="
+                group.id === activeGroupId ? 'bg-primary-50 text-primary-700' : 'text-gray-700'
+              "
               @click="handleGroupSwitch(group.id)"
             >
-              <svg v-if="group.id === activeGroupId" class="h-4 w-4 shrink-0 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg
+                v-if="group.id === activeGroupId"
+                class="h-4 w-4 shrink-0 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <span v-else class="h-4 w-4 shrink-0" />
@@ -240,7 +318,11 @@ watch(() => route.path, () => {
             </button>
           </div>
         </Transition>
-        <div v-if="showGroupDropdown" class="fixed inset-0 z-40" @click="showGroupDropdown = false" />
+        <div
+          v-if="showGroupDropdown"
+          class="fixed inset-0 z-40"
+          @click="showGroupDropdown = false"
+        />
       </div>
     </div>
     <nav class="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 py-4">
@@ -261,7 +343,9 @@ watch(() => route.path, () => {
       </ul>
       <!-- システム管理セクション -->
       <div v-if="isSystemAdmin" class="border-t border-gray-200 pt-2">
-        <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">システム管理</p>
+        <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          システム管理
+        </p>
         <ul class="space-y-1">
           <li v-for="item in systemAdminItems" :key="item.to">
             <NuxtLink

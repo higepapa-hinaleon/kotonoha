@@ -12,7 +12,9 @@ vi.mock("~~/server/utils/rag", () => ({
   buildContextFromResults: vi.fn(() => "mocked context"),
 }));
 
+// eslint-disable-next-line import/first
 import { getGenerativeModel } from "~~/server/utils/vertex-ai";
+// eslint-disable-next-line import/first
 import { generateChatResponse } from "~~/server/utils/gemini";
 
 function mockGeminiResponse(text: string) {

@@ -141,7 +141,10 @@ onMounted(fetchServices);
     <div v-if="loading" class="py-12 text-center text-sm text-gray-400">読み込み中...</div>
 
     <!-- 空状態 -->
-    <div v-else-if="services.length === 0" class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400">
+    <div
+      v-else-if="services.length === 0"
+      class="rounded-lg border border-gray-200 px-4 py-12 text-center text-sm text-gray-400"
+    >
       サービスがまだ登録されていません
     </div>
 
@@ -157,7 +160,9 @@ onMounted(fetchServices);
             <p class="text-sm font-medium text-gray-900">{{ service.name }}</p>
             <span
               class="inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-              :class="service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
+              :class="
+                service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+              "
             >
               {{ service.isActive ? "有効" : "無効" }}
             </span>
@@ -185,10 +190,26 @@ onMounted(fetchServices);
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">名前</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">説明</th>
-              <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">状態</th>
-              <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">操作</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                名前
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                説明
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                状態
+              </th>
+              <th
+                class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                操作
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
@@ -202,7 +223,9 @@ onMounted(fetchServices);
               <td class="whitespace-nowrap px-4 py-3">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                  :class="service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'"
+                  :class="
+                    service.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                  "
                 >
                   {{ service.isActive ? "有効" : "無効" }}
                 </span>
@@ -283,7 +306,9 @@ onMounted(fetchServices);
                   class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                   placeholder="https://docs.google.com/forms/d/e/..."
                 />
-                <p class="mt-1 text-xs text-gray-400">AIが回答できない場合に案内されるフォームのURLです</p>
+                <p class="mt-1 text-xs text-gray-400">
+                  AIが回答できない場合に案内されるフォームのURLです
+                </p>
               </div>
               <div class="flex items-center gap-2">
                 <input

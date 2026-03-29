@@ -23,8 +23,7 @@
  */
 
 import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
+import { getFirestore } from "firebase-admin/firestore";
 
 // --- 引数解析 ---
 const args = process.argv.slice(2);
@@ -38,11 +37,14 @@ const privateKey = process.env.NUXT_FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 if (!projectId || !clientEmail || !privateKey) {
   console.error("Error: Firebase credentials not set. Required env vars:");
-  console.error("  NUXT_FIREBASE_PROJECT_ID, NUXT_FIREBASE_CLIENT_EMAIL, NUXT_FIREBASE_PRIVATE_KEY");
+  console.error(
+    "  NUXT_FIREBASE_PROJECT_ID, NUXT_FIREBASE_CLIENT_EMAIL, NUXT_FIREBASE_PRIVATE_KEY",
+  );
   process.exit(1);
 }
 
-const storageBucket = process.env.NUXT_FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`;
+const storageBucket =
+  process.env.NUXT_FIREBASE_STORAGE_BUCKET || `${projectId}.firebasestorage.app`;
 const databaseId = process.env.NUXT_FIREBASE_DATABASE_ID;
 
 const app = initializeApp({
@@ -51,7 +53,6 @@ const app = initializeApp({
 });
 
 const db = databaseId ? getFirestore(app, databaseId) : getFirestore(app);
-const storage = getStorage(app);
 
 // --- メイン処理 ---
 async function main() {
@@ -61,9 +62,7 @@ async function main() {
   console.log("");
 
   // 対象ドキュメントを取得
-  let query: FirebaseFirestore.Query = db
-    .collection("documents")
-    .where("status", "==", "ready");
+  let query: FirebaseFirestore.Query = db.collection("documents").where("status", "==", "ready");
 
   if (orgIdArg) {
     query = query.where("organizationId", "==", orgIdArg);

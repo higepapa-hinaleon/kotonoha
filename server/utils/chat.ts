@@ -51,7 +51,11 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
 
   // サービス情報と設定を並列取得
   const serviceDocPromise = db.collection("services").doc(params.serviceId).get();
-  const settingsPromise = db.collection("settings").where("groupId", "==", params.groupId).limit(1).get();
+  const settingsPromise = db
+    .collection("settings")
+    .where("groupId", "==", params.groupId)
+    .limit(1)
+    .get();
 
   const serviceDoc = await serviceDocPromise;
   if (!serviceDoc.exists) {
@@ -61,9 +65,11 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
 
   const settingsSnapshot = await settingsPromise;
   const settings = settingsSnapshot.docs[0]?.data() as Settings | undefined;
-  const confidenceThreshold = settings?.botConfig?.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
+  const confidenceThreshold =
+    settings?.botConfig?.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
   const ragTopK = settings?.botConfig?.ragTopK ?? DEFAULT_RAG_TOP_K;
-  const ragSimilarityThreshold = settings?.botConfig?.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD;
+  const ragSimilarityThreshold =
+    settings?.botConfig?.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD;
   const enableMultiQuery = settings?.botConfig?.enableMultiQuery ?? false;
   const enableHyde = settings?.botConfig?.enableHyde ?? false;
   const rawSystemPrompt = settings?.botConfig?.systemPrompt;
@@ -78,7 +84,11 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   if (conversationId) {
     conversationRef = db.collection("conversations").doc(conversationId);
     const convDoc = await conversationRef.get();
-    if (!convDoc.exists || convDoc.data()?.userId !== params.userId || convDoc.data()?.groupId !== params.groupId) {
+    if (
+      !convDoc.exists ||
+      convDoc.data()?.userId !== params.userId ||
+      convDoc.data()?.groupId !== params.groupId
+    ) {
       throw createError({ statusCode: 404, statusMessage: "会話が見つかりません" });
     }
   } else {
@@ -138,7 +148,7 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   let feedbackContext = "";
 
   const ragSearchPromise = queryEmbedding
-    ? (enableMultiQuery || enableHyde)
+    ? enableMultiQuery || enableHyde
       ? multiQuerySearch(params.message, {
           organizationId: params.organizationId,
           groupId: params.groupId,
@@ -165,15 +175,21 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
         serviceId: params.serviceId,
         topK: FEEDBACK_RAG_TOP_K,
         queryVector: queryEmbedding,
-      }).catch((feedbackRagError) => {
-        console.warn("[chat] Feedback RAG search failed, falling back to Firestore query:", feedbackRagError);
+      }).catch((feedbackRagError): null => {
+        console.warn(
+          "[chat] Feedback RAG search failed, falling back to Firestore query:",
+          feedbackRagError,
+        );
         return null;
       })
     : Promise.resolve(null);
 
   const [ragSearchResult, feedbackSearchResult] = await Promise.all([
     ragSearchPromise.catch((error) => {
-      console.error(`[chat] RAG failed (service=${params.serviceId}, org=${params.organizationId}):`, error);
+      console.error(
+        `[chat] RAG failed (service=${params.serviceId}, org=${params.organizationId}):`,
+        error,
+      );
       return [] as RagResult[];
     }),
     feedbackSearchPromise,
@@ -186,7 +202,10 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   if (feedbackSearchResult && feedbackSearchResult.length > 0) {
     const startIndex = ragResults.length + 1;
     feedbackContext = feedbackSearchResult
-      .map((r, i) => `[参照${startIndex + i}] (類似度: ${(r.similarity * 100).toFixed(1)}%)\n${r.correctedAnswer}`)
+      .map(
+        (r: { similarity: number; correctedAnswer: string }, i: number) =>
+          `[参照${startIndex + i}] (類似度: ${(r.similarity * 100).toFixed(1)}%)\n${r.correctedAnswer}`,
+      )
       .join("\n\n---\n\n");
     console.info(`[chat] Feedback RAG: ${feedbackSearchResult.length} relevant corrections found`);
   } else if (feedbackSearchResult === null) {
@@ -207,7 +226,9 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
         feedbackContext = fallbackResults
           .map((d, i) => `[参照${startIndex + i}]\n${d.correctedAnswer}`)
           .join("\n\n---\n\n");
-        console.info(`[chat] Feedback fallback: ${fallbackResults.length} corrections found via Firestore query`);
+        console.info(
+          `[chat] Feedback fallback: ${fallbackResults.length} corrections found via Firestore query`,
+        );
       }
     } catch (fallbackError) {
       console.error("[chat] Feedback fallback also failed:", fallbackError);
@@ -225,7 +246,8 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   } catch (geminiError) {
     console.error("[chat] Gemini API failed, returning fallback response:", geminiError);
     geminiResponse = {
-      content: "申し訳ございません。現在、回答の生成に問題が発生しています。しばらく時間をおいてから再度お試しください。",
+      content:
+        "申し訳ございません。現在、回答の生成に問題が発生しています。しばらく時間をおいてから再度お試しください。",
       confidence: 0,
     };
   }

@@ -63,7 +63,10 @@ export default defineEventHandler(async (event) => {
   // 訂正回答ありの場合、親会話を closed に更新
   if (hasCorrection) {
     try {
-      await db.collection("conversations").doc(body.conversationId).update({ status: "closed", updatedAt: now });
+      await db
+        .collection("conversations")
+        .doc(body.conversationId)
+        .update({ status: "closed", updatedAt: now });
     } catch (err) {
       console.error("[feedback] Failed to update conversation status:", err);
     }

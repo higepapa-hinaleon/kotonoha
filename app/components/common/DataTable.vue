@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Column<T> {
   key: string;
   label: string;
@@ -75,8 +76,19 @@ const sortedItems = computed(() => {
           <td :colspan="columns.length" class="px-4 py-12 text-center">
             <div class="flex items-center justify-center gap-2 text-gray-400">
               <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
               読み込み中...
             </div>

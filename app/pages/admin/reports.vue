@@ -94,11 +94,19 @@ onMounted(() => {
     <div class="mb-6 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4">
       <div>
         <label class="block text-xs font-medium text-gray-600">開始日</label>
-        <input v-model="periodStart" type="date" class="mt-1 rounded-md border border-gray-300 px-3 py-2 text-sm" />
+        <input
+          v-model="periodStart"
+          type="date"
+          class="mt-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
       </div>
       <div>
         <label class="block text-xs font-medium text-gray-600">終了日</label>
-        <input v-model="periodEnd" type="date" class="mt-1 rounded-md border border-gray-300 px-3 py-2 text-sm" />
+        <input
+          v-model="periodEnd"
+          type="date"
+          class="mt-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
       </div>
       <button
         :disabled="generating || !periodStart || !periodEnd"
@@ -123,7 +131,11 @@ onMounted(() => {
             v-for="report in reports"
             :key="report.id"
             class="cursor-pointer rounded-lg border p-4 transition-colors hover:bg-gray-50"
-            :class="selectedReport?.id === report.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white'"
+            :class="
+              selectedReport?.id === report.id
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-gray-200 bg-white'
+            "
             @click="selectReport(report)"
           >
             <p class="text-sm font-medium text-gray-900">
@@ -139,7 +151,10 @@ onMounted(() => {
 
         <!-- レポート詳細 -->
         <div class="lg:col-span-2">
-          <div v-if="!selectedReport" class="flex items-center justify-center rounded-lg border border-dashed border-gray-300 p-12">
+          <div
+            v-if="!selectedReport"
+            class="flex items-center justify-center rounded-lg border border-dashed border-gray-300 p-12"
+          >
             <p class="text-sm text-gray-400">レポートを選択してください</p>
           </div>
 
@@ -150,38 +165,57 @@ onMounted(() => {
               <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <p class="text-xs text-gray-500">総会話数</p>
-                  <p class="text-lg font-bold text-gray-900">{{ selectedReport.stats.totalConversations }}</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ selectedReport.stats.totalConversations }}
+                  </p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">Bot解決</p>
-                  <p class="text-lg font-bold text-gray-900">{{ selectedReport.stats.resolvedByBot }}</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ selectedReport.stats.resolvedByBot }}
+                  </p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">エスカレーション</p>
-                  <p class="text-lg font-bold text-gray-900">{{ selectedReport.stats.escalated }}</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ selectedReport.stats.escalated }}
+                  </p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">解決率</p>
-                  <p class="text-lg font-bold text-gray-900">{{ (selectedReport.stats.resolutionRate * 100).toFixed(1) }}%</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ (selectedReport.stats.resolutionRate * 100).toFixed(1) }}%
+                  </p>
                 </div>
               </div>
               <div class="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <p class="text-xs text-gray-500">平均確信度</p>
-                  <p class="text-lg font-bold text-gray-900">{{ (selectedReport.stats.averageConfidence * 100).toFixed(1) }}%</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ (selectedReport.stats.averageConfidence * 100).toFixed(1) }}%
+                  </p>
                 </div>
                 <div>
                   <p class="text-xs text-gray-500">改善要望数</p>
-                  <p class="text-lg font-bold text-gray-900">{{ selectedReport.stats.improvementRequestCount }}</p>
+                  <p class="text-lg font-bold text-gray-900">
+                    {{ selectedReport.stats.improvementRequestCount }}
+                  </p>
                 </div>
               </div>
             </div>
 
             <!-- サービス別 -->
-            <div v-if="selectedReport.stats.topServices.length > 0" class="rounded-lg border border-gray-200 bg-white p-5">
+            <div
+              v-if="selectedReport.stats.topServices.length > 0"
+              class="rounded-lg border border-gray-200 bg-white p-5"
+            >
               <h2 class="mb-3 text-sm font-semibold text-gray-900">サービス別利用状況</h2>
               <div class="space-y-2">
-                <div v-for="svc in selectedReport.stats.topServices" :key="svc.serviceId" class="flex items-center justify-between text-sm">
+                <div
+                  v-for="svc in selectedReport.stats.topServices"
+                  :key="svc.serviceId"
+                  class="flex items-center justify-between text-sm"
+                >
                   <span class="text-gray-700">{{ svc.serviceName }}</span>
                   <span class="font-medium text-gray-900">{{ svc.count }}件</span>
                 </div>
@@ -189,7 +223,10 @@ onMounted(() => {
             </div>
 
             <!-- インサイト -->
-            <div v-if="selectedReport.insights.length > 0" class="rounded-lg border border-gray-200 bg-white p-5">
+            <div
+              v-if="selectedReport.insights.length > 0"
+              class="rounded-lg border border-gray-200 bg-white p-5"
+            >
               <h2 class="mb-3 text-sm font-semibold text-gray-900">インサイト</h2>
               <ul class="list-inside list-disc space-y-1 text-sm text-gray-700">
                 <li v-for="(insight, i) in selectedReport.insights" :key="i">{{ insight }}</li>
@@ -197,7 +234,10 @@ onMounted(() => {
             </div>
 
             <!-- 改善提案 -->
-            <div v-if="selectedReport.recommendations.length > 0" class="rounded-lg border border-gray-200 bg-white p-5">
+            <div
+              v-if="selectedReport.recommendations.length > 0"
+              class="rounded-lg border border-gray-200 bg-white p-5"
+            >
               <h2 class="mb-3 text-sm font-semibold text-gray-900">改善提案</h2>
               <ul class="list-inside list-disc space-y-1 text-sm text-gray-700">
                 <li v-for="(rec, i) in selectedReport.recommendations" :key="i">{{ rec }}</li>

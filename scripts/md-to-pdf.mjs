@@ -3,35 +3,32 @@
  * Uses Playwright (Chromium) to render Mermaid diagrams and generate PDF
  * All resources loaded locally (no CDN dependency)
  */
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { createRequire } from 'module';
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import { createRequire } from "module";
+import { marked } from "marked";
 const require = createRequire(import.meta.url);
-const { chromium } = require('playwright-core');
-import { marked } from 'marked';
+const { chromium } = require("playwright-core");
 
 const inputFile = process.argv[2];
 if (!inputFile) {
-  console.error('Usage: node md-to-pdf.mjs <input.md> [output.pdf]');
+  console.error("Usage: node md-to-pdf.mjs <input.md> [output.pdf]");
   process.exit(1);
 }
 
-const outputFile = process.argv[3] || inputFile.replace(/\.md$/, '.pdf');
-const mdContent = readFileSync(resolve(inputFile), 'utf-8');
+const outputFile = process.argv[3] || inputFile.replace(/\.md$/, ".pdf");
+const mdContent = readFileSync(resolve(inputFile), "utf-8");
 
 // Load mermaid.js from local node_modules
-const mermaidJs = readFileSync(
-  resolve('node_modules/mermaid/dist/mermaid.min.js'),
-  'utf-8'
-);
+const mermaidJs = readFileSync(resolve("node_modules/mermaid/dist/mermaid.min.js"), "utf-8");
 
 // Convert markdown to HTML, keeping mermaid code blocks as-is
 const renderer = new marked.Renderer();
 renderer.code = function ({ text, lang }) {
-  if (lang === 'mermaid') {
+  if (lang === "mermaid") {
     return `<pre class="mermaid">${text}</pre>`;
   }
-  return `<pre><code class="language-${lang || ''}">${text}</code></pre>`;
+  return `<pre><code class="language-${lang || ""}">${text}</code></pre>`;
 };
 
 marked.setOptions({ renderer });
@@ -193,47 +190,53 @@ ${htmlBody}
 </body>
 </html>`;
 
-console.log('Launching browser...');
+console.log("Launching browser...");
 const browser = await chromium.launch({
-  executablePath: '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome',
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  executablePath: "/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome",
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
 });
 const page = await browser.newPage();
 
 // Use domcontentloaded since no external resources
-await page.setContent(html, { waitUntil: 'domcontentloaded' });
+await page.setContent(html, { waitUntil: "domcontentloaded" });
 
 // Wait for Mermaid to finish rendering
-await page.waitForFunction(() => {
-  const diagrams = document.querySelectorAll('.mermaid');
-  if (diagrams.length === 0) return true;
-  return Array.from(diagrams).every(
-    d => d.querySelector('svg') || d.getAttribute('data-processed') === 'true'
-  );
-}, { timeout: 30000 }).catch(() => {
-  console.warn('Warning: Some Mermaid diagrams may not have rendered.');
-});
+await page
+  .waitForFunction(
+    () => {
+      const diagrams = document.querySelectorAll(".mermaid");
+      if (diagrams.length === 0) return true;
+      return Array.from(diagrams).every(
+        (d) => d.querySelector("svg") || d.getAttribute("data-processed") === "true",
+      );
+    },
+    { timeout: 30000 },
+  )
+  .catch(() => {
+    console.warn("Warning: Some Mermaid diagrams may not have rendered.");
+  });
 
 // Wait a bit for rendering to stabilize
 await page.waitForTimeout(3000);
 
 const diagramCount = await page.evaluate(() => {
   return {
-    total: document.querySelectorAll('.mermaid').length,
-    rendered: document.querySelectorAll('.mermaid svg').length,
+    total: document.querySelectorAll(".mermaid").length,
+    rendered: document.querySelectorAll(".mermaid svg").length,
   };
 });
 console.log(`Mermaid diagrams: ${diagramCount.rendered}/${diagramCount.total} rendered`);
 
-console.log('Generating PDF...');
+console.log("Generating PDF...");
 await page.pdf({
   path: resolve(outputFile),
-  format: 'A4',
-  margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' },
+  format: "A4",
+  margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
   printBackground: true,
   displayHeaderFooter: true,
-  headerTemplate: '<div></div>',
-  footerTemplate: '<div style="width:100%;text-align:center;font-size:9px;color:#999;font-family:sans-serif;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+  headerTemplate: "<div></div>",
+  footerTemplate:
+    '<div style="width:100%;text-align:center;font-size:9px;color:#999;font-family:sans-serif;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
 });
 
 await browser.close();

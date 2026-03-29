@@ -115,14 +115,6 @@ function groupName(groupId: string): string {
   return groups.value.find((g) => g.id === groupId)?.name || groupId;
 }
 
-function roleLabel(role: string): string {
-  switch (role) {
-    case "system_admin": return "システム管理者";
-    case "admin": return "管理者";
-    default: return "メンバー";
-  }
-}
-
 onMounted(async () => {
   await Promise.all([fetchUsers(), fetchInvitations(), fetchGroups()]);
 });
@@ -135,7 +127,10 @@ onMounted(async () => {
     <div v-if="loading" class="py-8 text-center text-gray-500">読み込み中...</div>
 
     <!-- 空状態 -->
-    <div v-else-if="users.length === 0" class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-400">
+    <div
+      v-else-if="users.length === 0"
+      class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-400"
+    >
       ユーザーがいません
     </div>
 
@@ -172,15 +167,33 @@ onMounted(async () => {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ユーザー</th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">メール</th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">システムロール</th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">所属グループ</th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                ユーザー
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                メール
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                システムロール
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                所属グループ
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             <tr v-for="u in paginatedUsers" :key="u.id">
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ u.displayName }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                {{ u.displayName }}
+              </td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ u.email }}</td>
               <td class="px-6 py-4 text-sm">
                 <select
@@ -224,7 +237,10 @@ onMounted(async () => {
         </button>
       </div>
 
-      <div v-if="invitations.length === 0" class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-400">
+      <div
+        v-if="invitations.length === 0"
+        class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-400"
+      >
         保留中の招待はありません
       </div>
 
@@ -258,24 +274,45 @@ onMounted(async () => {
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">メール</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">グループ</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">ロール</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">作成日</th>
-                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">操作</th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  メール
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  グループ
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  ロール
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  作成日
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  操作
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr v-for="inv in invitations" :key="inv.id">
                 <td class="px-6 py-4 text-sm text-gray-900">{{ inv.email }}</td>
                 <td class="px-6 py-4 text-sm text-gray-500">{{ groupName(inv.groupId) }}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">{{ inv.role === "admin" ? "管理者" : "メンバー" }}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">{{ new Date(inv.createdAt).toLocaleDateString("ja-JP") }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ inv.role === "admin" ? "管理者" : "メンバー" }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ new Date(inv.createdAt).toLocaleDateString("ja-JP") }}
+                </td>
                 <td class="px-6 py-4 text-sm">
-                  <button
-                    class="text-red-600 hover:text-red-800"
-                    @click="deleteInvitation(inv.id)"
-                  >
+                  <button class="text-red-600 hover:text-red-800" @click="deleteInvitation(inv.id)">
                     削除
                   </button>
                 </td>
@@ -287,7 +324,10 @@ onMounted(async () => {
     </div>
 
     <!-- 招待ダイアログ -->
-    <div v-if="showInviteDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+      v-if="showInviteDialog"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    >
       <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <h3 class="mb-4 text-lg font-semibold text-gray-900">ユーザーを招待</h3>
         <div class="space-y-4">

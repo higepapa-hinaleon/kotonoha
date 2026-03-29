@@ -1,3 +1,5 @@
+import type { kotonohaChatClientOptions, ChatSendResponse, Service } from "./types";
+
 export type {
   kotonohaChatClientOptions,
   ChatMessage,
@@ -6,8 +8,6 @@ export type {
   MessageSource,
   Service,
 } from "./types";
-
-import type { kotonohaChatClientOptions, ChatSendResponse, Service } from "./types";
 
 /**
  * kotonoha AI チャット SDK クライアント

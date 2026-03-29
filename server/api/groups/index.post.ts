@@ -25,5 +25,13 @@ export default defineEventHandler(async (event) => {
     updatedAt: now,
   });
 
-  return { id: groupRef.id, organizationId: user.organizationId, name: body.name.trim(), description: (body.description || "").trim(), isActive: true, createdAt: now, updatedAt: now };
+  return {
+    id: groupRef.id,
+    organizationId: user.organizationId,
+    name: body.name.trim(),
+    description: (body.description || "").trim(),
+    isActive: true,
+    createdAt: now,
+    updatedAt: now,
+  };
 });

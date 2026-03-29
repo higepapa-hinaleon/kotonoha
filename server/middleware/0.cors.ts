@@ -9,12 +9,7 @@ export default defineEventHandler((event) => {
   const path = getRequestURL(event).pathname;
 
   // 外部 Widget からアクセスされる公開パス
-  const publicPaths = [
-    "/embed/",
-    "/api/chat/send",
-    "/api/services",
-    "/api/settings/form-url",
-  ];
+  const publicPaths = ["/embed/", "/api/chat/send", "/api/services", "/api/settings/form-url"];
 
   if (!publicPaths.some((p) => path.startsWith(p))) return;
 

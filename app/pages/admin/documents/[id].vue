@@ -41,17 +41,19 @@ async function fetchData() {
   loading.value = true;
   try {
     const [docData, chunksData, svcs] = await Promise.all([
-      apiFetch<Document>(`/api/documents/${docId}`).catch(() => null),
+      apiFetch<Document>(`/api/documents/${docId}`).catch((): null => null),
       apiFetch<ChunksResponse>(`/api/documents/${docId}/chunks`),
       apiFetch<Service[]>("/api/services"),
     ]);
-    document.value = docData || ({
-      id: docId,
-      title: chunksData.documentTitle,
-      type: chunksData.documentType,
-      serviceId: chunksData.serviceId,
-      status: chunksData.status,
-    } as Document);
+    document.value =
+      docData ||
+      ({
+        id: docId,
+        title: chunksData.documentTitle,
+        type: chunksData.documentType,
+        serviceId: chunksData.serviceId,
+        status: chunksData.status,
+      } as Document);
     chunks.value = chunksData.chunks;
     services.value = svcs;
   } finally {
@@ -88,8 +90,17 @@ onMounted(fetchData);
   <div>
     <!-- ヘッダー -->
     <div class="mb-6">
-      <NuxtLink to="/admin/documents" class="mb-2 inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
-        <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <NuxtLink
+        to="/admin/documents"
+        class="mb-2 inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+      >
+        <svg
+          class="mr-1 h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
         ドキュメント一覧に戻る
@@ -113,7 +124,9 @@ onMounted(fetchData);
           </div>
           <div>
             <dt class="text-xs font-medium text-gray-500">種別</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ document.type === "business" ? "業務" : "システム" }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ document.type === "business" ? "業務" : "システム" }}
+            </dd>
           </div>
           <div>
             <dt class="text-xs font-medium text-gray-500">チャンク数</dt>
@@ -147,7 +160,10 @@ onMounted(fetchData);
         </div>
       </div>
 
-      <div v-if="chunks.length === 0" class="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400">
+      <div
+        v-if="chunks.length === 0"
+        class="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400"
+      >
         チャンクがまだ生成されていません
       </div>
 
@@ -163,7 +179,9 @@ onMounted(fetchData);
             @click="toggleChunk(chunk.chunkIndex)"
           >
             <div class="flex items-center gap-3">
-              <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600">
+              <span
+                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600"
+              >
                 {{ chunk.chunkIndex + 1 }}
               </span>
               <span v-if="chunk.sectionTitle" class="text-sm font-medium text-gray-900">
@@ -179,7 +197,10 @@ onMounted(fetchData);
               <svg
                 class="h-4 w-4 text-gray-400 transition-transform"
                 :class="expandedChunks.has(chunk.chunkIndex) ? 'rotate-180' : ''"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
               >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -187,11 +208,14 @@ onMounted(fetchData);
           </button>
 
           <!-- チャンク詳細 -->
-          <div v-if="expandedChunks.has(chunk.chunkIndex)" class="border-t border-gray-100 px-4 py-3">
+          <div
+            v-if="expandedChunks.has(chunk.chunkIndex)"
+            class="border-t border-gray-100 px-4 py-3"
+          >
             <!-- コンテキスト接頭辞 -->
             <div v-if="chunk.contextPrefix" class="mb-3">
               <p class="mb-1 text-xs font-medium text-blue-600">コンテキスト接頭辞</p>
-              <div class="rounded-md bg-blue-50 p-3 text-sm text-blue-800 whitespace-pre-wrap">
+              <div class="whitespace-pre-wrap rounded-md bg-blue-50 p-3 text-sm text-blue-800">
                 {{ chunk.contextPrefix }}
               </div>
             </div>
@@ -199,7 +223,7 @@ onMounted(fetchData);
             <!-- チャンク本文 -->
             <div>
               <p class="mb-1 text-xs font-medium text-gray-500">チャンク本文</p>
-              <div class="rounded-md bg-gray-50 p-3 text-sm text-gray-800 whitespace-pre-wrap">
+              <div class="whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm text-gray-800">
                 {{ chunk.content }}
               </div>
             </div>

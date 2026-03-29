@@ -160,6 +160,7 @@ sequenceDiagram
 ```
 
 **処理詳細:**
+
 1. **Upload:** 管理者がファイルをアップロード（単一 / 一括対応）
 2. **Storage:** Cloud Storage にファイル原本を保存
 3. **Extract:** ファイル形式に応じたテキスト抽出
@@ -197,6 +198,7 @@ sequenceDiagram
 ```
 
 **処理詳細:**
+
 1. **Query → Embed:** ユーザーの質問をベクトル化
 2. **Vector Search:** ドキュメントチャンク + フィードバックデータの両方を検索
 3. **Context build:** 検索結果を統合してコンテキストを構築
@@ -228,6 +230,7 @@ sequenceDiagram
 ```
 
 **学習ループの仕組み:**
+
 1. **Low confidence:** 信頼度が閾値を下回ると、フォーム誘導バナーを表示
 2. **Form guidance:** ユーザーが改善リクエストを入力
 3. **Improvement request:** リクエストをFirestoreに保存
@@ -264,14 +267,14 @@ sequenceDiagram
 
 ### 4.2 セキュリティレイヤー
 
-| レイヤー | 実装 | 説明 |
-|----------|------|------|
-| 認証 | Firebase Authentication | Email/Password + Google OAuth |
-| トークン検証 | Server Middleware | Bearer Token をサーバー側で検証 |
-| データ分離 | Firestore Security Rules | 組織ベースのアイソレーション |
-| ストレージ制御 | Storage Rules | 管理者のみアップロード可能 |
-| 通信制御 | CORS Whitelist | 許可オリジンのみアクセス可能 |
-| ロール管理 | カスタムクレーム | admin / user ロールの分離 |
+| レイヤー       | 実装                     | 説明                            |
+| -------------- | ------------------------ | ------------------------------- |
+| 認証           | Firebase Authentication  | Email/Password + Google OAuth   |
+| トークン検証   | Server Middleware        | Bearer Token をサーバー側で検証 |
+| データ分離     | Firestore Security Rules | 組織ベースのアイソレーション    |
+| ストレージ制御 | Storage Rules            | 管理者のみアップロード可能      |
+| 通信制御       | CORS Whitelist           | 許可オリジンのみアクセス可能    |
+| ロール管理     | カスタムクレーム         | admin / user ロールの分離       |
 
 ### 4.3 Firestore Security Rules の設計方針
 
@@ -358,27 +361,27 @@ graph TB
 
 ### 5.3 環境構成
 
-| 項目 | 設定 |
-|------|------|
-| ランタイム | Node.js (Cloud Run) |
-| フレームワーク | Nuxt 3 (Nitro) |
-| コンテナレジストリ | Artifact Registry |
-| CDN | Firebase Hosting |
-| データベース | Cloud Firestore |
-| オブジェクトストレージ | Cloud Storage |
-| 認証 | Firebase Authentication |
-| AI | Vertex AI (Gemini + Embedding) |
-| CI/CD | Cloud Build |
+| 項目                   | 設定                           |
+| ---------------------- | ------------------------------ |
+| ランタイム             | Node.js (Cloud Run)            |
+| フレームワーク         | Nuxt 3 (Nitro)                 |
+| コンテナレジストリ     | Artifact Registry              |
+| CDN                    | Firebase Hosting               |
+| データベース           | Cloud Firestore                |
+| オブジェクトストレージ | Cloud Storage                  |
+| 認証                   | Firebase Authentication        |
+| AI                     | Vertex AI (Gemini + Embedding) |
+| CI/CD                  | Cloud Build                    |
 
 ---
 
 ## 6. Source of Truth (SoT) 宣言
 
-| データ領域 | SoT | キャッシュ/派生 | 同期方式 |
-|-----------|-----|---------------|---------|
-| ユーザー認証情報 | Firebase Authentication | Firestore (ユーザープロファイル) | 認証イベントトリガー |
-| ドキュメント原本 | Cloud Storage | Firestore (メタデータ + チャンク) | アップロード時に同期処理 |
-| ベクトルデータ | Firestore (Embedding) | - | ドキュメント登録時に生成 |
-| 会話ログ | Firestore | - | リアルタイム書込 |
-| 改善リクエスト | Firestore | - | リアルタイム書込 |
-| 組織設定 | Firestore | - | 管理画面から更新 |
+| データ領域       | SoT                     | キャッシュ/派生                   | 同期方式                 |
+| ---------------- | ----------------------- | --------------------------------- | ------------------------ |
+| ユーザー認証情報 | Firebase Authentication | Firestore (ユーザープロファイル)  | 認証イベントトリガー     |
+| ドキュメント原本 | Cloud Storage           | Firestore (メタデータ + チャンク) | アップロード時に同期処理 |
+| ベクトルデータ   | Firestore (Embedding)   | -                                 | ドキュメント登録時に生成 |
+| 会話ログ         | Firestore               | -                                 | リアルタイム書込         |
+| 改善リクエスト   | Firestore               | -                                 | リアルタイム書込         |
+| 組織設定         | Firestore               | -                                 | 管理画面から更新         |

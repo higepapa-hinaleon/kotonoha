@@ -51,7 +51,11 @@ async function main() {
 
   // 2. デフォルトグループを作成（冪等）
   let defaultGroupId: string;
-  const existingGroups = await db.collection("groups").where("organizationId", "==", orgId).limit(1).get();
+  const existingGroups = await db
+    .collection("groups")
+    .where("organizationId", "==", orgId)
+    .limit(1)
+    .get();
   if (!existingGroups.empty) {
     defaultGroupId = existingGroups.docs[0].id;
     console.log(`Default group already exists: ${defaultGroupId}`);
@@ -109,7 +113,8 @@ async function main() {
     const membershipRef = db.collection("userGroupMemberships").doc(membershipId);
     const existingMembership = await membershipRef.get();
     if (!existingMembership.exists) {
-      const membershipRole = userData.role === "admin" || userData.role === "system_admin" ? "admin" : "member";
+      const membershipRole =
+        userData.role === "admin" || userData.role === "system_admin" ? "admin" : "member";
       if (!DRY_RUN) {
         const now = new Date().toISOString();
         await membershipRef.set({
@@ -142,10 +147,7 @@ async function main() {
     console.log(`\nProcessing collection: ${collectionName}`);
 
     // groupId が未設定のドキュメントのみ取得
-    const snapshot = await db
-      .collection(collectionName)
-      .where("organizationId", "==", orgId)
-      .get();
+    const snapshot = await db.collection(collectionName).where("organizationId", "==", orgId).get();
 
     const docsToUpdate = snapshot.docs.filter((doc) => !doc.data().groupId);
     console.log(`  Total: ${snapshot.docs.length}, needs update: ${docsToUpdate.length}`);

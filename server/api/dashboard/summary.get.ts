@@ -73,10 +73,7 @@ export default defineEventHandler(async (event) => {
         serviceResolvedMap[sid] = (serviceResolvedMap[sid] || 0) + 1;
       }
     }
-    const servicesSnap = await db
-      .collection("services")
-      .where("groupId", "==", groupId)
-      .get();
+    const servicesSnap = await db.collection("services").where("groupId", "==", groupId).get();
     const serviceNameMap: Record<string, string> = {};
     servicesSnap.docs.forEach((d) => {
       serviceNameMap[d.id] = d.data().name;
@@ -106,10 +103,7 @@ export default defineEventHandler(async (event) => {
     }));
 
     // ドキュメント利用状況
-    const docsSnap = await db
-      .collection("documents")
-      .where("groupId", "==", groupId)
-      .get();
+    const docsSnap = await db.collection("documents").where("groupId", "==", groupId).get();
 
     const topReferencedDocs = docsSnap.docs
       .map((d) => ({
@@ -122,7 +116,11 @@ export default defineEventHandler(async (event) => {
       .slice(0, 5);
 
     const unreferencedDocs = docsSnap.docs
-      .filter((d) => d.data().status === "ready" && (!d.data().referenceCount || d.data().referenceCount === 0))
+      .filter(
+        (d) =>
+          d.data().status === "ready" &&
+          (!d.data().referenceCount || d.data().referenceCount === 0),
+      )
       .map((d) => ({
         id: d.id,
         title: d.data().title as string,
@@ -146,6 +144,9 @@ export default defineEventHandler(async (event) => {
     }
     const message = e instanceof Error ? e.message : String(e);
     console.error("[dashboard/summary] Firestoreクエリエラー:", message);
-    throw createError({ statusCode: 500, statusMessage: `ダッシュボードデータ取得エラー: ${message}` });
+    throw createError({
+      statusCode: 500,
+      statusMessage: `ダッシュボードデータ取得エラー: ${message}`,
+    });
   }
 });

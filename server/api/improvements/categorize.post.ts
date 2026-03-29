@@ -55,9 +55,7 @@ export default defineEventHandler(async (event) => {
 JSON配列形式で出力してください:
 [{ "index": 0, "category": "カテゴリ", "priority": "優先度" }, ...]`;
 
-  const itemsText = docs
-    .map((d, i) => `[${i}] ${d.data().summary}`)
-    .join("\n");
+  const itemsText = docs.map((d, i) => `[${i}] ${d.data().summary}`).join("\n");
 
   const results = await generateStructuredJson<CategoryResult[]>(
     systemPrompt,

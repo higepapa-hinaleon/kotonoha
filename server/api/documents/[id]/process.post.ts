@@ -2,7 +2,12 @@ import { createHash } from "crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore, getAdminStorage } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
-import { extractText, splitTextIntoParentChildChunks, estimateTokenCount, estimateMaxChars } from "~~/server/utils/chunker";
+import {
+  extractText,
+  splitTextIntoParentChildChunks,
+  estimateTokenCount,
+  estimateMaxChars,
+} from "~~/server/utils/chunker";
 import { generateEmbeddings } from "~~/server/utils/embeddings";
 import {
   generateDocumentSummary,
@@ -56,7 +61,9 @@ async function doProcessing(
 
     // 2. テキスト抽出
     const text = await extractText(fileBuffer, document.mimeType);
-    console.warn(`[process] Document "${document.title}" (${id}): text extracted (${text.length} chars)`);
+    console.warn(
+      `[process] Document "${document.title}" (${id}): text extracted (${text.length} chars)`,
+    );
 
     // 3. 親子チャンク分割
     const chunks = splitTextIntoParentChildChunks(text, {
@@ -67,7 +74,9 @@ async function doProcessing(
 
     if (chunks.length === 0) {
       await docRef.update({ status: "error", updatedAt: new Date().toISOString() });
-      console.error(`[process] Document "${document.title}" (${id}): テキストを抽出できませんでした`);
+      console.error(
+        `[process] Document "${document.title}" (${id}): テキストを抽出できませんでした`,
+      );
       return;
     }
 
@@ -323,9 +332,7 @@ async function doProcessing(
       `[process] Document "${document.title}" processed: ${chunks.length} chunks (changed: ${changedIndices.length}, unchanged: ${unchangedIndices.length})`,
     );
   } catch (error: unknown) {
-    const detail = error instanceof Error
-      ? `${error.message}\n${error.stack}`
-      : String(error);
+    const detail = error instanceof Error ? `${error.message}\n${error.stack}` : String(error);
     console.error(`[process] Document "${document.title}" (${id}) processing failed:\n${detail}`);
     // エラー時はステータスを「error」に更新
     try {

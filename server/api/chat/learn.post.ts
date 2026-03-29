@@ -16,14 +16,20 @@ export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
   // レート制限チェック
   const rateLimitKey = `chat:learn:${user.id}`;
   if (!checkRateLimit(rateLimitKey, CHAT_RATE_LIMIT)) {
-    throw createError({ statusCode: 429, statusMessage: "リクエストが多すぎます。しばらく待ってから再試行してください" });
+    throw createError({
+      statusCode: 429,
+      statusMessage: "リクエストが多すぎます。しばらく待ってから再試行してください",
+    });
   }
 
   if (!body.serviceId || !body.message?.trim()) {
     throw createError({ statusCode: 400, statusMessage: "serviceId と message は必須です" });
   }
   if (body.message.length > MAX_CHAT_MESSAGE_LENGTH) {
-    throw createError({ statusCode: 400, statusMessage: `メッセージは${MAX_CHAT_MESSAGE_LENGTH}文字以内にしてください` });
+    throw createError({
+      statusCode: 400,
+      statusMessage: `メッセージは${MAX_CHAT_MESSAGE_LENGTH}文字以内にしてください`,
+    });
   }
 
   return processChatMessage({

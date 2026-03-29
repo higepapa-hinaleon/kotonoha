@@ -1,6 +1,9 @@
 class v {
   constructor(e) {
-    this.baseUrl = e.baseUrl.replace(/\/+$/, ""), this.authToken = e.authToken, this.userName = e.userName, this.userId = e.userId;
+    ((this.baseUrl = e.baseUrl.replace(/\/+$/, "")),
+      (this.authToken = e.authToken),
+      (this.userName = e.userName),
+      (this.userId = e.userId));
   }
   /** 認証トークンを更新する */
   setAuthToken(e) {
@@ -8,7 +11,7 @@ class v {
   }
   /** ユーザー情報を更新する */
   setUserInfo(e) {
-    this.userName = e.userName, this.userId = e.userId;
+    ((this.userName = e.userName), (this.userId = e.userId));
   }
   /** 利用可能なサービス一覧を取得する */
   async getServices(e) {
@@ -25,24 +28,26 @@ class v {
       body: JSON.stringify({
         serviceId: e.serviceId,
         message: e.message,
-        conversationId: e.conversationId
-      })
+        conversationId: e.conversationId,
+      }),
     });
   }
   /** フォーム URL を取得する */
   async getFormUrl(e) {
-    return (await this.fetch(
-      `/api/settings/form-url?serviceId=${encodeURIComponent(e)}`
-    )).formUrl || "";
+    return (
+      (await this.fetch(`/api/settings/form-url?serviceId=${encodeURIComponent(e)}`)).formUrl || ""
+    );
   }
   async fetch(e, o) {
     const s = {
-      ...o == null ? void 0 : o.headers
+      ...(o == null ? void 0 : o.headers),
     };
-    this.authToken && (s.Authorization = `Bearer ${this.authToken}`), this.userName && (s["X-kotonoha-User-Name"] = this.sanitizeHeaderValue(this.userName)), this.userId && (s["X-kotonoha-User-Id"] = this.sanitizeHeaderValue(this.userId));
+    (this.authToken && (s.Authorization = `Bearer ${this.authToken}`),
+      this.userName && (s["X-kotonoha-User-Name"] = this.sanitizeHeaderValue(this.userName)),
+      this.userId && (s["X-kotonoha-User-Id"] = this.sanitizeHeaderValue(this.userId)));
     const r = await fetch(`${this.baseUrl}${e}`, {
       ...o,
-      headers: s
+      headers: s,
     });
     if (!r.ok) {
       const d = await r.text().catch(() => "");
@@ -55,7 +60,7 @@ class v {
     return e.replace(/[\r\n\0<>]/g, "").slice(0, 200);
   }
 }
-const y = (
+const y =
   /* css */
   `
   :host {
@@ -393,20 +398,30 @@ const y = (
     font-size: 0.8125rem;
     text-align: center;
   }
-`
-);
+`;
 class x extends HTMLElement {
   constructor() {
-    super(), this.client = null, this.messages = [], this.sending = !1, this.errorMessage = "", this.shadow = this.attachShadow({ mode: "open" });
+    (super(),
+      (this.client = null),
+      (this.messages = []),
+      (this.sending = !1),
+      (this.errorMessage = ""),
+      (this.shadow = this.attachShadow({ mode: "open" })));
   }
   static get observedAttributes() {
     return ["api-base-url", "service-id", "auth-token", "placeholder", "user-name", "user-id"];
   }
   connectedCallback() {
-    this.render(), this.bindElements(), this.bindEvents(), this.initClient();
+    (this.render(), this.bindElements(), this.bindEvents(), this.initClient());
   }
   attributeChangedCallback(e, o, s) {
-    o !== s && this.messagesEl && ((e === "api-base-url" || e === "auth-token" || e === "user-name" || e === "user-id") && this.initClient(), e === "service-id" && (this.messages = [], this.conversationId = void 0, this.renderMessages()), e === "placeholder" && this.inputEl && (this.inputEl.placeholder = s || "質問を入力..."));
+    o !== s &&
+      this.messagesEl &&
+      ((e === "api-base-url" || e === "auth-token" || e === "user-name" || e === "user-id") &&
+        this.initClient(),
+      e === "service-id" &&
+        ((this.messages = []), (this.conversationId = void 0), this.renderMessages()),
+      e === "placeholder" && this.inputEl && (this.inputEl.placeholder = s || "質問を入力..."));
   }
   get apiBaseUrl() {
     return this.getAttribute("api-base-url") || "";
@@ -427,12 +442,13 @@ class x extends HTMLElement {
     return this.getAttribute("user-id") || "";
   }
   initClient() {
-    this.apiBaseUrl && (this.client = new v({
-      baseUrl: this.apiBaseUrl,
-      authToken: this.authToken || void 0,
-      userName: this.userName || void 0,
-      userId: this.externalUserId || void 0
-    }));
+    this.apiBaseUrl &&
+      (this.client = new v({
+        baseUrl: this.apiBaseUrl,
+        authToken: this.authToken || void 0,
+        userName: this.userName || void 0,
+        userId: this.externalUserId || void 0,
+      }));
   }
   render() {
     this.shadow.innerHTML = `
@@ -459,92 +475,121 @@ class x extends HTMLElement {
     `;
   }
   bindElements() {
-    this.messagesEl = this.shadow.querySelector('[data-ref="messages"]'), this.inputEl = this.shadow.querySelector('[data-ref="input"]'), this.sendBtn = this.shadow.querySelector('[data-ref="send"]');
+    ((this.messagesEl = this.shadow.querySelector('[data-ref="messages"]')),
+      (this.inputEl = this.shadow.querySelector('[data-ref="input"]')),
+      (this.sendBtn = this.shadow.querySelector('[data-ref="send"]')));
   }
   bindEvents() {
-    this.sendBtn.addEventListener("click", () => this.handleSend()), this.inputEl.addEventListener("keydown", (e) => {
-      e.key === "Enter" && !e.shiftKey && (e.preventDefault(), this.handleSend());
-    });
+    (this.sendBtn.addEventListener("click", () => this.handleSend()),
+      this.inputEl.addEventListener("keydown", (e) => {
+        e.key === "Enter" && !e.shiftKey && (e.preventDefault(), this.handleSend());
+      }));
   }
   async handleSend() {
     const e = this.inputEl.value.trim();
     if (!(!e || this.sending || !this.client || !this.serviceId)) {
-      this.messages.push({ role: "user", content: e }), this.inputEl.value = "", this.errorMessage = "", this.sending = !0, this.updateInputState(), this.renderMessages();
+      (this.messages.push({ role: "user", content: e }),
+        (this.inputEl.value = ""),
+        (this.errorMessage = ""),
+        (this.sending = !0),
+        this.updateInputState(),
+        this.renderMessages());
       try {
         const o = await this.client.sendMessage({
           serviceId: this.serviceId,
           message: e,
-          conversationId: this.conversationId
+          conversationId: this.conversationId,
         });
-        this.conversationId = o.conversationId, this.messages.push({
-          role: "assistant",
-          content: o.message.content,
-          sources: o.message.sources,
-          confidence: o.message.confidence,
-          formUrl: o.formUrl
-        });
+        ((this.conversationId = o.conversationId),
+          this.messages.push({
+            role: "assistant",
+            content: o.message.content,
+            sources: o.message.sources,
+            confidence: o.message.confidence,
+            formUrl: o.formUrl,
+          }));
       } catch {
         this.messages.push({
           role: "assistant",
-          content: "申し訳ございません。エラーが発生しました。しばらく経ってからもう一度お試しください。"
+          content:
+            "申し訳ございません。エラーが発生しました。しばらく経ってからもう一度お試しください。",
         });
       } finally {
-        this.sending = !1, this.updateInputState(), this.renderMessages();
+        ((this.sending = !1), this.updateInputState(), this.renderMessages());
       }
     }
   }
   renderMessages() {
     if (this.messages.length === 0) {
-      this.messagesEl.innerHTML = '<div class="kotonoha-messages-empty">質問を入力してください</div>';
+      this.messagesEl.innerHTML =
+        '<div class="kotonoha-messages-empty">質問を入力してください</div>';
       return;
     }
     let e = "";
-    for (const o of this.messages)
-      e += this.renderMessage(o);
-    this.sending && (e += `
+    for (const o of this.messages) e += this.renderMessage(o);
+    (this.sending &&
+      (e += `
         <div class="kotonoha-loading">
           <div class="kotonoha-loading-bubble">
             <div class="kotonoha-spinner"></div>
             回答を生成中...
           </div>
         </div>
-      `), this.messagesEl.innerHTML = e, this.messagesEl.scrollTop = this.messagesEl.scrollHeight, this.messagesEl.querySelectorAll(".kotonoha-sources-toggle").forEach((o) => {
-      o.addEventListener("click", () => {
-        const s = o.nextElementSibling;
-        s && (s.style.display = s.style.display === "none" ? "block" : "none");
-      });
-    });
+      `),
+      (this.messagesEl.innerHTML = e),
+      (this.messagesEl.scrollTop = this.messagesEl.scrollHeight),
+      this.messagesEl.querySelectorAll(".kotonoha-sources-toggle").forEach((o) => {
+        o.addEventListener("click", () => {
+          const s = o.nextElementSibling;
+          s && (s.style.display = s.style.display === "none" ? "block" : "none");
+        });
+      }));
   }
   renderMessage(e) {
-    const o = `kotonoha-message--${e.role}`, s = `kotonoha-bubble--${e.role}`;
+    const o = `kotonoha-message--${e.role}`,
+      s = `kotonoha-bubble--${e.role}`;
     let r;
-    e.role === "assistant" ? r = this.renderMarkdown(e.content) : r = `<div style="white-space:pre-wrap">${this.escapeHtml(e.content)}</div>`;
+    e.role === "assistant"
+      ? (r = this.renderMarkdown(e.content))
+      : (r = `<div style="white-space:pre-wrap">${this.escapeHtml(e.content)}</div>`);
     let d = "";
-    return e.role === "assistant" && e.sources && e.sources.length > 0 && (d += this.renderSources(e.sources)), e.role === "assistant" && e.formUrl && /^https?:\/\//i.test(e.formUrl) && (d += `
+    return (
+      e.role === "assistant" &&
+        e.sources &&
+        e.sources.length > 0 &&
+        (d += this.renderSources(e.sources)),
+      e.role === "assistant" &&
+        e.formUrl &&
+        /^https?:\/\//i.test(e.formUrl) &&
+        (d += `
         <div class="kotonoha-form-guide">
           <p>より詳しいサポートが必要な場合：
             <a href="${this.escapeHtml(e.formUrl)}" target="_blank" rel="noopener noreferrer">お問い合わせフォーム</a>
           </p>
         </div>
-      `), `
+      `),
+      `
       <div class="kotonoha-message ${o}">
         <div class="kotonoha-bubble ${s}">
           ${r}
           ${d}
         </div>
       </div>
-    `;
+    `
+    );
   }
   renderSources(e) {
-    const o = e.map(
-      (s) => `
+    const o = e
+      .map(
+        (s) => `
       <div class="kotonoha-source-item">
         <div class="kotonoha-source-title">${this.escapeHtml(s.documentTitle)}</div>
         <div class="kotonoha-source-content">${this.escapeHtml(s.chunkContent)}...</div>
         <div class="kotonoha-source-similarity">類似度: ${(s.similarity * 100).toFixed(0)}%</div>
       </div>
-    `
-    ).join("");
+    `,
+      )
+      .join("");
     return `
       <button class="kotonoha-sources-toggle">参照元 (${e.length}件) ▼</button>
       <div class="kotonoha-sources-list" style="display:none">
@@ -555,90 +600,122 @@ class x extends HTMLElement {
   /** 簡易 Markdown → HTML 変換（軽量、外部依存なし） */
   renderMarkdown(e) {
     let o = this.escapeHtml(e);
-    const s = [], r = Math.random().toString(36).slice(2, 10);
-    o = o.replace(
-      /```(\w*)\r?\n([\s\S]*?)```/g,
-      (c, a, h) => {
-        const u = s.length;
-        return s.push(`<pre><code>${h}</code></pre>`), `
+    const s = [],
+      r = Math.random().toString(36).slice(2, 10);
+    ((o = o.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (c, a, h) => {
+      const u = s.length;
+      return (
+        s.push(`<pre><code>${h}</code></pre>`),
+        `
 %%CB_${r}_${u}%%
-`;
-      }
-    ), o = o.replace(/`([^`]+)`/g, "<code>$1</code>");
+`
+      );
+    })),
+      (o = o.replace(/`([^`]+)`/g, "<code>$1</code>")));
     const d = o.split(`
-`), t = [];
-    let n = !1, i = !1, l = !1;
+`),
+      t = [];
+    let n = !1,
+      i = !1,
+      l = !1;
     const f = new RegExp(`^%%CB_${r}_\\d+%%$`);
     for (let c = 0; c < d.length; c++) {
       const a = d[c];
       if (f.test(a.trim())) {
-        n && (t.push("</ul>"), n = !1), i && (t.push("</ol>"), i = !1), l && (t.push("</blockquote>"), l = !1), t.push(a);
+        (n && (t.push("</ul>"), (n = !1)),
+          i && (t.push("</ol>"), (i = !1)),
+          l && (t.push("</blockquote>"), (l = !1)),
+          t.push(a));
         continue;
       }
       if (/^(?:---+|___+)\s*$/.test(a)) {
-        n && (t.push("</ul>"), n = !1), i && (t.push("</ol>"), i = !1), l && (t.push("</blockquote>"), l = !1), t.push("<hr>");
+        (n && (t.push("</ul>"), (n = !1)),
+          i && (t.push("</ol>"), (i = !1)),
+          l && (t.push("</blockquote>"), (l = !1)),
+          t.push("<hr>"));
         continue;
       }
       const h = a.match(/^(#{1,3})\s+(.+)$/);
       if (h) {
-        n && (t.push("</ul>"), n = !1), i && (t.push("</ol>"), i = !1), l && (t.push("</blockquote>"), l = !1);
+        (n && (t.push("</ul>"), (n = !1)),
+          i && (t.push("</ol>"), (i = !1)),
+          l && (t.push("</blockquote>"), (l = !1)));
         const m = h[1].length + 2;
         t.push(`<h${m}>${h[2]}</h${m}>`);
         continue;
       }
       const u = a.match(/^&gt;\s?(.*)$/);
       if (u) {
-        n && (t.push("</ul>"), n = !1), i && (t.push("</ol>"), i = !1), l ? t.push("<br>") : (t.push("<blockquote>"), l = !0), t.push(u[1]);
+        (n && (t.push("</ul>"), (n = !1)),
+          i && (t.push("</ol>"), (i = !1)),
+          l ? t.push("<br>") : (t.push("<blockquote>"), (l = !0)),
+          t.push(u[1]));
         continue;
       }
-      l && (t.push("</blockquote>"), l = !1);
-      const b = a.match(/^[\-\*]\s+(.+)$/);
+      l && (t.push("</blockquote>"), (l = !1));
+      const b = a.match(/^[-*]\s+(.+)$/);
       if (b) {
-        i && (t.push("</ol>"), i = !1), n || (t.push("<ul>"), n = !0), t.push(`<li>${b[1]}</li>`);
+        (i && (t.push("</ol>"), (i = !1)),
+          n || (t.push("<ul>"), (n = !0)),
+          t.push(`<li>${b[1]}</li>`));
         continue;
       }
       const p = a.match(/^\d+\.\s+(.+)$/);
       if (p) {
-        n && (t.push("</ul>"), n = !1), i || (t.push("<ol>"), i = !0), t.push(`<li>${p[1]}</li>`);
+        (n && (t.push("</ul>"), (n = !1)),
+          i || (t.push("<ol>"), (i = !0)),
+          t.push(`<li>${p[1]}</li>`));
         continue;
       }
-      n && (t.push("</ul>"), n = !1), i && (t.push("</ol>"), i = !1), t.push(a);
+      (n && (t.push("</ul>"), (n = !1)), i && (t.push("</ol>"), (i = !1)), t.push(a));
     }
-    n && t.push("</ul>"), i && t.push("</ol>"), l && t.push("</blockquote>"), o = t.join(`
-`), o = o.replace(/~~(.+?)~~/g, "<del>$1</del>"), o = o.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"), o = o.replace(new RegExp("(?<!\\w)\\*(?!\\s)(.+?)(?<!\\s)\\*(?!\\w)", "g"), "<em>$1</em>"), o = o.replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      (c, a, h) => {
-        const u = h.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-        return /^https?:\/\//i.test(u) ? `<a href="${u.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer">${a}</a>` : a;
-      }
-    );
+    (n && t.push("</ul>"),
+      i && t.push("</ol>"),
+      l && t.push("</blockquote>"),
+      (o = t.join(`
+`)),
+      (o = o.replace(/~~(.+?)~~/g, "<del>$1</del>")),
+      (o = o.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")),
+      (o = o.replace(new RegExp("(?<!\\w)\\*(?!\\s)(.+?)(?<!\\s)\\*(?!\\w)", "g"), "<em>$1</em>")),
+      (o = o.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (c, a, h) => {
+        const u = h
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"');
+        return /^https?:\/\//i.test(u)
+          ? `<a href="${u.replace(/"/g, "&quot;")}" target="_blank" rel="noopener noreferrer">${a}</a>`
+          : a;
+      })));
     const k = new RegExp(`%%CB_${r}_(\\d+)%%`, "g");
-    return o = o.replace(k, (c, a) => {
-      const h = s[Number(a)];
-      return h !== void 0 ? h : "";
-    }), o = o.replace(
-      /(?:<pre>[\s\S]*?<\/pre>)|(?:<ul>[\s\S]*?<\/ul>)|(?:<ol>[\s\S]*?<\/ol>)|(?:<blockquote>[\s\S]*?<\/blockquote>)|(\n)/g,
-      (c, a) => a ? "<br>" : c
-    ), o;
+    return (
+      (o = o.replace(k, (c, a) => {
+        const h = s[Number(a)];
+        return h !== void 0 ? h : "";
+      })),
+      (o = o.replace(
+        /(?:<pre>[\s\S]*?<\/pre>)|(?:<ul>[\s\S]*?<\/ul>)|(?:<ol>[\s\S]*?<\/ol>)|(?:<blockquote>[\s\S]*?<\/blockquote>)|(\n)/g,
+        (c, a) => (a ? "<br>" : c),
+      )),
+      o
+    );
   }
   escapeHtml(e) {
     const o = document.createElement("div");
-    return o.textContent = e, o.innerHTML;
+    return ((o.textContent = e), o.innerHTML);
   }
   updateInputState() {
-    this.inputEl.disabled = this.sending, this.sendBtn.disabled = this.sending;
+    ((this.inputEl.disabled = this.sending), (this.sendBtn.disabled = this.sending));
   }
   // --- Public API ---
   /** 会話をリセットする */
   resetConversation() {
-    this.messages = [], this.conversationId = void 0, this.renderMessages();
+    ((this.messages = []), (this.conversationId = void 0), this.renderMessages());
   }
   /** プログラムからメッセージを送信する */
   async send(e) {
-    this.inputEl.value = e, await this.handleSend();
+    ((this.inputEl.value = e), await this.handleSend());
   }
 }
 customElements.get("kotonoha-chat-widget") || customElements.define("kotonoha-chat-widget", x);
-export {
-  x as kotonohaChatWidget
-};
+export { x as kotonohaChatWidget };

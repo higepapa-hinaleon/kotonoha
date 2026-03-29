@@ -62,10 +62,7 @@ export default defineEventHandler(async (event) => {
     const sevenDaysAgoStr = sevenDaysAgo.toISOString();
 
     const [trendSnap, unresolvedSnap] = await Promise.all([
-      convCollection
-        .where("createdAt", ">=", sevenDaysAgoStr)
-        .orderBy("createdAt", "desc")
-        .get(),
+      convCollection.where("createdAt", ">=", sevenDaysAgoStr).orderBy("createdAt", "desc").get(),
       db
         .collection("conversations")
         .where("groupId", "==", groupId)
@@ -111,6 +108,9 @@ export default defineEventHandler(async (event) => {
     }
     const message = e instanceof Error ? e.message : String(e);
     console.error("[dashboard/service-summary] Firestoreクエリエラー:", message);
-    throw createError({ statusCode: 500, statusMessage: `サービスダッシュボードデータ取得エラー: ${message}` });
+    throw createError({
+      statusCode: 500,
+      statusMessage: `サービスダッシュボードデータ取得エラー: ${message}`,
+    });
   }
 });

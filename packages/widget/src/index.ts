@@ -73,7 +73,12 @@ class kotonohaChatWidget extends HTMLElement {
     if (oldValue === newValue) return;
     // connectedCallback 前は DOM 未構築のためスキップ
     if (!this.messagesEl) return;
-    if (name === "api-base-url" || name === "auth-token" || name === "user-name" || name === "user-id") {
+    if (
+      name === "api-base-url" ||
+      name === "auth-token" ||
+      name === "user-name" ||
+      name === "user-id"
+    ) {
       this.initClient();
     }
     if (name === "service-id") {
@@ -192,7 +197,7 @@ class kotonohaChatWidget extends HTMLElement {
         confidence: response.message.confidence,
         formUrl: response.formUrl,
       });
-    } catch (err) {
+    } catch {
       this.messages.push({
         role: "assistant",
         content:
@@ -234,8 +239,7 @@ class kotonohaChatWidget extends HTMLElement {
       btn.addEventListener("click", () => {
         const list = btn.nextElementSibling as HTMLElement;
         if (list) {
-          list.style.display =
-            list.style.display === "none" ? "block" : "none";
+          list.style.display = list.style.display === "none" ? "block" : "none";
         }
       });
     });
@@ -304,14 +308,11 @@ class kotonohaChatWidget extends HTMLElement {
     // コードブロック（最優先で保護、CRLF対応）
     const codeBlocks: string[] = [];
     const cbNonce = Math.random().toString(36).slice(2, 10);
-    html = html.replace(
-      /```(\w*)\r?\n([\s\S]*?)```/g,
-      (_match, _lang, code) => {
-        const idx = codeBlocks.length;
-        codeBlocks.push(`<pre><code>${code}</code></pre>`);
-        return `\n%%CB_${cbNonce}_${idx}%%\n`;
-      },
-    );
+    html = html.replace(/```(\w*)\r?\n([\s\S]*?)```/g, (_match, _lang, code) => {
+      const idx = codeBlocks.length;
+      codeBlocks.push(`<pre><code>${code}</code></pre>`);
+      return `\n%%CB_${cbNonce}_${idx}%%\n`;
+    });
     // インラインコード
     html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
 
@@ -328,18 +329,36 @@ class kotonohaChatWidget extends HTMLElement {
 
       // コードブロックプレースホルダーはそのまま通す
       if (cbPlaceholderRe.test(line.trim())) {
-        if (inUl) { processed.push("</ul>"); inUl = false; }
-        if (inOl) { processed.push("</ol>"); inOl = false; }
-        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        if (inUl) {
+          processed.push("</ul>");
+          inUl = false;
+        }
+        if (inOl) {
+          processed.push("</ol>");
+          inOl = false;
+        }
+        if (inBlockquote) {
+          processed.push("</blockquote>");
+          inBlockquote = false;
+        }
         processed.push(line);
         continue;
       }
 
       // 水平線（--- / ___ 3つ以上。*** はbold/italicと衝突するため除外）
       if (/^(?:---+|___+)\s*$/.test(line)) {
-        if (inUl) { processed.push("</ul>"); inUl = false; }
-        if (inOl) { processed.push("</ol>"); inOl = false; }
-        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        if (inUl) {
+          processed.push("</ul>");
+          inUl = false;
+        }
+        if (inOl) {
+          processed.push("</ol>");
+          inOl = false;
+        }
+        if (inBlockquote) {
+          processed.push("</blockquote>");
+          inBlockquote = false;
+        }
         processed.push("<hr>");
         continue;
       }
@@ -347,9 +366,18 @@ class kotonohaChatWidget extends HTMLElement {
       // 見出し（# ～ ###）
       const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);
       if (headingMatch) {
-        if (inUl) { processed.push("</ul>"); inUl = false; }
-        if (inOl) { processed.push("</ol>"); inOl = false; }
-        if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+        if (inUl) {
+          processed.push("</ul>");
+          inUl = false;
+        }
+        if (inOl) {
+          processed.push("</ol>");
+          inOl = false;
+        }
+        if (inBlockquote) {
+          processed.push("</blockquote>");
+          inBlockquote = false;
+        }
         // # → h3, ## → h4, ### → h5（ウィジェット内のサイズ感に合わせる）
         const level = headingMatch[1].length + 2;
         processed.push(`<h${level}>${headingMatch[2]}</h${level}>`);
@@ -359,20 +387,39 @@ class kotonohaChatWidget extends HTMLElement {
       // 引用（> ）— 連続行をマージ
       const quoteMatch = line.match(/^&gt;\s?(.*)$/);
       if (quoteMatch) {
-        if (inUl) { processed.push("</ul>"); inUl = false; }
-        if (inOl) { processed.push("</ol>"); inOl = false; }
-        if (!inBlockquote) { processed.push("<blockquote>"); inBlockquote = true; }
-        else { processed.push("<br>"); }
+        if (inUl) {
+          processed.push("</ul>");
+          inUl = false;
+        }
+        if (inOl) {
+          processed.push("</ol>");
+          inOl = false;
+        }
+        if (!inBlockquote) {
+          processed.push("<blockquote>");
+          inBlockquote = true;
+        } else {
+          processed.push("<br>");
+        }
         processed.push(quoteMatch[1]);
         continue;
       }
-      if (inBlockquote) { processed.push("</blockquote>"); inBlockquote = false; }
+      if (inBlockquote) {
+        processed.push("</blockquote>");
+        inBlockquote = false;
+      }
 
       // 箇条書きリスト（- / * ）
-      const ulMatch = line.match(/^[\-\*]\s+(.+)$/);
+      const ulMatch = line.match(/^[-*]\s+(.+)$/);
       if (ulMatch) {
-        if (inOl) { processed.push("</ol>"); inOl = false; }
-        if (!inUl) { processed.push("<ul>"); inUl = true; }
+        if (inOl) {
+          processed.push("</ol>");
+          inOl = false;
+        }
+        if (!inUl) {
+          processed.push("<ul>");
+          inUl = true;
+        }
         processed.push(`<li>${ulMatch[1]}</li>`);
         continue;
       }
@@ -380,15 +427,27 @@ class kotonohaChatWidget extends HTMLElement {
       // 番号付きリスト（1. 2. ...）
       const olMatch = line.match(/^\d+\.\s+(.+)$/);
       if (olMatch) {
-        if (inUl) { processed.push("</ul>"); inUl = false; }
-        if (!inOl) { processed.push("<ol>"); inOl = true; }
+        if (inUl) {
+          processed.push("</ul>");
+          inUl = false;
+        }
+        if (!inOl) {
+          processed.push("<ol>");
+          inOl = true;
+        }
         processed.push(`<li>${olMatch[1]}</li>`);
         continue;
       }
 
       // リスト以外の行が来たらリストを閉じる
-      if (inUl) { processed.push("</ul>"); inUl = false; }
-      if (inOl) { processed.push("</ol>"); inOl = false; }
+      if (inUl) {
+        processed.push("</ul>");
+        inUl = false;
+      }
+      if (inOl) {
+        processed.push("</ol>");
+        inOl = false;
+      }
       processed.push(line);
     }
     // 末尾のブロック要素を閉じる
@@ -406,17 +465,18 @@ class kotonohaChatWidget extends HTMLElement {
     // 斜体（単独の * のみ）
     html = html.replace(/(?<!\w)\*(?!\s)(.+?)(?<!\s)\*(?!\w)/g, "<em>$1</em>");
     // リンク（javascript: 等の危険なスキームを排除、URL内の引用符をサニタイズ）
-    html = html.replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      (_match: string, text: string, url: string) => {
-        const decodedUrl = url.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-        if (/^https?:\/\//i.test(decodedUrl)) {
-          const safeUrl = decodedUrl.replace(/"/g, "&quot;");
-          return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
-        }
-        return text;
-      },
-    );
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match: string, text: string, url: string) => {
+      const decodedUrl = url
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"');
+      if (/^https?:\/\//i.test(decodedUrl)) {
+        const safeUrl = decodedUrl.replace(/"/g, "&quot;");
+        return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      }
+      return text;
+    });
 
     // コードブロックを復元
     const cbRestoreRe = new RegExp(`%%CB_${cbNonce}_(\\d+)%%`, "g");

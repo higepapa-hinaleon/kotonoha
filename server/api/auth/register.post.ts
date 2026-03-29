@@ -1,6 +1,10 @@
 import { getAdminFirestore, getAdminAuth } from "~~/server/utils/firebase-admin";
 import { findOrCreateDefaultOrganization } from "~~/server/utils/organization";
-import { findOrCreateDefaultGroup, addUserToGroup, getUserGroupMemberships } from "~~/server/utils/group";
+import {
+  findOrCreateDefaultGroup,
+  addUserToGroup,
+  getUserGroupMemberships,
+} from "~~/server/utils/group";
 import type { User } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
