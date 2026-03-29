@@ -1,7 +1,7 @@
 # スクリーンショット撮影指示書
 
 マニュアルページ (`/admin/manual`) に埋め込むスクリーンショットの撮影ガイドです。
-各スクリーンショットの配置場所は、マニュアルページのHTMLコメント `<!-- screenshot:xxx -->` で示されています。
+各スクリーンショットは `ManualScreenshot` コンポーネント経由で表示されます。画像ファイルを所定のディレクトリに配置するだけで自動的に反映されます。
 
 ## 撮影環境の準備
 
@@ -163,18 +163,13 @@
 
 ## マニュアルへの適用方法
 
-撮影した画像を `/public/images/manual/` に配置後、`/admin/manual` ページのスクリーンショットプレースホルダー（破線ボーダーの灰色エリア）を `<img>` タグに置き換えてください。
+撮影した画像を `/public/images/manual/` に配置するだけで自動的にマニュアルに表示されます。**コードの変更は不要です。**
 
-```vue
-<!-- Before -->
-<div class="mb-4 flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-  <p class="text-sm text-gray-400">[スクリーンショット: ログイン画面]</p>
-</div>
+マニュアルページでは `ManualScreenshot` コンポーネントが各スクリーンショットの表示を担当しています。画像ファイルが存在すれば表示し、存在しない場合はプレースホルダー（破線ボーダーの灰色エリアにテキスト表示）が表示されます。
 
-<!-- After -->
-<img
-  src="/images/manual/screenshot-login-page.png"
-  alt="ログイン画面"
-  class="mb-4 rounded-lg border border-gray-200"
-/>
-```
+### 手順
+
+1. 上記の撮影一覧に従ってスクリーンショットを撮影
+2. ファイル名を `screenshot-{id}.png` にする（例: `screenshot-login-page.png`）
+3. `/public/images/manual/` ディレクトリに配置
+4. ブラウザをリロードすると自動的に画像が表示される
