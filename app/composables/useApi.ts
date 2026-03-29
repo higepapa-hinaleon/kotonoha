@@ -30,9 +30,10 @@ export function useApi() {
     }
 
     try {
+      const { method, ...rest } = options;
       return (await $fetch(url, {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ...(options as any),
+        ...rest,
+        ...(method ? { method: method as "get" | "post" | "put" | "patch" | "delete" } : {}),
         headers: {
           ...options.headers,
           ...headers,
