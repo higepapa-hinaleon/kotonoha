@@ -68,23 +68,31 @@ export default defineEventHandler(async (event) => {
   // フィードバックを保存
   await messageRef.update({ feedback: body.feedback });
 
-  // ネガティブフィードバックの場合、改善要望を自動作成（非ブロッキング）
+  // ネガティブフィードバックの場合、改善要望を自動作成（非ブロッキング・重複防止）
   if (body.feedback === "negative") {
     try {
-      // このメッセージの直前のユーザーメッセージを取得
-      const prevMessages = await db
-        .collection("conversations")
-        .doc(body.conversationId)
-        .collection("messages")
-        .where("role", "==", "user")
-        .where("createdAt", "<", messageData.createdAt)
-        .orderBy("createdAt", "desc")
+      // この会話に既存の改善要望があるか確認（重複防止）
+      const existingImprovement = await db
+        .collection("improvementRequests")
+        .where("conversationId", "==", body.conversationId)
         .limit(1)
         .get();
 
-      const originalQuestion = prevMessages.docs[0]?.data()?.content || "";
+      if (existingImprovement.empty) {
+        // このメッセージの直前のユーザーメッセージを取得
+        const prevMessages = await db
+          .collection("conversations")
+          .doc(body.conversationId)
+          .collection("messages")
+          .where("role", "==", "user")
+          .where("createdAt", "<", messageData.createdAt)
+          .orderBy("createdAt", "desc")
+          .limit(1)
+          .get();
 
-      await db.collection("improvementRequests").doc().set({
+        const originalQuestion = prevMessages.docs[0]?.data()?.content || "";
+
+        await db.collection("improvementRequests").doc().set({
         organizationId: convData.organizationId,
         groupId: convData.groupId,
         serviceId: convData.serviceId,
@@ -98,7 +106,8 @@ export default defineEventHandler(async (event) => {
         correctedAnswer: "",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      });
+        });
+      }
     } catch (err) {
       console.error("[feedback] Failed to create improvement request:", err);
     }
