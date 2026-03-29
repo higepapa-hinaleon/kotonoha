@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuthOptional, resolveGroupId } from "~~/server/utils/auth";
+import { verifyAuthOptional, resolveGroupId, resolveExternalUser } from "~~/server/utils/auth";
 import { processChatMessage } from "~~/server/utils/chat";
 import type { ChatSendRequest, ChatSendResponse } from "~~/shared/types/api";
 import {
@@ -29,13 +29,12 @@ export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
   const db = getAdminFirestore();
 
   // ウィジェットから渡されるユーザー情報（任意）- サニタイズ済み
-  const externalUserName = (getHeader(event, "x-kotonoha-user-name") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200);
-  const externalUserId = (getHeader(event, "x-kotonoha-user-id") || "").replace(/[\r\n\0<>]/g, "").trim().slice(0, 200);
+  const { externalUserName, externalUserId, guestUserId } = resolveExternalUser(event);
 
   // organizationId を導出: 認証済み → user.organizationId, ゲスト → serviceId から取得
   let organizationId = user?.organizationId;
   let groupId: string | undefined;
-  const userId = user?.id ?? (externalUserId ? `ext:${externalUserId}` : "guest");
+  const userId = user?.id ?? guestUserId;
 
   // groupId を導出: 認証済み → resolveGroupId, ゲスト → serviceId から取得
   if (user) {
@@ -67,7 +66,7 @@ export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
     message: body.message,
     userId,
     conversationId: body.conversationId,
-    externalUserName: externalUserName || undefined,
-    externalUserId: externalUserId || undefined,
+    externalUserName,
+    externalUserId,
   });
 });

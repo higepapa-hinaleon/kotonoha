@@ -28,11 +28,19 @@ export interface ChatSendRequest {
 export interface ChatSendResponse {
   conversationId: string;
   message: {
+    id: string;
     content: string;
     sources: import("./models").MessageSource[];
     confidence: number;
   };
   formUrl?: string; // 確信度が低い場合のみ返却
+}
+
+/** チャットフィードバックリクエスト */
+export interface ChatFeedbackRequest {
+  conversationId: string;
+  messageId: string;
+  feedback: "positive" | "negative";
 }
 
 /** ドキュメントアップロードリクエスト（multipart/form-data） */

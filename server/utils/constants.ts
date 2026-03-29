@@ -89,6 +89,12 @@ export const CHAT_RATE_LIMIT = {
   windowMs: 60_000, // 1分
 } as const;
 
+/** フィードバック API レート制限 */
+export const FEEDBACK_RATE_LIMIT = {
+  maxRequests: 30,
+  windowMs: 60_000, // 1分
+} as const;
+
 /** 一般 API レート制限 */
 export const DEFAULT_RATE_LIMIT = {
   maxRequests: 60,
