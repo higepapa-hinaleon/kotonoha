@@ -48,6 +48,7 @@ const systemAdminItems: NavItem[] = [
   { label: "組織管理", to: "/admin/system/organizations", icon: "organizations" },
   { label: "グループ管理", to: "/admin/system/groups", icon: "groups" },
   { label: "ユーザー管理", to: "/admin/system/users", icon: "users" },
+  { label: "申請管理", to: "/admin/system/applications", icon: "applications" },
 ];
 
 const settingsItem: NavItem = { label: "設定", to: "/admin/settings", icon: "settings" };

@@ -16,6 +16,7 @@ export default defineEventHandler((event) => {
     "/api/settings/form-url",
     "/api/chat/send",
     "/api/health",
+    "/api/stripe/webhook",
   ];
   if (publicPaths.includes(path)) return;
   // /api/services?groupId=xxx 等のクエリ付きパスもスキップ

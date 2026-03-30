@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
   // 自分の会話か同一グループの管理者のみアクセス可能
   if (conversation.userId !== user.id) {
-    if (user.role !== "admin" && user.role !== "system_admin" && user.role !== "owner") {
+    if (user.role !== "org_admin" && user.role !== "system_admin" && user.role !== "owner") {
       throw createError({ statusCode: 403, statusMessage: "アクセス権がありません" });
     }
   }

@@ -152,8 +152,8 @@ onMounted(async () => {
             >
               <option value="owner">オーナー</option>
               <option value="system_admin">システム管理者</option>
-              <option value="admin">管理者（旧）</option>
-              <option value="member">メンバー</option>
+              <option value="org_admin">組織管理者</option>
+              <option value="user">ユーザー</option>
             </select>
             <span class="text-xs text-gray-500">
               <span v-if="u.groupMemberships.length === 0" class="text-gray-400">未割当</span>
@@ -204,8 +204,8 @@ onMounted(async () => {
                 >
                   <option value="owner">オーナー</option>
                   <option value="system_admin">システム管理者</option>
-                  <option value="admin">管理者（旧）</option>
-                  <option value="member">メンバー</option>
+                  <option value="org_admin">組織管理者</option>
+                  <option value="user">ユーザー</option>
                 </select>
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">

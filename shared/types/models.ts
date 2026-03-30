@@ -4,21 +4,49 @@
 
 import type { PlanId } from "../plans";
 
+/** 組織区分 */
+export type OrganizationType = "individual" | "sole_proprietor" | "corporation";
+
 /** 組織 */
 export interface Organization {
   id: string;
   name: string;
   plan: PlanId;
+  /** 契約者区分 */
+  organizationType?: OrganizationType;
+  /** 担当者名（個人の場合は本人名） */
+  contactName?: string;
+  /** 住所 */
+  address?: string;
+  /** 電話番号 */
+  phone?: string;
+  /** 屋号（個人事業主の場合） */
+  tradeName?: string;
+  /** 代表者名（法人の場合） */
+  representativeName?: string;
+  /** 法人番号（法人の場合、任意） */
+  corporateNumber?: string;
+  /** Stripe顧客ID */
+  stripeCustomerId?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+/** 契約ステータス */
+export type ContractStatus = "active" | "suspended" | "expired" | "cancelled" | "pending_payment";
+
+/** 支払方法 */
+export type PaymentMethod = "stripe" | "bank_transfer" | "none";
 
 /** 契約 */
 export interface Contract {
   id: string;
   organizationId: string;
   planId: PlanId;
-  status: "active" | "suspended" | "expired" | "cancelled";
+  status: ContractStatus;
+  paymentMethod: PaymentMethod;
+  /** Stripeサブスクリプション ID */
+  stripeSubscriptionId?: string;
   startDate: string;
   endDate: string;
   note: string;
@@ -48,13 +76,17 @@ export interface UserGroupMembership {
   updatedAt: string;
 }
 
+/** ユーザーのシステムロール */
+export type UserRole = "owner" | "system_admin" | "org_admin" | "user";
+
 /** ユーザー */
 export interface User {
   id: string;
+  /** 所属組織ID（無所属の場合は空文字） */
   organizationId: string;
   email: string;
   displayName: string;
-  role: "owner" | "system_admin" | "admin" | "member";
+  role: UserRole;
   activeGroupId?: string;
   /** 利用規約・プライバシーポリシーへの同意日時 (ISO 8601) */
   consentAcceptedAt?: string;
@@ -261,4 +293,64 @@ export interface BotConfig {
   enableMultiQuery: boolean;
   enableHyde: boolean;
   systemPrompt: string;
+}
+
+/** 利用申請ステータス */
+export type ApplicationStatus = "pending" | "approved" | "rejected";
+
+/** 利用申請 */
+export interface Application {
+  id: string;
+  /** 申請者のユーザーID */
+  applicantUserId: string;
+  /** 申請者のメールアドレス */
+  applicantEmail: string;
+
+  // === 契約者情報 ===
+  /** 契約者区分 */
+  organizationType: OrganizationType;
+  /** 組織名（法人名 / 屋号 / 個人名） */
+  organizationName: string;
+  /** 担当者名 */
+  contactName: string;
+  /** 住所 */
+  address: string;
+  /** 電話番号 */
+  phone: string;
+  /** 屋号（個人事業主の場合） */
+  tradeName?: string;
+  /** 代表者名（法人の場合） */
+  representativeName?: string;
+  /** 法人番号（法人の場合、任意） */
+  corporateNumber?: string;
+
+  // === プラン・支払い ===
+  planId: PlanId;
+  paymentMethod: PaymentMethod;
+  /** Stripe顧客ID */
+  stripeCustomerId?: string;
+  /** Stripe SetupIntent ID */
+  stripeSetupIntentId?: string;
+  /** Stripe PaymentMethod ID（setupモードで取得） */
+  stripePaymentMethodId?: string;
+  /** Stripe Checkoutセッション ID */
+  stripeCheckoutSessionId?: string;
+
+  // === 同意 ===
+  termsAcceptedAt: string;
+  privacyPolicyAcceptedAt: string;
+
+  // === ステータス ===
+  status: ApplicationStatus;
+  /** 審査者のユーザーID */
+  reviewedBy?: string;
+  /** 審査コメント */
+  reviewNote?: string;
+  /** 承認後に作成された組織ID */
+  organizationId?: string;
+  /** 承認後に作成された契約ID */
+  contractId?: string;
+
+  createdAt: string;
+  updatedAt: string;
 }

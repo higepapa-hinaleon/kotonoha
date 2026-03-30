@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
         ...m,
         email: userData?.email || "",
         displayName: userData?.displayName || "",
-        userRole: userData?.role || "member",
+        userRole: userData?.role || "user",
       };
     }),
   );

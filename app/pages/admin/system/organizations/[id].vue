@@ -35,6 +35,7 @@ const savingContract = ref(false);
 
 const CONTRACT_STATUSES: { value: Contract["status"]; label: string }[] = [
   { value: "active", label: "有効" },
+  { value: "pending_payment", label: "入金待ち" },
   { value: "suspended", label: "停止中" },
   { value: "expired", label: "期限切れ" },
   { value: "cancelled", label: "解約済み" },
@@ -44,6 +45,8 @@ function statusBadgeClass(status: string): string {
   switch (status) {
     case "active":
       return "bg-green-100 text-green-800";
+    case "pending_payment":
+      return "bg-orange-100 text-orange-800";
     case "suspended":
       return "bg-yellow-100 text-yellow-800";
     case "expired":
@@ -156,6 +159,19 @@ async function saveContract() {
     contracts.value = await apiFetch<Contract[]>(`/api/system/organizations/${orgId}/contracts`);
   } finally {
     savingContract.value = false;
+  }
+}
+
+async function confirmPayment(contract: Contract) {
+  if (!confirm("入金確認済みにしますか？この操作により契約が有効化されます。")) return;
+  try {
+    await apiFetch(`/api/system/contracts/${contract.id}/confirm-payment`, {
+      method: "POST",
+    });
+    show("入金を確認し、契約を有効化しました", "success");
+    contracts.value = await apiFetch<Contract[]>(`/api/system/organizations/${orgId}/contracts`);
+  } catch {
+    show("入金確認に失敗しました", "error");
   }
 }
 
@@ -358,13 +374,22 @@ onMounted(fetchData);
                 {{ contract.startDate.slice(0, 10) }} 〜 {{ contract.endDate.slice(0, 10) }}
               </p>
               <p v-if="contract.note" class="mt-1 text-xs text-gray-400">{{ contract.note }}</p>
-              <button
-                v-if="isOwner"
-                class="mt-2 text-xs text-primary-600 hover:text-primary-800"
-                @click="openEditContract(contract)"
-              >
-                編集
-              </button>
+              <div class="mt-2 flex gap-3">
+                <button
+                  v-if="isOwner"
+                  class="text-xs text-primary-600 hover:text-primary-800"
+                  @click="openEditContract(contract)"
+                >
+                  編集
+                </button>
+                <button
+                  v-if="isOwner && contract.status === 'pending_payment'"
+                  class="text-xs text-green-600 hover:text-green-800"
+                  @click="confirmPayment(contract)"
+                >
+                  入金確認
+                </button>
+              </div>
             </div>
           </div>
 
@@ -411,12 +436,21 @@ onMounted(fetchData);
                     {{ contract.note || "-" }}
                   </td>
                   <td v-if="isOwner" class="whitespace-nowrap px-4 py-3 text-right text-sm">
-                    <button
-                      class="text-primary-600 hover:text-primary-800"
-                      @click="openEditContract(contract)"
-                    >
-                      編集
-                    </button>
+                    <div class="flex justify-end gap-3">
+                      <button
+                        class="text-primary-600 hover:text-primary-800"
+                        @click="openEditContract(contract)"
+                      >
+                        編集
+                      </button>
+                      <button
+                        v-if="contract.status === 'pending_payment'"
+                        class="text-green-600 hover:text-green-800"
+                        @click="confirmPayment(contract)"
+                      >
+                        入金確認
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>

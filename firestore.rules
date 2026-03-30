@@ -20,10 +20,10 @@ service cloud.firestore {
         && getUserData().organizationId == orgId;
     }
 
-    // 管理者かどうか（owner, system_admin, または旧 admin）
+    // 管理者かどうか（owner, system_admin, org_admin。後方互換で旧 admin も許容）
     function isAdmin() {
       return isAuthenticated()
-        && getUserData().role in ['admin', 'system_admin', 'owner'];
+        && getUserData().role in ['org_admin', 'admin', 'system_admin', 'owner'];
     }
 
     // システム管理者かどうか（owner も含む）
@@ -53,9 +53,15 @@ service cloud.firestore {
         && membership.organizationId == getUserData().organizationId;
     }
 
-    // 指定された組織の管理者かどうか（後方互換）
+    // 指定された組織の管理者かどうか（org_admin 以上）
     function isOrgAdmin(orgId) {
       return belongsToOrg(orgId) && isAdmin();
+    }
+
+    // 組織に所属しているかどうか（空文字でない organizationId を持つ）
+    function hasOrganization() {
+      return isAuthenticated()
+        && getUserData().organizationId != '';
     }
 
     // ===== organizations =====
@@ -202,8 +208,8 @@ service cloud.firestore {
 
     // ===== contracts =====
     match /contracts/{contractId} {
-      allow read: if isAuthenticated() && isSystemAdmin()
-        && belongsToOrg(resource.data.organizationId);
+      allow read: if isAuthenticated()
+        && isOrgAdmin(resource.data.organizationId);
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
@@ -216,6 +222,15 @@ service cloud.firestore {
         && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin());
       allow update, delete: if isAuthenticated()
         && (isGroupAdmin(resource.data.groupId) || isSystemAdmin());
+    }
+
+    // ===== applications（利用申請） =====
+    match /applications/{appId} {
+      // 本人または運営者のみ読み取り可能
+      allow read: if isAuthenticated()
+        && (resource.data.applicantUserId == request.auth.uid || isSystemAdmin());
+      // 書き込みはサーバーサイドのみ（Admin SDK）
+      allow write: if false;
     }
   }
 }

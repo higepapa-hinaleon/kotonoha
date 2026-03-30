@@ -90,10 +90,31 @@ export interface OrganizationUpdateRequest {
 /** 契約作成・更新リクエスト */
 export interface ContractUpsertRequest {
   planId: import("../plans").PlanId;
-  status?: "active" | "suspended" | "expired" | "cancelled";
+  status?: import("./models").ContractStatus;
+  paymentMethod?: import("./models").PaymentMethod;
+  stripeSubscriptionId?: string;
   startDate: string;
   endDate: string;
   note?: string;
+}
+
+/** 利用申請送信リクエスト */
+export interface ApplicationSubmitRequest {
+  organizationType: import("./models").OrganizationType;
+  organizationName: string;
+  contactName: string;
+  address: string;
+  phone: string;
+  tradeName?: string;
+  representativeName?: string;
+  corporateNumber?: string;
+  planId: import("../plans").PlanId;
+  paymentMethod: import("./models").PaymentMethod;
+}
+
+/** 利用申請レビューリクエスト */
+export interface ApplicationReviewRequest {
+  reviewNote?: string;
 }
 
 /** ダッシュボード集計レスポンス */

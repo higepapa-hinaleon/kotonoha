@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, isAdmin, isSystemAdmin, isOwner, logout } = useAuth();
+const { user, isAdmin, isSystemAdmin, isOwner, isOrgAdmin, logout } = useAuth();
 const route = useRoute();
 
 const emit = defineEmits<{
@@ -95,12 +95,12 @@ function handleLogout() {
                     ? 'bg-amber-100 text-amber-700'
                     : isSystemAdmin
                       ? 'bg-red-100 text-red-700'
-                      : isAdmin
-                        ? 'bg-purple-100 text-purple-700'
+                      : isOrgAdmin
+                        ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-600'
                 "
               >
-                {{ isOwner ? "オーナー" : isSystemAdmin ? "システム管理者" : isAdmin ? "管理者" : "メンバー" }}
+                {{ isOwner ? "オーナー" : isSystemAdmin ? "システム管理者" : isOrgAdmin ? "組織管理者" : "ユーザー" }}
               </span>
             </div>
             <NuxtLink
