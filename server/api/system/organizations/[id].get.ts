@@ -10,12 +10,19 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "組織IDが必要です" });
 
-  const db = getAdminFirestore();
-  const orgDoc = await db.collection("organizations").doc(id).get();
+  try {
+    const db = getAdminFirestore();
+    const orgDoc = await db.collection("organizations").doc(id).get();
 
-  if (!orgDoc.exists) {
-    throw createError({ statusCode: 404, statusMessage: "組織が見つかりません" });
+    if (!orgDoc.exists) {
+      throw createError({ statusCode: 404, statusMessage: "組織が見つかりません" });
+    }
+
+    return { id: orgDoc.id, ...orgDoc.data() };
+  } catch (e: unknown) {
+    if (e && typeof e === "object" && "statusCode" in e) throw e;
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[system/organizations/get] Firestore操作エラー:", message);
+    throw createError({ statusCode: 500, statusMessage: `組織の取得に失敗しました: ${message}` });
   }
-
-  return { id: orgDoc.id, ...orgDoc.data() };
 });

@@ -18,63 +18,73 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "組織IDと契約IDが必要です" });
   }
 
-  const body = await readBody(event);
-  const db = getAdminFirestore();
+  try {
+    const body = await readBody(event);
+    const db = getAdminFirestore();
 
-  const contractRef = db.collection("contracts").doc(contractId);
-  const contractDoc = await contractRef.get();
+    const contractRef = db.collection("contracts").doc(contractId);
+    const contractDoc = await contractRef.get();
 
-  if (!contractDoc.exists) {
-    throw createError({ statusCode: 404, statusMessage: "契約が見つかりません" });
-  }
-  const existingData = contractDoc.data()!;
-  if (existingData.organizationId !== orgId) {
-    throw createError({ statusCode: 403, statusMessage: "この組織の契約ではありません" });
-  }
-
-  const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
-
-  if (body.planId !== undefined) {
-    if (!VALID_PLAN_IDS.includes(body.planId as PlanId)) {
-      throw createError({ statusCode: 400, statusMessage: "無効なプランです" });
+    if (!contractDoc.exists) {
+      throw createError({ statusCode: 404, statusMessage: "契約が見つかりません" });
     }
-    updates.planId = body.planId;
-  }
-  if (body.status !== undefined) {
-    if (!VALID_STATUSES.includes(body.status)) {
-      throw createError({ statusCode: 400, statusMessage: "無効なステータスです" });
+    const existingData = contractDoc.data()!;
+    if (existingData.organizationId !== orgId) {
+      throw createError({ statusCode: 403, statusMessage: "この組織の契約ではありません" });
     }
-    updates.status = body.status;
-  }
-  if (body.startDate !== undefined) {
-    if (!DATE_REGEX.test(body.startDate)) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
-      });
+
+    const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+
+    if (body.planId !== undefined) {
+      if (!VALID_PLAN_IDS.includes(body.planId as PlanId)) {
+        throw createError({ statusCode: 400, statusMessage: "無効なプランです" });
+      }
+      updates.planId = body.planId;
     }
-    updates.startDate = body.startDate;
-  }
-  if (body.endDate !== undefined) {
-    if (!DATE_REGEX.test(body.endDate)) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
-      });
+    if (body.status !== undefined) {
+      if (!VALID_STATUSES.includes(body.status)) {
+        throw createError({ statusCode: 400, statusMessage: "無効なステータスです" });
+      }
+      updates.status = body.status;
     }
-    updates.endDate = body.endDate;
+    if (body.startDate !== undefined) {
+      if (!DATE_REGEX.test(body.startDate)) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
+        });
+      }
+      updates.startDate = body.startDate;
+    }
+    if (body.endDate !== undefined) {
+      if (!DATE_REGEX.test(body.endDate)) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "日付形式が正しくありません（YYYY-MM-DD）",
+        });
+      }
+      updates.endDate = body.endDate;
+    }
+    if (body.note !== undefined) updates.note = (body.note || "").trim();
+
+    // 日付の整合性チェック（更新後の値で検証）
+    const finalStartDate = (updates.startDate as string) || existingData.startDate;
+    const finalEndDate = (updates.endDate as string) || existingData.endDate;
+    if (finalStartDate > finalEndDate) {
+      throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
+    }
+
+    await contractRef.update(updates);
+
+    const updatedDoc = await contractRef.get();
+    if (!updatedDoc.exists) {
+      throw createError({ statusCode: 404, statusMessage: "更新後の契約が見つかりません" });
+    }
+    return { id: contractId, ...updatedDoc.data() };
+  } catch (e: unknown) {
+    if (e && typeof e === "object" && "statusCode" in e) throw e;
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[system/contracts/put] Firestore操作エラー:", message);
+    throw createError({ statusCode: 500, statusMessage: `契約の更新に失敗しました: ${message}` });
   }
-  if (body.note !== undefined) updates.note = (body.note || "").trim();
-
-  // 日付の整合性チェック（更新後の値で検証）
-  const finalStartDate = (updates.startDate as string) || existingData.startDate;
-  const finalEndDate = (updates.endDate as string) || existingData.endDate;
-  if (finalStartDate > finalEndDate) {
-    throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
-  }
-
-  await contractRef.update(updates);
-
-  const updatedDoc = await contractRef.get();
-  return { id: contractId, ...updatedDoc.data() };
 });
