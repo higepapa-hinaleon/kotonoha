@@ -8,6 +8,7 @@ import type { PlanId } from "~~/shared/plans";
  */
 export async function findOrCreateDefaultOrganization(
   db?: FirebaseFirestore.Firestore,
+  name?: string,
 ): Promise<string> {
   const firestore = db ?? getAdminFirestore();
   const orgsSnapshot = await firestore.collection("organizations").limit(1).get();
@@ -18,7 +19,7 @@ export async function findOrCreateDefaultOrganization(
   const now = new Date().toISOString();
   const orgRef = firestore.collection("organizations").doc();
   await orgRef.set({
-    name: "デフォルト組織",
+    name: name || "デフォルト組織",
     plan: "free",
     createdAt: now,
     updatedAt: now,

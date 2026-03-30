@@ -29,8 +29,23 @@ export default defineEventHandler(async (event) => {
     return { ...user, groupMemberships: memberships };
   }
 
+  // リクエストボディの取得（組織名・グループ名・同意情報）
+  let consentVersion: string | undefined;
+  let groupName: string | undefined;
+  let organizationName: string | undefined;
+  try {
+    const body = await readBody(event);
+    consentVersion = body?.consentVersion;
+    const rawGroupName = typeof body?.groupName === "string" ? body.groupName.trim() : undefined;
+    groupName = rawGroupName && rawGroupName.length <= 100 ? rawGroupName : undefined;
+    const rawOrgName = typeof body?.organizationName === "string" ? body.organizationName.trim() : undefined;
+    organizationName = rawOrgName && rawOrgName.length <= 100 ? rawOrgName : undefined;
+  } catch {
+    // ボディなしの場合は無視
+  }
+
   // デフォルト組織を取得 or 作成
-  const orgId = await findOrCreateDefaultOrganization(db);
+  const orgId = await findOrCreateDefaultOrganization(db, organizationName);
 
   // 新規ユーザー作成: 組織内にユーザーがいなければ初回のみ owner
   const existingUsers = await db
@@ -39,18 +54,6 @@ export default defineEventHandler(async (event) => {
     .limit(1)
     .get();
   const isFirstUser = existingUsers.empty;
-
-  // リクエストボディの取得（グループ名・同意情報）
-  let consentVersion: string | undefined;
-  let groupName: string | undefined;
-  try {
-    const body = await readBody(event);
-    consentVersion = body?.consentVersion;
-    const rawGroupName = typeof body?.groupName === "string" ? body.groupName.trim() : undefined;
-    groupName = rawGroupName && rawGroupName.length <= 100 ? rawGroupName : undefined;
-  } catch {
-    // ボディなしの場合は無視
-  }
 
   const now = new Date().toISOString();
 

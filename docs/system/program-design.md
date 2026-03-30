@@ -392,10 +392,11 @@ async function addUserToGroup(
 **責務:** 組織管理ユーティリティ。
 
 ```typescript
-async function findOrCreateDefaultOrganization(db?: Firestore): Promise<string>;
+async function findOrCreateDefaultOrganization(db?: Firestore, name?: string): Promise<string>;
 ```
 
-- 既存組織がなければ「デフォルト組織」（starter プラン）を自動作成
+- 既存組織がなければ指定された名前（省略時「デフォルト組織」）で free プランの組織を自動作成
+- 既存組織がある場合は `name` を無視して既存組織IDを返す（冪等）
 
 ### 3.14 server/utils/constants.ts
 

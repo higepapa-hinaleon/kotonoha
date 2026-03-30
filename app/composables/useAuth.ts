@@ -29,6 +29,9 @@ const authState = reactive<AuthState>({
   pendingApplicationFetched: false,
 });
 
+// 明示的な signup/login 中に onAuthStateChanged の fetchUser を抑制するフラグ
+let explicitAuthInProgress = false;
+
 export function useAuth() {
   const { $auth } = useNuxtApp();
 
@@ -38,11 +41,16 @@ export function useAuth() {
     onAuthStateChanged($auth, async (firebaseUser) => {
       authState.firebaseUser = firebaseUser;
       if (firebaseUser) {
-        await fetchUser();
+        // 明示的な signup/login 中は fetchUser を呼ばない（呼び出し元が options 付きで呼ぶため）
+        if (!explicitAuthInProgress) {
+          await fetchUser();
+        }
       } else {
         authState.user = null;
       }
-      authState.initializing = false;
+      if (!explicitAuthInProgress) {
+        authState.initializing = false;
+      }
     });
   }
 
@@ -68,7 +76,7 @@ export function useAuth() {
     };
   }
 
-  async function fetchUser() {
+  async function fetchUser(options?: { organizationName?: string }) {
     try {
       const token = await getIdToken();
       const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>(
@@ -90,6 +98,7 @@ export function useAuth() {
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
+            ...(options?.organizationName ? { body: { organizationName: options.organizationName } } : {}),
           },
         );
         const { groupMemberships, ...userData } = data;
@@ -103,36 +112,45 @@ export function useAuth() {
     }
   }
 
-  async function signupWithEmail(email: string, password: string) {
+  async function signupWithEmail(email: string, password: string, options?: { organizationName?: string }) {
     authState.loading = true;
+    explicitAuthInProgress = true;
     try {
       const credential = await createUserWithEmailAndPassword($auth, email, password);
       authState.firebaseUser = credential.user;
-      await fetchUser();
+      await fetchUser(options);
     } finally {
+      explicitAuthInProgress = false;
+      authState.initializing = false;
       authState.loading = false;
     }
   }
 
   async function loginWithEmail(email: string, password: string) {
     authState.loading = true;
+    explicitAuthInProgress = true;
     try {
       const credential = await signInWithEmailAndPassword($auth, email, password);
       authState.firebaseUser = credential.user;
       await fetchUser();
     } finally {
+      explicitAuthInProgress = false;
+      authState.initializing = false;
       authState.loading = false;
     }
   }
 
-  async function loginWithGoogle() {
+  async function loginWithGoogle(options?: { organizationName?: string }) {
     authState.loading = true;
+    explicitAuthInProgress = true;
     try {
       const provider = new GoogleAuthProvider();
       const credential = await signInWithPopup($auth, provider);
       authState.firebaseUser = credential.user;
-      await fetchUser();
+      await fetchUser(options);
     } finally {
+      explicitAuthInProgress = false;
+      authState.initializing = false;
       authState.loading = false;
     }
   }
