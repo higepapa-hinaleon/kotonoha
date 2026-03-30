@@ -24,17 +24,6 @@ export default defineEventHandler(async (event) => {
   const existingUser = await db.collection("users").doc(decodedToken.uid).get();
   if (existingUser.exists) {
     const userData = existingUser.data() as Omit<User, "id">;
-
-    // organizationId が未設定の既存ユーザーを修復
-    if (!userData.organizationId) {
-      const orgId = await findOrCreateDefaultOrganization(db);
-      await db.collection("users").doc(decodedToken.uid).update({
-        organizationId: orgId,
-        updatedAt: new Date().toISOString(),
-      });
-      userData.organizationId = orgId;
-    }
-
     const user = { id: existingUser.id, ...userData } as User;
     const memberships = await getUserGroupMemberships(user.id, db);
     return { ...user, groupMemberships: memberships };
