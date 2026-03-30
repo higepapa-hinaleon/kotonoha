@@ -27,7 +27,7 @@ graph TB
 
         subgraph "Firebase"
             FA[Firebase Authentication]
-            FS[(Cloud Firestore<br/>DB: kotonoha)]
+            FS[(Cloud Firestore<br/>DB: kotonoha-ai-chat)]
             CS[(Cloud Storage<br/>ドキュメントファイル)]
             FH[Firebase Hosting<br/>CDN + リバースプロキシ]
         end
@@ -64,7 +64,7 @@ graph TB
 | サービス                | リージョン             | 備考                         |
 | ----------------------- | ---------------------- | ---------------------------- |
 | Cloud Run               | asia-northeast1 (東京) | メインアプリケーション       |
-| Cloud Firestore         | asia-northeast1        | 名前付きDB: `kotonoha`       |
+| Cloud Firestore         | asia-northeast1        | 名前付きDB: `kotonoha-ai-chat` |
 | Cloud Storage           | asia-northeast1        | バケット: `kotonoha-ai-chat` |
 | Vertex AI               | asia-northeast1        | Gemini + Embedding           |
 | Artifact Registry       | asia-northeast1        | Docker イメージ保管          |
@@ -119,7 +119,7 @@ Startup Probe の初期遅延は30秒。Nuxt のビルド出力起動とFirebase
 
 | 項目           | 値              |
 | -------------- | --------------- |
-| データベースID | `kotonoha`      |
+| データベースID | `kotonoha-ai-chat` |
 | モード         | Native mode     |
 | ロケーション   | asia-northeast1 |
 
@@ -206,8 +206,8 @@ flowchart LR
 
 **デプロイ時の環境変数設定:**
 
-- `NUXT_FIREBASE_DATABASE_ID=kotonoha`
-- `NUXT_PUBLIC_FIREBASE_DATABASE_ID=kotonoha`
+- `NUXT_FIREBASE_DATABASE_ID=kotonoha-ai-chat`
+- `NUXT_PUBLIC_FIREBASE_DATABASE_ID=kotonoha-ai-chat`
 - その他のシークレットは Cloud Run のサービス設定で管理
 
 **ログ設定:** `CLOUD_LOGGING_ONLY`（ビルドログはCloud Loggingのみ）
