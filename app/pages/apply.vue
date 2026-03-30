@@ -38,8 +38,8 @@ watch(
     }
     // Check pending application
     try {
-      const res = await apiFetch<{ status: string } | null>("/api/applications/mine");
-      if (res && res.status === "pending") {
+      const res = await apiFetch<{ application: { status: string } | null }>("/api/applications/mine");
+      if (res?.application?.status === "pending") {
         hasPendingApplication.value = true;
         await navigateTo("/admin");
         return;
@@ -55,12 +55,13 @@ watch(
 // --- Account creation state ---
 const signupEmail = ref("");
 const signupPassword = ref("");
+const signupOrgName = ref("");
 const signupError = ref("");
 
 async function handleEmailSignup() {
   signupError.value = "";
   try {
-    await signupWithEmail(signupEmail.value, signupPassword.value);
+    await signupWithEmail(signupEmail.value, signupPassword.value, { organizationName: signupOrgName.value.trim() || undefined });
     accountCreated.value = true;
   } catch (e: unknown) {
     const code = (e as { code?: string })?.code;
@@ -79,7 +80,7 @@ async function handleEmailSignup() {
 async function handleGoogleSignup() {
   signupError.value = "";
   try {
-    await loginWithGoogle();
+    await loginWithGoogle({ organizationName: signupOrgName.value.trim() || undefined });
     accountCreated.value = true;
   } catch {
     signupError.value = "Google認証に失敗しました。";
@@ -204,6 +205,7 @@ async function handleSubmit() {
 
     if (res.autoApproved) {
       show("申請が承認されました。管理画面に移動します。", "success");
+      await fetchUser();
       await navigateTo("/admin");
     } else if (res.checkoutUrl) {
       window.location.href = res.checkoutUrl;
@@ -295,6 +297,19 @@ async function handleSubmit() {
               autocomplete="new-password"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
               placeholder="6文字以上"
+            />
+          </div>
+          <div>
+            <label for="signupOrgName" class="block text-sm font-medium text-gray-700">
+              組織名 <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="signupOrgName"
+              v-model="signupOrgName"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              placeholder="株式会社サンプル"
             />
           </div>
           <button
