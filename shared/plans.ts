@@ -27,10 +27,15 @@ export interface PlanFeatureFlags {
 export interface PlanDefinition {
   id: PlanId;
   displayName: string;
+  /** 表示用価格文字列 */
   price: string;
+  /** 月額料金（円）。0 = 無料、-1 = 個別見積 */
+  priceMonthly: number;
   description: string;
   limits: PlanFeatureLimits;
   features: PlanFeatureFlags;
+  /** Stripe Price ID（環境変数で上書き可能） */
+  stripePriceId: string;
   /** ランディングページでハイライト表示するか */
   highlighted: boolean;
   /** ランディングページ表示用の機能リスト */
@@ -42,7 +47,9 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
     id: "free",
     displayName: "Free",
     price: "0",
+    priceMonthly: 0,
     description: "まずは無料でお試し",
+    stripePriceId: "",
     limits: {
       maxGroups: 1,
       maxServices: 1,
@@ -71,7 +78,9 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
     id: "starter",
     displayName: "Starter",
     price: "50,000",
+    priceMonthly: 50000,
     description: "まず試したい中小企業・スタートアップ向け",
+    stripePriceId: "",
     limits: {
       maxGroups: 1,
       maxServices: 3,
@@ -100,7 +109,9 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
     id: "business",
     displayName: "Business",
     price: "150,000",
+    priceMonthly: 150000,
     description: "本格導入する中堅企業向け",
+    stripePriceId: "",
     limits: {
       maxGroups: 5,
       maxServices: 10,
@@ -132,7 +143,9 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
     id: "enterprise",
     displayName: "Enterprise",
     price: "個別見積",
+    priceMonthly: -1,
     description: "大企業・金融・官公庁向け",
+    stripePriceId: "",
     limits: {
       maxGroups: -1,
       maxServices: -1,

@@ -8,10 +8,10 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event);
-    if (!body.role || !["owner", "system_admin", "admin", "member"].includes(body.role)) {
+    if (!body.role || !["owner", "system_admin", "org_admin", "user"].includes(body.role)) {
       throw createError({
         statusCode: 400,
-        statusMessage: "roleは owner, system_admin, admin, member のいずれかで指定してください",
+        statusMessage: "roleは owner, system_admin, org_admin, user のいずれかで指定してください",
       });
     }
 

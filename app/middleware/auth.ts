@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { user, initializing, isSystemAdmin, hasConsent } = useAuth();
+  const { user, initializing, isSystemAdmin, hasConsent, hasOrganization } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -23,13 +23,20 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo("/consent");
   }
 
+  // 無所属ユーザー（organizationId が空）は利用申し込みまたは待機画面へ
+  // apply / pending / consent / terms / privacy ページ自体へのアクセスは許可
+  const unaffiliatedAllowedPaths = ["/apply", "/pending", "/consent", "/terms", "/privacy"];
+  if (!hasOrganization.value && !isSystemAdmin.value && !unaffiliatedAllowedPaths.includes(to.path)) {
+    return navigateTo("/apply");
+  }
+
   // グループ未割当チェック（no-group ページ自体へのアクセスは許可）
-  if (to.path !== "/no-group") {
+  if (to.path !== "/no-group" && hasOrganization.value) {
     const { hasGroups, activeGroupId } = useGroup();
     if (!hasGroups.value && !isSystemAdmin.value) {
       return navigateTo("/no-group");
     }
-    // system_admin はグループ未割当でも全管理ページにアクセス可能
+    // system_admin / org_admin はグループ未割当でも全管理ページにアクセス可能
     // ただし activeGroupId もない場合、グループスコープページはシステム管理へリダイレクト
     if (
       isSystemAdmin.value &&

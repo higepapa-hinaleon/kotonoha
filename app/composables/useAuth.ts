@@ -56,8 +56,8 @@ export function useAuth() {
     }
     return async () => {
       await fetchGroups();
-      // owner / system_admin: グループ未選択時に最初のグループを自動選択
-      if ((userData.role === "owner" || userData.role === "system_admin") && !userData.activeGroupId && groups.value.length > 0) {
+      // owner / system_admin / org_admin: グループ未選択時に最初のグループを自動選択
+      if ((userData.role === "owner" || userData.role === "system_admin" || userData.role === "org_admin") && !userData.activeGroupId && groups.value.length > 0) {
         setActiveGroupId(groups.value[0].id);
       }
     };
@@ -139,7 +139,7 @@ export function useAuth() {
     isAdmin: computed(() => {
       const user = authState.user;
       if (!user) return false;
-      if (user.role === "owner" || user.role === "system_admin") return true;
+      if (user.role === "owner" || user.role === "system_admin" || user.role === "org_admin") return true;
       // グループレベルの admin チェック
       const { isGroupAdmin } = useGroup();
       return isGroupAdmin.value;
@@ -148,8 +148,13 @@ export function useAuth() {
       const role = authState.user?.role;
       return role === "system_admin" || role === "owner";
     }),
+    isOrgAdmin: computed(() => {
+      const role = authState.user?.role;
+      return role === "org_admin" || role === "system_admin" || role === "owner";
+    }),
     isOwner: computed(() => authState.user?.role === "owner"),
     hasConsent: computed(() => !!authState.user?.consentAcceptedAt),
+    hasOrganization: computed(() => !!authState.user?.organizationId),
     isAuthenticated: computed(() => !!authState.user),
     getIdToken,
     loginWithEmail,

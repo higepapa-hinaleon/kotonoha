@@ -28,6 +28,27 @@ export default defineNuxtConfig({
     vertexAiEmbeddingModel: "text-multilingual-embedding-002",
     corsAllowedOrigins: "", // NUXT_CORS_ALLOWED_ORIGINS: カンマ区切りで許可オリジンを指定
 
+    // Stripe
+    stripeSecretKey: "",
+    stripeWebhookSecret: "",
+
+    // SMTP（メール送信）
+    smtpHost: "",
+    smtpPort: "587",
+    smtpUser: "",
+    smtpPass: "",
+    smtpFrom: "",
+
+    // アプリケーションURL（メールのリンク生成用）
+    appBaseUrl: "http://localhost:3000",
+
+    // 銀行振込情報（請求メール用）
+    bankName: "",
+    bankBranch: "",
+    bankAccountType: "",
+    bankAccountNumber: "",
+    bankAccountHolder: "",
+
     // Client-exposed (NUXT_PUBLIC_xxx)
     public: {
       firebaseApiKey: "",
@@ -37,6 +58,7 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: "",
       firebaseAppId: "",
       firebaseDatabaseId: "",
+      stripePublishableKey: "",
     },
   },
 
