@@ -1,5 +1,5 @@
-export default defineNuxtRouteMiddleware(async () => {
-  const { isAdmin, hasOrganization, initializing } = useAuth();
+export default defineNuxtRouteMiddleware(async (to) => {
+  const { isAdmin, hasOrganization, initializing, hasPendingApplication, fetchPendingApplication } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -13,8 +13,16 @@ export default defineNuxtRouteMiddleware(async () => {
     });
   }
 
-  // 無所属ユーザーは利用申し込みへ
+  // 無所属ユーザー: 承認待ち申請がある場合、/admin のみ許可
   if (!hasOrganization.value) {
+    await fetchPendingApplication();
+    if (hasPendingApplication.value) {
+      // /admin ルートのみ許可、サブページは /admin へリダイレクト
+      if (to.path !== "/admin") {
+        return navigateTo("/admin");
+      }
+      return; // /admin へのアクセスを許可
+    }
     return navigateTo("/apply");
   }
 

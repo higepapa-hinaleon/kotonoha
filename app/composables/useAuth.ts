@@ -1,12 +1,13 @@
 import {
   signInWithEmailAndPassword,
   signInWithPopup,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
   type User as FirebaseUser,
 } from "firebase/auth";
-import type { User, UserGroupMembership } from "~~/shared/types/models";
+import type { User, UserGroupMembership, Application } from "~~/shared/types/models";
 
 interface AuthState {
   firebaseUser: FirebaseUser | null;
@@ -14,6 +15,8 @@ interface AuthState {
   loading: boolean;
   initializing: boolean;
   initialized: boolean;
+  pendingApplication: Application | null;
+  pendingApplicationFetched: boolean;
 }
 
 const authState = reactive<AuthState>({
@@ -22,6 +25,8 @@ const authState = reactive<AuthState>({
   loading: false,
   initializing: true,
   initialized: false,
+  pendingApplication: null,
+  pendingApplicationFetched: false,
 });
 
 export function useAuth() {
@@ -98,6 +103,17 @@ export function useAuth() {
     }
   }
 
+  async function signupWithEmail(email: string, password: string) {
+    authState.loading = true;
+    try {
+      const credential = await createUserWithEmailAndPassword($auth, email, password);
+      authState.firebaseUser = credential.user;
+      await fetchUser();
+    } finally {
+      authState.loading = false;
+    }
+  }
+
   async function loginWithEmail(email: string, password: string) {
     authState.loading = true;
     try {
@@ -121,10 +137,32 @@ export function useAuth() {
     }
   }
 
+  async function fetchPendingApplication(forceRefresh = false) {
+    if (authState.pendingApplicationFetched && !forceRefresh) return authState.pendingApplication;
+    try {
+      const token = await getIdToken();
+      const data = await $fetch<{ application: Application | null }>("/api/applications/mine", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      authState.pendingApplication = data.application ?? null;
+    } catch {
+      authState.pendingApplication = null;
+    }
+    authState.pendingApplicationFetched = true;
+    return authState.pendingApplication;
+  }
+
+  function invalidatePendingApplicationCache() {
+    authState.pendingApplicationFetched = false;
+    authState.pendingApplication = null;
+  }
+
   async function logout() {
     await signOut($auth);
     authState.firebaseUser = null;
     authState.user = null;
+    authState.pendingApplication = null;
+    authState.pendingApplicationFetched = false;
     const { setMemberships, setActiveGroupId } = useGroup();
     setMemberships([]);
     setActiveGroupId(null);
@@ -156,9 +194,15 @@ export function useAuth() {
     hasConsent: computed(() => !!authState.user?.consentAcceptedAt),
     hasOrganization: computed(() => !!authState.user?.organizationId),
     isAuthenticated: computed(() => !!authState.user),
+    pendingApplication: computed(() => authState.pendingApplication),
+    hasPendingApplication: computed(() => !!authState.pendingApplication),
     getIdToken,
+    signupWithEmail,
     loginWithEmail,
     loginWithGoogle,
+    fetchPendingApplication,
+    invalidatePendingApplicationCache,
+    fetchUser,
     logout,
   };
 }

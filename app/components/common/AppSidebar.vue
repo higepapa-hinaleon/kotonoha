@@ -8,7 +8,7 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
-const { isAdmin, isSystemAdmin } = useAuth();
+const { isAdmin, isSystemAdmin, hasOrganization } = useAuth();
 const { groups, currentGroup, activeGroupId, switchGroup } = useGroup();
 
 const showGroupDropdown = ref(false);
@@ -42,7 +42,12 @@ const adminNavItems: NavItem[] = [
 
 const memberNavItems: NavItem[] = [{ label: "チャット", to: "/chat", icon: "chat" }];
 
-const navItems = computed(() => (isAdmin.value ? adminNavItems : memberNavItems));
+const pendingNavItems: NavItem[] = [{ label: "ダッシュボード", to: "/admin", icon: "dashboard" }];
+
+const navItems = computed(() => {
+  if (!hasOrganization.value) return pendingNavItems;
+  return isAdmin.value ? adminNavItems : memberNavItems;
+});
 
 const systemAdminItems: NavItem[] = [
   { label: "組織管理", to: "/admin/system/organizations", icon: "organizations" },
@@ -115,8 +120,8 @@ watch(
           </svg>
         </button>
       </div>
-      <!-- モバイル: グループセレクター -->
-      <div class="shrink-0 border-b border-gray-200 px-3 py-3">
+      <!-- モバイル: グループセレクター（承認待ちユーザーには非表示） -->
+      <div v-if="hasOrganization" class="shrink-0 border-b border-gray-200 px-3 py-3">
         <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
           グループ
         </p>
@@ -185,8 +190,8 @@ watch(
             </NuxtLink>
           </li>
         </ul>
-        <!-- システム管理セクション -->
-        <div v-if="isSystemAdmin" class="border-t border-gray-200 pt-2">
+        <!-- システム管理セクション（承認待ちユーザーには非表示） -->
+        <div v-if="isSystemAdmin && hasOrganization" class="border-t border-gray-200 pt-2">
           <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
             システム管理
           </p>
@@ -207,7 +212,7 @@ watch(
             </li>
           </ul>
         </div>
-        <div v-if="isAdmin" class="border-t border-gray-200 pt-2">
+        <div v-if="isAdmin && hasOrganization" class="border-t border-gray-200 pt-2">
           <NuxtLink
             :to="settingsItem.to"
             class="flex items-center rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
@@ -229,8 +234,8 @@ watch(
   <aside
     class="hidden w-56 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white md:flex"
   >
-    <!-- デスクトップ: グループセレクター -->
-    <div class="shrink-0 border-b border-gray-200 px-3 py-3">
+    <!-- デスクトップ: グループセレクター（承認待ちユーザーには非表示） -->
+    <div v-if="hasOrganization" class="shrink-0 border-b border-gray-200 px-3 py-3">
       <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">グループ</p>
       <div
         v-if="groups.length <= 1"
@@ -343,8 +348,8 @@ watch(
           </NuxtLink>
         </li>
       </ul>
-      <!-- システム管理セクション -->
-      <div v-if="isSystemAdmin" class="border-t border-gray-200 pt-2">
+      <!-- システム管理セクション（承認待ちユーザーには非表示） -->
+      <div v-if="isSystemAdmin && hasOrganization" class="border-t border-gray-200 pt-2">
         <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
           システム管理
         </p>
@@ -364,7 +369,7 @@ watch(
           </li>
         </ul>
       </div>
-      <div v-if="isAdmin" class="border-t border-gray-200 pt-2">
+      <div v-if="isAdmin && hasOrganization" class="border-t border-gray-200 pt-2">
         <NuxtLink
           :to="settingsItem.to"
           class="flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
