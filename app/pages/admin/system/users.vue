@@ -150,6 +150,7 @@ onMounted(async () => {
               class="rounded-md border border-gray-300 px-2 py-1 text-xs"
               @change="updateRole(u.id, ($event.target as HTMLSelectElement).value)"
             >
+              <option value="owner">オーナー</option>
               <option value="system_admin">システム管理者</option>
               <option value="admin">管理者（旧）</option>
               <option value="member">メンバー</option>
@@ -201,6 +202,7 @@ onMounted(async () => {
                   class="rounded-md border border-gray-300 px-2 py-1 text-sm"
                   @change="updateRole(u.id, ($event.target as HTMLSelectElement).value)"
                 >
+                  <option value="owner">オーナー</option>
                   <option value="system_admin">システム管理者</option>
                   <option value="admin">管理者（旧）</option>
                   <option value="member">メンバー</option>

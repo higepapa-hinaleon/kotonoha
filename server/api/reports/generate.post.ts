@@ -1,5 +1,6 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { checkFeatureFlag } from "~~/server/utils/plan-limit";
 import { generateStructuredJson } from "~~/server/utils/ai-generator";
 import { WEEKLY_REPORT_RETENTION_DAYS, BATCH_SIZE_LIMIT } from "~~/server/utils/constants";
 import type { WeeklyReport, ReportStats } from "~~/shared/types/models";
@@ -14,6 +15,8 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+
+  await checkFeatureFlag(user.organizationId, "weeklyReports");
   const body = await readBody<{ periodStart: string; periodEnd: string }>(event);
 
   if (!body.periodStart || !body.periodEnd) {

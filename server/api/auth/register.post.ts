@@ -5,6 +5,7 @@ import {
   addUserToGroup,
   getUserGroupMemberships,
 } from "~~/server/utils/group";
+import { checkPlanLimit } from "~~/server/utils/plan-limit";
 import type { User } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
@@ -49,10 +50,24 @@ export default defineEventHandler(async (event) => {
     .limit(1)
     .get();
   const isFirstUser = existingUsers.empty;
-  const role = isFirstUser ? "system_admin" : "member";
+  const role = isFirstUser ? "owner" : "member";
+
+  // 2人目以降: プランのユーザー上限チェック
+  if (!isFirstUser) {
+    await checkPlanLimit(orgId, "users", db);
+  }
 
   // デフォルトグループを取得 or 作成
   const defaultGroupId = await findOrCreateDefaultGroup(orgId, db);
+
+  // 同意情報の取得（リクエストボディから）
+  let consentVersion: string | undefined;
+  try {
+    const body = await readBody(event);
+    consentVersion = body?.consentVersion;
+  } catch {
+    // ボディなしの場合は無視
+  }
 
   const now = new Date().toISOString();
   const newUser: Omit<User, "id"> = {
@@ -61,6 +76,7 @@ export default defineEventHandler(async (event) => {
     displayName: decodedToken.name || decodedToken.email || "",
     role,
     ...(isFirstUser ? { activeGroupId: defaultGroupId } : {}),
+    ...(consentVersion ? { consentAcceptedAt: now, consentVersion } : {}),
     createdAt: now,
     updatedAt: now,
   };

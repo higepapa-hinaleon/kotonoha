@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { getAdminFirestore, getAdminStorage } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { checkPlanLimit } from "~~/server/utils/plan-limit";
 import { ALLOWED_MIME_TYPES, MAX_UPLOAD_SIZE_BYTES } from "~~/server/utils/constants";
 import type { Document } from "~~/shared/types/models";
 
@@ -9,6 +10,8 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+
+  await checkPlanLimit(user.organizationId, "documents");
 
   const formData = await readMultipartFormData(event);
   if (!formData) {

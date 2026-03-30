@@ -1,6 +1,7 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyAuthOptional, resolveGroupId, resolveExternalUser } from "~~/server/utils/auth";
 import { processChatMessage } from "~~/server/utils/chat";
+import { checkMonthlyChats } from "~~/server/utils/plan-limit";
 import type { ChatSendRequest, ChatSendResponse } from "~~/shared/types/api";
 import { CHAT_RATE_LIMIT, MAX_CHAT_MESSAGE_LENGTH } from "~~/server/utils/constants";
 import { checkRateLimit } from "~~/server/utils/rate-limiter";
@@ -61,6 +62,9 @@ export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
   if (!groupId) {
     throw createError({ statusCode: 400, statusMessage: "groupId を特定できません" });
   }
+
+  // プランの月間チャット数上限チェック
+  await checkMonthlyChats(organizationId);
 
   return processChatMessage({
     organizationId,

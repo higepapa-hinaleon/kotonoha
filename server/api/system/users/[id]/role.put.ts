@@ -8,18 +8,26 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event);
-    if (!body.role || !["system_admin", "admin", "member"].includes(body.role)) {
+    if (!body.role || !["owner", "system_admin", "admin", "member"].includes(body.role)) {
       throw createError({
         statusCode: 400,
-        statusMessage: "roleは system_admin, admin, member のいずれかで指定してください",
+        statusMessage: "roleは owner, system_admin, admin, member のいずれかで指定してください",
       });
     }
 
-    // 自分自身の system_admin を剥奪することは禁止
-    if (id === admin.id && body.role !== "system_admin") {
+    // owner ロールの付与は現在の owner のみ可能
+    if (body.role === "owner" && admin.role !== "owner") {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "オーナー権限の付与はオーナーのみ可能です",
+      });
+    }
+
+    // 自分自身の owner / system_admin を剥奪することは禁止
+    if (id === admin.id && (admin.role === "owner" || admin.role === "system_admin") && body.role !== admin.role) {
       throw createError({
         statusCode: 400,
-        statusMessage: "自分自身のシステム管理者権限を変更することはできません",
+        statusMessage: "自分自身の管理者権限を変更することはできません",
       });
     }
 

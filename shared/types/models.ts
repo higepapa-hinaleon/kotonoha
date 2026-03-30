@@ -54,8 +54,12 @@ export interface User {
   organizationId: string;
   email: string;
   displayName: string;
-  role: "system_admin" | "admin" | "member";
+  role: "owner" | "system_admin" | "admin" | "member";
   activeGroupId?: string;
+  /** 利用規約・プライバシーポリシーへの同意日時 (ISO 8601) */
+  consentAcceptedAt?: string;
+  /** 同意した規約バージョン */
+  consentVersion?: string;
   createdAt: string;
   updatedAt: string;
 }

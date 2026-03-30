@@ -8,6 +8,7 @@ definePageMeta({ middleware: ["auth", "admin"], layout: "admin" });
 const route = useRoute();
 const { apiFetch } = useApi();
 const { show } = useNotification();
+const { isOwner } = useAuth();
 
 const orgId = route.params.id as string;
 
@@ -181,14 +182,16 @@ onMounted(fetchData);
             <input
               v-model="editName"
               type="text"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              :disabled="!isOwner"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700">プラン</label>
             <select
               v-model="editPlan"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              :disabled="!isOwner"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
             >
               <option v-for="plan in PLAN_LIST" :key="plan.id" :value="plan.id">
                 {{ plan.displayName }}
@@ -200,7 +203,7 @@ onMounted(fetchData);
           作成日: {{ new Date(org.createdAt).toLocaleDateString("ja-JP") }} / 更新日:
           {{ new Date(org.updatedAt).toLocaleDateString("ja-JP") }}
         </div>
-        <div class="mt-4">
+        <div v-if="isOwner" class="mt-4">
           <button
             class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
             :disabled="saving"
@@ -209,6 +212,9 @@ onMounted(fetchData);
             {{ saving ? "保存中..." : "保存" }}
           </button>
         </div>
+        <p v-else class="mt-4 text-xs text-gray-400">
+          組織情報の変更はオーナーのみ可能です。
+        </p>
       </div>
 
       <!-- プラン詳細 -->
@@ -319,6 +325,7 @@ onMounted(fetchData);
         <div class="mb-4 flex items-center justify-between">
           <h2 class="text-lg font-bold text-gray-900">契約履歴</h2>
           <button
+            v-if="isOwner"
             class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
             @click="openCreateContract"
           >
@@ -352,6 +359,7 @@ onMounted(fetchData);
               </p>
               <p v-if="contract.note" class="mt-1 text-xs text-gray-400">{{ contract.note }}</p>
               <button
+                v-if="isOwner"
                 class="mt-2 text-xs text-primary-600 hover:text-primary-800"
                 @click="openEditContract(contract)"
               >
@@ -402,7 +410,7 @@ onMounted(fetchData);
                   <td class="max-w-xs truncate px-4 py-3 text-sm text-gray-500">
                     {{ contract.note || "-" }}
                   </td>
-                  <td class="whitespace-nowrap px-4 py-3 text-right text-sm">
+                  <td v-if="isOwner" class="whitespace-nowrap px-4 py-3 text-right text-sm">
                     <button
                       class="text-primary-600 hover:text-primary-800"
                       @click="openEditContract(contract)"

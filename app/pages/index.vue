@@ -584,7 +584,7 @@ const mobileMenuOpen = ref(false);
           <h2 class="text-3xl font-bold text-gray-900">料金プラン</h2>
           <p class="mt-4 text-lg text-gray-500">規模に合わせて選べるシンプルな料金体系</p>
         </div>
-        <div class="mt-12 grid gap-8 lg:grid-cols-3">
+        <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div
             v-for="plan in plans"
             :key="plan.name"
@@ -604,9 +604,9 @@ const mobileMenuOpen = ref(false);
                 class="text-4xl font-bold text-gray-900"
                 :class="plan.price === '個別見積' ? 'text-2xl' : ''"
               >
-                {{ plan.price === "個別見積" ? plan.price : `\u00A5${plan.price}` }}
+                {{ plan.price === "個別見積" ? plan.price : plan.price === "0" ? "無料" : `\u00A5${plan.price}` }}
               </span>
-              <span v-if="plan.price !== '個別見積'" class="text-sm text-gray-500">
+              <span v-if="plan.price !== '個別見積' && plan.price !== '0'" class="text-sm text-gray-500">
                 /月（税抜）</span
               >
             </div>
@@ -637,7 +637,7 @@ const mobileMenuOpen = ref(false);
                   : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
               "
             >
-              {{ plan.price === "個別見積" ? "お問い合わせ" : "無料で始める" }}
+              {{ plan.price === "個別見積" ? "お問い合わせ" : plan.price === "0" ? "無料で始める" : "申し込む" }}
             </NuxtLink>
           </div>
         </div>
@@ -670,10 +670,16 @@ const mobileMenuOpen = ref(false);
 
     <!-- フッター -->
     <footer class="border-t border-gray-200 bg-white py-8">
-      <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        <span class="text-sm text-gray-400"
-          >&copy; {{ new Date().getFullYear() }} Kotonoha. All rights reserved.</span
-        >
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <span class="text-sm text-gray-400"
+            >&copy; {{ new Date().getFullYear() }} Kotonoha. All rights reserved.</span
+          >
+          <div class="flex gap-4">
+            <NuxtLink to="/terms" class="text-sm text-gray-400 hover:text-gray-600">利用規約</NuxtLink>
+            <NuxtLink to="/privacy" class="text-sm text-gray-400 hover:text-gray-600">プライバシーポリシー</NuxtLink>
+          </div>
+        </div>
       </div>
     </footer>
   </div>

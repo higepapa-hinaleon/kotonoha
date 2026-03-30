@@ -20,16 +20,22 @@ service cloud.firestore {
         && getUserData().organizationId == orgId;
     }
 
-    // 管理者かどうか（system_admin または旧 admin）
+    // 管理者かどうか（owner, system_admin, または旧 admin）
     function isAdmin() {
       return isAuthenticated()
-        && getUserData().role in ['admin', 'system_admin'];
+        && getUserData().role in ['admin', 'system_admin', 'owner'];
     }
 
-    // システム管理者かどうか
+    // システム管理者かどうか（owner も含む）
     function isSystemAdmin() {
       return isAuthenticated()
-        && getUserData().role == 'system_admin';
+        && getUserData().role in ['system_admin', 'owner'];
+    }
+
+    // オーナーかどうか
+    function isOwner() {
+      return isAuthenticated()
+        && getUserData().role == 'owner';
     }
 
     // 指定されたグループに所属しているか（組織の一致も検証）
@@ -55,7 +61,7 @@ service cloud.firestore {
     // ===== organizations =====
     match /organizations/{orgId} {
       allow read: if belongsToOrg(orgId);
-      allow write: if isSystemAdmin() && belongsToOrg(orgId);
+      allow write: if isOwner() && belongsToOrg(orgId);
     }
 
     // ===== groups =====

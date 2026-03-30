@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifyOwner } from "~~/server/utils/auth";
 import { VALID_PLAN_IDS } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
@@ -7,13 +7,18 @@ const VALID_STATUSES = ["active", "suspended", "expired", "cancelled"] as const;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export default defineEventHandler(async (event) => {
-  const user = await verifySystemAdmin(event);
+  const user = await verifyOwner(event);
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
 
   const orgId = getRouterParam(event, "id");
   if (!orgId) throw createError({ statusCode: 400, statusMessage: "組織IDが必要です" });
+
+  // 自分の組織のみ管理可能
+  if (orgId !== user.organizationId) {
+    throw createError({ statusCode: 403, statusMessage: "自分の組織のみ管理できます" });
+  }
 
   try {
     const body = await readBody(event);

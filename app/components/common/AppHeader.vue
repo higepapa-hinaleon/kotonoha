@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, isAdmin, isSystemAdmin, logout } = useAuth();
+const { user, isAdmin, isSystemAdmin, isOwner, logout } = useAuth();
 const route = useRoute();
 
 const emit = defineEmits<{
@@ -91,14 +91,16 @@ function handleLogout() {
               <span
                 class="mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium"
                 :class="
-                  isSystemAdmin
-                    ? 'bg-red-100 text-red-700'
-                    : isAdmin
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-gray-100 text-gray-600'
+                  isOwner
+                    ? 'bg-amber-100 text-amber-700'
+                    : isSystemAdmin
+                      ? 'bg-red-100 text-red-700'
+                      : isAdmin
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-gray-100 text-gray-600'
                 "
               >
-                {{ isSystemAdmin ? "システム管理者" : isAdmin ? "管理者" : "メンバー" }}
+                {{ isOwner ? "オーナー" : isSystemAdmin ? "システム管理者" : isAdmin ? "管理者" : "メンバー" }}
               </span>
             </div>
             <NuxtLink

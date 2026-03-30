@@ -1,11 +1,15 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifySystemAdmin } from "~~/server/utils/auth";
+import { checkPlanLimit } from "~~/server/utils/plan-limit";
 
 export default defineEventHandler(async (event) => {
   const user = await verifySystemAdmin(event);
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+
+  await checkPlanLimit(user.organizationId, "groups");
+
   const body = await readBody(event);
 
   if (!body.name || typeof body.name !== "string") {

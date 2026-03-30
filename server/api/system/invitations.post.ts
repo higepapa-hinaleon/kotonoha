@@ -1,5 +1,6 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifySystemAdmin } from "~~/server/utils/auth";
+import { checkPlanLimit } from "~~/server/utils/plan-limit";
 import type { Invitation } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
@@ -18,6 +19,9 @@ export default defineEventHandler(async (event) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw createError({ statusCode: 400, statusMessage: "有効なメールアドレスを入力してください" });
     }
+
+    // プランのユーザー上限チェック
+    await checkPlanLimit(admin.organizationId, "users", db);
 
     if (!["admin", "member"].includes(body.role)) {
       throw createError({
