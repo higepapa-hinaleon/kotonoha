@@ -21,6 +21,8 @@ export default defineEventHandler((event) => {
   if (publicPaths.includes(path)) return;
   // /api/services?groupId=xxx 等のクエリ付きパスもスキップ
   if (path.startsWith("/api/services")) return;
+  // 法的文書API（認証不要）
+  if (path.startsWith("/api/legal")) return;
 
   // Authorization ヘッダーの存在チェック（詳細な検証は各ハンドラーで実施）
   const authorization = getHeader(event, "authorization");

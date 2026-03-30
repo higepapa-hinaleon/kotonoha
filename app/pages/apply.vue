@@ -6,9 +6,28 @@ import type { ApplicationSubmitRequest } from "~~/shared/types/api";
 definePageMeta({ layout: false, middleware: [] });
 
 const route = useRoute();
-const { initializing, isAuthenticated, hasOrganization, hasConsent, signupWithEmail, loginWithGoogle, loading, getIdToken, fetchUser, invalidatePendingApplicationCache } = useAuth();
+const { initializing, isAuthenticated, hasOrganization, hasConsent, getIdToken, fetchUser, invalidatePendingApplicationCache } = useAuth();
 const { apiFetch } = useApi();
 const { show } = useNotification();
+
+// --- Stepper ---
+const STEPS = [
+  { label: "アカウント" },
+  { label: "基本情報" },
+  { label: "プラン" },
+  { label: "規約同意" },
+  { label: "最終確認" },
+];
+const currentStep = ref(0);
+
+function nextStep() {
+  if (currentStep.value < STEPS.length - 1) currentStep.value++;
+}
+function prevStep() {
+  // 認証済みの場合はステップ0（アカウント作成）に戻れない
+  const minStep = isAuthenticated.value ? 1 : 0;
+  if (currentStep.value > minStep) currentStep.value--;
+}
 
 // --- Auth guard & redirect logic ---
 const hasPendingApplication = ref(false);
@@ -27,11 +46,14 @@ watch(
   async ([init, authed]) => {
     if (init) return;
     if (!authed) {
-      // 未認証: アカウント作成セクションを表示
       checkingApplication.value = false;
       return;
     }
     accountCreated.value = true;
+    // 認証済みの場合、ステップ1（基本情報）へ
+    if (currentStep.value === 0) {
+      currentStep.value = 1;
+    }
     if (hasOrganization.value) {
       await navigateTo("/admin");
       return;
@@ -52,39 +74,10 @@ watch(
   { immediate: true },
 );
 
-// --- Account creation state ---
-const signupEmail = ref("");
-const signupPassword = ref("");
-const signupOrgName = ref("");
-const signupError = ref("");
-
-async function handleEmailSignup() {
-  signupError.value = "";
-  try {
-    await signupWithEmail(signupEmail.value, signupPassword.value, { organizationName: signupOrgName.value.trim() || undefined });
-    accountCreated.value = true;
-  } catch (e: unknown) {
-    const code = (e as { code?: string })?.code;
-    if (code === "auth/email-already-in-use") {
-      signupError.value = "このメールアドレスは既に登録されています。ログインページからお試しください。";
-    } else if (code === "auth/weak-password") {
-      signupError.value = "パスワードは6文字以上で入力してください。";
-    } else if (code === "auth/invalid-email") {
-      signupError.value = "有効なメールアドレスを入力してください。";
-    } else {
-      signupError.value = "アカウント作成に失敗しました。入力内容を確認してください。";
-    }
-  }
-}
-
-async function handleGoogleSignup() {
-  signupError.value = "";
-  try {
-    await loginWithGoogle({ organizationName: signupOrgName.value.trim() || undefined });
-    accountCreated.value = true;
-  } catch {
-    signupError.value = "Google認証に失敗しました。";
-  }
+// --- アカウント作成完了 ---
+function onAccountCreated() {
+  accountCreated.value = true;
+  currentStep.value = 1;
 }
 
 // --- Form state ---
@@ -102,42 +95,57 @@ const agreeTerms = ref(false);
 const agreePrivacy = ref(false);
 const submitting = ref(false);
 
+// --- Legal document versions ---
+const termsVersion = ref("1.0");
+const privacyVersion = ref("1.0");
+
+async function fetchLegalVersions() {
+  try {
+    const res = await $fetch<{
+      terms: { version: string } | null;
+      privacy: { version: string } | null;
+    }>("/api/legal/current");
+    if (res.terms) termsVersion.value = res.terms.version;
+    if (res.privacy) privacyVersion.value = res.privacy.version;
+  } catch {
+    // フォールバック: デフォルト値を使用（シード未完了の場合）
+  }
+}
+
+// --- Step component refs ---
+const stepBasicInfoRef = ref<{ isValid: boolean } | null>(null);
+const stepPlanRef = ref<{ isValid: boolean } | null>(null);
+const stepTermsRef = ref<{ isValid: boolean } | null>(null);
+
+// --- Per-step validation ---
+const canProceedFromStep = computed(() => {
+  switch (currentStep.value) {
+    case 0: // Account - handled by StepAccount component
+      return false; // Navigation handled by event
+    case 1: // Basic Info
+      return stepBasicInfoRef.value?.isValid ?? false;
+    case 2: // Plan
+      return stepPlanRef.value?.isValid ?? false;
+    case 3: // Terms
+      return stepTermsRef.value?.isValid ?? false;
+    case 4: // Confirm - submit button handles this
+      return true;
+    default:
+      return false;
+  }
+});
+
 // --- Computed ---
 const selectedPlan = computed(() => PLAN_LIST.find((p) => p.id === selectedPlanId.value));
 const isPaidPlan = computed(
   () => selectedPlan.value && selectedPlan.value.priceMonthly > 0,
 );
-const isEnterprise = computed(() => selectedPlanId.value === "enterprise");
 
 const resolvedOrganizationName = computed(() => {
   if (organizationType.value === "corporation") return organizationName.value;
-  if (organizationType.value === "sole_proprietor") return tradeName.value;
-  return contactName.value;
+  if (organizationType.value === "sole_proprietor") return tradeName.value || contactName.value;
+  return `${contactName.value}の組織`;
 });
-
-const canSubmit = computed(() => {
-  if (!contactName.value.trim()) return false;
-  if (!address.value.trim()) return false;
-  if (!phone.value.trim()) return false;
-  if (organizationType.value === "sole_proprietor" && !tradeName.value.trim()) return false;
-  if (organizationType.value === "corporation" && !organizationName.value.trim()) return false;
-  if (organizationType.value === "corporation" && !representativeName.value.trim()) return false;
-  if (isEnterprise.value) return false;
-  if (!agreeTerms.value || !agreePrivacy.value) return false;
-  if (isPaidPlan.value && paymentMethod.value === "none") return false;
-  return true;
-});
-
-// --- Plan selection ---
-function selectPlan(planId: PlanId) {
-  selectedPlanId.value = planId;
-  // Reset payment method when switching plans
-  if (planId === "free" || planId === "enterprise") {
-    paymentMethod.value = "none";
-  } else if (paymentMethod.value === "none") {
-    paymentMethod.value = "stripe";
-  }
-}
 
 // --- Beforeunload warning ---
 function onBeforeUnload(e: BeforeUnloadEvent) {
@@ -147,6 +155,7 @@ function onBeforeUnload(e: BeforeUnloadEvent) {
 }
 
 onMounted(() => {
+  fetchLegalVersions();
   window.addEventListener("beforeunload", onBeforeUnload);
 });
 
@@ -156,7 +165,7 @@ onUnmounted(() => {
 
 // --- Submit ---
 async function handleSubmit() {
-  if (!canSubmit.value || submitting.value) return;
+  if (submitting.value) return;
 
   submitting.value = true;
   try {
@@ -166,7 +175,7 @@ async function handleSubmit() {
       await $fetch("/api/auth/consent", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: { consentVersion: "1.0" },
+        body: { consentVersion: termsVersion.value },
       });
       await fetchUser();
     }
@@ -175,17 +184,23 @@ async function handleSubmit() {
       organizationType: organizationType.value,
       organizationName: resolvedOrganizationName.value,
       contactName: contactName.value.trim(),
-      address: address.value.trim(),
-      phone: phone.value.trim(),
       planId: selectedPlanId.value,
       paymentMethod: isPaidPlan.value ? paymentMethod.value : "none",
+      termsVersion: termsVersion.value,
+      privacyVersion: privacyVersion.value,
     };
 
-    if (organizationType.value === "sole_proprietor") {
+    // 組織区分別のフィールド追加
+    if (organizationType.value === "individual") {
+      body.phone = phone.value.trim();
+    } else if (organizationType.value === "sole_proprietor") {
       body.tradeName = tradeName.value.trim();
-    }
-    if (organizationType.value === "corporation") {
-      body.representativeName = representativeName.value.trim();
+    } else if (organizationType.value === "corporation") {
+      body.address = address.value.trim();
+      body.phone = phone.value.trim();
+      if (representativeName.value.trim()) {
+        body.representativeName = representativeName.value.trim();
+      }
       if (corporateNumber.value.trim()) {
         body.corporateNumber = corporateNumber.value.trim();
       }
@@ -210,7 +225,6 @@ async function handleSubmit() {
     } else if (res.checkoutUrl) {
       window.location.href = res.checkoutUrl;
     } else {
-      // 有料プラン: 管理画面の承認待ち表示へ遷移
       show("申請を受け付けました。", "success");
       await navigateTo("/admin");
     }
@@ -220,6 +234,10 @@ async function handleSubmit() {
     submitting.value = false;
   }
 }
+
+// --- User email for confirmation step ---
+const { user } = useAuth();
+const userEmail = computed(() => user.value?.email ?? "");
 </script>
 
 <template>
@@ -257,420 +275,112 @@ async function handleSubmit() {
     <!-- Form -->
     <div v-else class="mx-auto max-w-2xl">
       <!-- Header -->
-      <div class="mb-8 text-center">
+      <div class="mb-6 text-center">
         <h1 class="text-2xl font-bold text-primary-600">kotonoha AI Support</h1>
         <p class="mt-2 text-gray-600">利用申請フォーム</p>
       </div>
 
-      <!-- Section 0: アカウント作成（未認証時のみ） -->
-      <div v-if="!isAuthenticated" class="mb-8 rounded-lg bg-white p-6 shadow-md">
-        <h2 class="mb-4 text-lg font-semibold text-gray-800">アカウント作成</h2>
+      <!-- Stepper -->
+      <ApplyStepper :steps="STEPS" :current-step="currentStep" />
 
-        <div v-if="signupError" class="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
-          {{ signupError }}
-        </div>
+      <!-- Step 1: アカウント作成 -->
+      <StepAccount
+        v-if="currentStep === 0 && !isAuthenticated"
+        @account-created="onAccountCreated"
+      />
 
-        <form class="space-y-4" @submit.prevent="handleEmailSignup">
-          <div>
-            <label for="signupEmail" class="block text-sm font-medium text-gray-700">
-              メールアドレス
-            </label>
-            <input
-              id="signupEmail"
-              v-model="signupEmail"
-              type="email"
-              required
-              autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label for="signupPassword" class="block text-sm font-medium text-gray-700">
-              パスワード
-            </label>
-            <input
-              id="signupPassword"
-              v-model="signupPassword"
-              type="password"
-              required
-              autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="6文字以上"
-            />
-          </div>
-          <div>
-            <label for="signupOrgName" class="block text-sm font-medium text-gray-700">
-              組織名 <span class="text-red-500">*</span>
-            </label>
-            <input
-              id="signupOrgName"
-              v-model="signupOrgName"
-              type="text"
-              required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="株式会社サンプル"
-            />
-          </div>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="flex w-full items-center justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-          >
-            <svg
-              v-if="loading"
-              class="mr-2 h-4 w-4 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            {{ loading ? "作成中..." : "アカウントを作成" }}
-          </button>
-        </form>
+      <!-- Step 2: 基本情報 -->
+      <template v-if="currentStep === 1">
+        <StepBasicInfo
+          ref="stepBasicInfoRef"
+          v-model:organization-type="organizationType"
+          v-model:contact-name="contactName"
+          v-model:phone="phone"
+          v-model:address="address"
+          v-model:trade-name="tradeName"
+          v-model:organization-name="organizationName"
+          v-model:representative-name="representativeName"
+          v-model:corporate-number="corporateNumber"
+        />
+      </template>
 
-        <div class="relative my-5">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300" />
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="bg-white px-2 text-gray-500">または</span>
-          </div>
-        </div>
+      <!-- Step 3: プラン選択 -->
+      <template v-if="currentStep === 2">
+        <StepPlan
+          ref="stepPlanRef"
+          v-model:selected-plan-id="selectedPlanId"
+          v-model:payment-method="paymentMethod"
+        />
+      </template>
 
+      <!-- Step 4: 利用規約・プライバシーポリシー -->
+      <template v-if="currentStep === 3">
+        <StepTerms
+          ref="stepTermsRef"
+          v-model:agree-terms="agreeTerms"
+          v-model:agree-privacy="agreePrivacy"
+          :terms-version="termsVersion"
+          :privacy-version="privacyVersion"
+        />
+      </template>
+
+      <!-- Step 5: 最終確認 -->
+      <template v-if="currentStep === 4">
+        <StepConfirm
+          :email="userEmail"
+          :organization-type="organizationType"
+          :contact-name="contactName"
+          :phone="phone"
+          :address="address"
+          :trade-name="tradeName"
+          :organization-name="organizationName"
+          :resolved-organization-name="resolvedOrganizationName"
+          :representative-name="representativeName"
+          :corporate-number="corporateNumber"
+          :selected-plan-id="selectedPlanId"
+          :payment-method="isPaidPlan ? paymentMethod : 'none'"
+          :terms-version="termsVersion"
+          :privacy-version="privacyVersion"
+          :submitting="submitting"
+          @submit="handleSubmit"
+        />
+      </template>
+
+      <!-- Navigation buttons (Steps 2-4) -->
+      <div
+        v-if="currentStep >= 1 && currentStep <= 3"
+        class="mt-6 flex justify-between"
+      >
         <button
-          :disabled="loading"
-          class="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          @click="handleGoogleSignup"
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          @click="prevStep"
         >
-          <svg class="h-5 w-5" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-          </svg>
-          Googleで登録
+          戻る
         </button>
-
-        <p class="mt-4 text-center text-sm text-gray-500">
-          既にアカウントをお持ちの方は
-          <NuxtLink to="/login" class="text-primary-600 underline hover:text-primary-700">こちら</NuxtLink>
-        </p>
+        <button
+          type="button"
+          :disabled="!canProceedFromStep"
+          class="rounded-md bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          @click="nextStep"
+        >
+          次へ
+        </button>
       </div>
 
-      <!-- 認証済みユーザー向けの申請フォーム -->
-      <template v-if="isAuthenticated">
-        <form class="space-y-8" @submit.prevent="handleSubmit">
-          <!-- Section 1: 契約者区分 -->
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800">契約者区分</h2>
-            <div class="flex flex-wrap gap-4">
-              <label
-                v-for="opt in ([
-                  { value: 'individual', label: '個人' },
-                  { value: 'sole_proprietor', label: '個人事業主' },
-                  { value: 'corporation', label: '法人' },
-                ] as const)"
-                :key="opt.value"
-                class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2 transition-colors"
-                :class="
-                  organizationType === opt.value
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                "
-              >
-                <input
-                  v-model="organizationType"
-                  type="radio"
-                  name="organizationType"
-                  :value="opt.value"
-                  class="sr-only"
-                />
-                {{ opt.label }}
-              </label>
-            </div>
-          </div>
-
-          <!-- Section 2: 契約者情報 -->
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800">契約者情報</h2>
-            <div class="space-y-4">
-              <!-- 法人名 (corporation only) -->
-              <div v-if="organizationType === 'corporation'">
-                <label for="orgName" class="block text-sm font-medium text-gray-700">
-                  法人名 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="orgName"
-                  v-model="organizationName"
-                  type="text"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="株式会社サンプル"
-                />
-              </div>
-
-              <!-- 屋号 (sole_proprietor only) -->
-              <div v-if="organizationType === 'sole_proprietor'">
-                <label for="tradeName" class="block text-sm font-medium text-gray-700">
-                  屋号 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="tradeName"
-                  v-model="tradeName"
-                  type="text"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="サンプル商店"
-                />
-              </div>
-
-              <!-- 代表者名 (corporation only) -->
-              <div v-if="organizationType === 'corporation'">
-                <label for="repName" class="block text-sm font-medium text-gray-700">
-                  代表者名 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="repName"
-                  v-model="representativeName"
-                  type="text"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="山田 太郎"
-                />
-              </div>
-
-              <!-- 法人番号 (corporation only, optional) -->
-              <div v-if="organizationType === 'corporation'">
-                <label for="corpNum" class="block text-sm font-medium text-gray-700">
-                  法人番号
-                </label>
-                <input
-                  id="corpNum"
-                  v-model="corporateNumber"
-                  type="text"
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="1234567890123"
-                />
-              </div>
-
-              <!-- 担当者名 (all types) -->
-              <div>
-                <label for="contactName" class="block text-sm font-medium text-gray-700">
-                  担当者名 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="contactName"
-                  v-model="contactName"
-                  type="text"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="山田 太郎"
-                />
-              </div>
-
-              <!-- 住所 -->
-              <div>
-                <label for="address" class="block text-sm font-medium text-gray-700">
-                  住所 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="address"
-                  v-model="address"
-                  type="text"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="東京都渋谷区..."
-                />
-              </div>
-
-              <!-- 電話番号 -->
-              <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700">
-                  電話番号 <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="phone"
-                  v-model="phone"
-                  type="tel"
-                  required
-                  class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                  placeholder="03-1234-5678"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 3: プラン選択 -->
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800">プラン選択</h2>
-            <div class="grid gap-4 sm:grid-cols-2">
-              <button
-                v-for="plan in PLAN_LIST"
-                :key="plan.id"
-                type="button"
-                class="relative rounded-lg border-2 p-4 text-left transition-all"
-                :class="[
-                  selectedPlanId === plan.id
-                    ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500'
-                    : 'border-gray-200 bg-white hover:border-gray-300',
-                  plan.highlighted && selectedPlanId !== plan.id
-                    ? 'border-primary-300'
-                    : '',
-                ]"
-                @click="selectPlan(plan.id)"
-              >
-                <!-- Recommended badge -->
-                <span
-                  v-if="plan.highlighted"
-                  class="absolute -top-2.5 right-3 rounded-full bg-primary-600 px-2 py-0.5 text-xs font-medium text-white"
-                >
-                  おすすめ
-                </span>
-
-                <div class="mb-2 flex items-baseline justify-between">
-                  <h3 class="text-base font-semibold text-gray-900">{{ plan.displayName }}</h3>
-                  <span class="text-sm font-medium text-gray-700">
-                    <template v-if="plan.priceMonthly === 0">無料</template>
-                    <template v-else-if="plan.priceMonthly === -1">個別見積</template>
-                    <template v-else>&#165;{{ plan.price }}/月</template>
-                  </span>
-                </div>
-                <p class="mb-3 text-xs text-gray-500">{{ plan.description }}</p>
-                <ul class="space-y-1">
-                  <li
-                    v-for="(feature, i) in plan.landingFeatures.slice(0, 4)"
-                    :key="i"
-                    class="flex items-start gap-1.5 text-xs text-gray-600"
-                  >
-                    <svg
-                      class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    {{ feature }}
-                  </li>
-                </ul>
-              </button>
-            </div>
-
-            <!-- Enterprise message -->
-            <div
-              v-if="isEnterprise"
-              class="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800"
-            >
-              Enterpriseプランは個別見積となります。お問い合わせください。
-              <br />
-              <a href="mailto:support@kotonoha.ai" class="font-medium underline">
-                support@kotonoha.ai
-              </a>
-            </div>
-          </div>
-
-          <!-- Section 4: 支払方法 (paid plans only) -->
-          <div v-if="isPaidPlan && !isEnterprise" class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800">支払方法</h2>
-            <div class="flex flex-wrap gap-4">
-              <label
-                v-for="opt in ([
-                  { value: 'stripe', label: 'クレジットカード（Stripe）' },
-                  { value: 'bank_transfer', label: '銀行振込' },
-                ] as const)"
-                :key="opt.value"
-                class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2 transition-colors"
-                :class="
-                  paymentMethod === opt.value
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
-                    : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                "
-              >
-                <input
-                  v-model="paymentMethod"
-                  type="radio"
-                  name="paymentMethod"
-                  :value="opt.value"
-                  class="sr-only"
-                />
-                {{ opt.label }}
-              </label>
-            </div>
-          </div>
-
-          <!-- Section 5: 利用規約・プライバシーポリシー同意 -->
-          <div class="rounded-lg bg-white p-6 shadow-md">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800">利用規約・プライバシーポリシー</h2>
-            <div class="space-y-3">
-              <label class="flex items-start gap-2 text-sm text-gray-700">
-                <input
-                  v-model="agreeTerms"
-                  type="checkbox"
-                  class="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <span>
-                  <NuxtLink to="/terms" target="_blank" class="text-primary-600 underline hover:text-primary-700">
-                    利用規約
-                  </NuxtLink>
-                  に同意する
-                </span>
-              </label>
-              <label class="flex items-start gap-2 text-sm text-gray-700">
-                <input
-                  v-model="agreePrivacy"
-                  type="checkbox"
-                  class="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <span>
-                  <NuxtLink to="/privacy" target="_blank" class="text-primary-600 underline hover:text-primary-700">
-                    プライバシーポリシー
-                  </NuxtLink>
-                  に同意する
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <div class="text-center">
-            <button
-              type="submit"
-              :disabled="!canSubmit || submitting"
-              class="inline-flex items-center justify-center rounded-md bg-primary-600 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <svg
-                v-if="submitting"
-                class="mr-2 h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              {{ submitting ? "送信中..." : "申請を送信" }}
-            </button>
-            <p v-if="!agreeTerms || !agreePrivacy" class="mt-2 text-xs text-gray-500">
-              利用規約とプライバシーポリシーへの同意が必要です
-            </p>
-          </div>
-        </form>
-      </template>
+      <!-- Back button for Step 5 -->
+      <div
+        v-if="currentStep === 4"
+        class="mt-4 text-center"
+      >
+        <button
+          type="button"
+          class="text-sm text-gray-500 underline hover:text-gray-700"
+          @click="prevStep"
+        >
+          入力内容を修正する
+        </button>
+      </div>
     </div>
   </div>
 </template>

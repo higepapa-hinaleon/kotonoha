@@ -1,5 +1,25 @@
 <script setup lang="ts">
+import type { LegalDocumentVersion } from "~~/shared/types/legal";
+
 definePageMeta({ layout: false });
+
+const loading = ref(true);
+const content = ref("");
+const error = ref("");
+
+onMounted(async () => {
+  try {
+    // 最新バージョンを取得
+    const current = await $fetch<{ terms: { version: string } | null }>("/api/legal/current");
+    const version = current.terms?.version ?? "1.0";
+    const doc = await $fetch<LegalDocumentVersion>(`/api/legal/terms/${version}`);
+    content.value = doc.content;
+  } catch {
+    error.value = "利用規約の読み込みに失敗しました。";
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -11,77 +31,22 @@ definePageMeta({ layout: false });
     </header>
 
     <main class="mx-auto max-w-3xl px-4 py-8">
-      <article class="prose prose-gray max-w-none rounded-lg bg-white p-8 shadow-sm">
-        <h1>利用規約</h1>
-        <p class="text-sm text-gray-500">最終更新日: 2026年3月30日 / バージョン: 1.0</p>
-
-        <h2>第1条（適用）</h2>
-        <p>
-          本利用規約（以下「本規約」）は、kotonoha AI Support（以下「本サービス」）の利用に関する条件を定めるものです。
-          ユーザーは本サービスを利用することにより、本規約に同意したものとみなされます。
-        </p>
-
-        <h2>第2条（定義）</h2>
-        <ul>
-          <li>「ユーザー」とは、本サービスにアカウント登録した個人または法人を指します。</li>
-          <li>「組織」とは、ユーザーが所属するグループ単位を指します。</li>
-          <li>「コンテンツ」とは、ユーザーが本サービスにアップロードまたは入力したデータを指します。</li>
-        </ul>
-
-        <h2>第3条（アカウント登録）</h2>
-        <p>
-          ユーザーは正確かつ最新の情報を提供してアカウントを登録するものとします。
-          アカウント情報の管理はユーザーの責任とし、第三者への譲渡・貸与は禁止します。
-        </p>
-
-        <h2>第4条（サービスの利用）</h2>
-        <p>
-          ユーザーは、選択したプランに応じた範囲内で本サービスを利用できます。
-          プランごとの利用制限（グループ数、サービス数、ドキュメント数、月間チャット数等）を超過する場合は、
-          プランのアップグレードが必要です。
-        </p>
-
-        <h2>第5条（禁止事項）</h2>
-        <p>ユーザーは以下の行為を行ってはなりません：</p>
-        <ul>
-          <li>法令または公序良俗に違反する行為</li>
-          <li>本サービスの運営を妨害する行為</li>
-          <li>他のユーザーの利用を妨害する行為</li>
-          <li>不正アクセスまたはそれを試みる行為</li>
-          <li>本サービスを利用した違法なデータの保存・送信</li>
-          <li>リバースエンジニアリング、逆コンパイル等の行為</li>
-        </ul>
-
-        <h2>第6条（知的財産権）</h2>
-        <p>
-          本サービスに関する知的財産権は運営者に帰属します。
-          ユーザーがアップロードしたコンテンツの知的財産権はユーザーに帰属しますが、
-          サービス提供に必要な範囲で運営者に利用を許諾するものとします。
-        </p>
-
-        <h2>第7条（サービスの変更・停止）</h2>
-        <p>
-          運営者は、事前の通知なく本サービスの内容を変更、または提供を停止・中断することができます。
-          これによりユーザーに生じた損害について、運営者は責任を負いません。
-        </p>
-
-        <h2>第8条（免責事項）</h2>
-        <p>
-          本サービスのAI応答は参考情報であり、正確性・完全性を保証するものではありません。
-          ユーザーは自己の責任において本サービスを利用するものとします。
-        </p>
-
-        <h2>第9条（規約の変更）</h2>
-        <p>
-          運営者は本規約を変更する場合、変更内容を本サービス上で通知します。
-          変更後も本サービスを継続して利用する場合、変更後の規約に同意したものとみなされます。
-        </p>
-
-        <h2>第10条（準拠法・管轄）</h2>
-        <p>
-          本規約は日本法に準拠し、本規約に関する紛争は東京地方裁判所を第一審の専属的合意管轄裁判所とします。
-        </p>
-      </article>
+      <div v-if="loading" class="flex justify-center py-12">
+        <svg
+          class="h-8 w-8 animate-spin text-primary-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+      <div v-else-if="error" class="rounded-md bg-red-50 p-4 text-sm text-red-600">
+        {{ error }}
+      </div>
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <article v-else class="prose prose-gray max-w-none rounded-lg bg-white p-8 shadow-sm" v-html="content" />
     </main>
   </div>
 </template>
