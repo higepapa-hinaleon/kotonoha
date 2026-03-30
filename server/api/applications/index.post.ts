@@ -200,7 +200,7 @@ export default defineEventHandler(async (event) => {
     const session = await createCheckoutSession({
       applicationId: application.id,
       customerEmail: user.email,
-      successUrl: `${baseUrl}/pending?checkout=success`,
+      successUrl: `${baseUrl}/admin?checkout=success`,
       cancelUrl: `${baseUrl}/apply?checkout=cancelled`,
     });
 

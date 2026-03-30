@@ -146,6 +146,11 @@ async function handleGoogleLogin() {
         </svg>
         Googleでログイン
       </button>
+
+      <p class="text-center text-sm text-gray-500">
+        アカウントをお持ちでない方は
+        <NuxtLink to="/apply" class="text-primary-600 underline hover:text-primary-700">こちら</NuxtLink>
+      </p>
     </div>
   </div>
 </template>

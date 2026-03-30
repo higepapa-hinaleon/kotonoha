@@ -78,6 +78,7 @@ const useCases = [
 ];
 
 const plans = PLAN_LIST.map((plan) => ({
+  id: plan.id,
   name: plan.displayName,
   price: plan.price,
   description: plan.description,
@@ -99,7 +100,7 @@ const mobileMenuOpen = ref(false);
           <a href="#use-cases" class="text-sm text-gray-600 hover:text-gray-900">活用シーン</a>
           <a href="#pricing" class="text-sm text-gray-600 hover:text-gray-900">料金</a>
           <NuxtLink
-            to="/login"
+            to="/apply"
             class="rounded-lg bg-primary-600 px-5 py-2 text-sm font-medium text-white hover:bg-primary-700"
           >
             無料で始める
@@ -137,7 +138,7 @@ const mobileMenuOpen = ref(false);
           >
           <a href="#pricing" class="text-sm text-gray-600" @click="mobileMenuOpen = false">料金</a>
           <NuxtLink
-            to="/login"
+            to="/apply"
             class="rounded-lg bg-primary-600 px-5 py-2 text-center text-sm font-medium text-white hover:bg-primary-700"
             @click="mobileMenuOpen = false"
           >
@@ -161,7 +162,7 @@ const mobileMenuOpen = ref(false);
             </p>
             <div class="mt-8 flex flex-col gap-3 sm:flex-row">
               <NuxtLink
-                to="/login"
+                to="/apply?plan=free"
                 class="rounded-lg bg-primary-600 px-8 py-3 text-center font-medium text-white shadow-lg shadow-primary-200 hover:bg-primary-700"
               >
                 無料で始める
@@ -629,7 +630,8 @@ const mobileMenuOpen = ref(false);
               </li>
             </ul>
             <NuxtLink
-              to="/login"
+              v-if="plan.id !== 'enterprise'"
+              :to="`/apply?plan=${plan.id}`"
               class="mt-8 block w-full rounded-lg py-3 text-center text-sm font-medium"
               :class="
                 plan.highlighted
@@ -637,8 +639,15 @@ const mobileMenuOpen = ref(false);
                   : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
               "
             >
-              {{ plan.price === "個別見積" ? "お問い合わせ" : plan.price === "0" ? "無料で始める" : "申し込む" }}
+              {{ plan.price === "0" ? "無料で始める" : "申し込む" }}
             </NuxtLink>
+            <a
+              v-else
+              href="mailto:support@kotonoha.ai"
+              class="mt-8 block w-full rounded-lg border border-gray-300 py-3 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              お問い合わせ
+            </a>
           </div>
         </div>
       </div>
@@ -653,7 +662,7 @@ const mobileMenuOpen = ref(false);
         </p>
         <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <NuxtLink
-            to="/login"
+            to="/apply?plan=free"
             class="rounded-lg bg-white px-8 py-3 font-medium text-primary-600 shadow-lg hover:bg-gray-50"
           >
             無料で始める

@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { user, initializing, isSystemAdmin, hasConsent, hasOrganization } = useAuth();
+  const { user, initializing, isSystemAdmin, hasConsent, hasOrganization, hasPendingApplication, fetchPendingApplication } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -19,14 +19,22 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   // 利用規約・プライバシーポリシーへの同意チェック
-  if (!hasConsent.value && to.path !== "/consent") {
+  // apply ページでは consent を申込時に記録するため除外
+  if (!hasConsent.value && to.path !== "/consent" && to.path !== "/apply") {
     return navigateTo("/consent");
   }
 
-  // 無所属ユーザー（organizationId が空）は利用申し込みまたは待機画面へ
+  // 無所属ユーザー（organizationId が空）の処理
   // apply / pending / consent / terms / privacy ページ自体へのアクセスは許可
   const unaffiliatedAllowedPaths = ["/apply", "/pending", "/consent", "/terms", "/privacy"];
   if (!hasOrganization.value && !isSystemAdmin.value && !unaffiliatedAllowedPaths.includes(to.path)) {
+    // 承認待ち申請がある場合、/admin のみ許可（承認待ちビュー表示用）
+    if (to.path === "/admin") {
+      await fetchPendingApplication();
+      if (hasPendingApplication.value) {
+        return; // /admin へのアクセスを許可
+      }
+    }
     return navigateTo("/apply");
   }
 

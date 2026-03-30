@@ -592,11 +592,18 @@ function useNotification(): {
 
 - 認証状態の初期化完了を `watch` で待機
 - 未認証ユーザーは `/login` にリダイレクト
+- 利用規約未同意は `/consent` にリダイレクト（`/apply` は除外: 申請フォーム内で同意記録）
+- 無所属ユーザー（`organizationId` が空）の処理:
+  - 承認待ち申請あり (`hasPendingApplication`) かつ `/admin` へのアクセス → 許可（制限付き表示）
+  - それ以外 → `/apply` にリダイレクト
+  - `/apply`, `/pending`, `/consent`, `/terms`, `/privacy` は常に許可
 - グループ未割当の非 system_admin は `/no-group` にリダイレクト
 - system_admin でグループ未割当の場合は `/admin/system/groups` にリダイレクト
 
 ### 7.2 admin.ts（管理者ミドルウェア）
 
 - 認証状態の初期化完了を待機
+- 無所属 + 承認待ち申請あり: `/admin` ルートのみ許可、サブページは `/admin` へリダイレクト
+- 無所属 + 申請なし: `/apply` にリダイレクト
 - 非管理者は `/chat` にリダイレクト
 - `isAdmin` は `system_admin` ロール or グループ管理者を含む
