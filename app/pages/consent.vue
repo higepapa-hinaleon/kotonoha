@@ -1,19 +1,23 @@
 <script setup lang="ts">
 definePageMeta({ layout: false });
 
-const { user, hasConsent, getIdToken } = useAuth();
+const { user, hasConsent, hasOrganization, getIdToken } = useAuth();
 const { show } = useNotification();
 
 const agreed = ref(false);
 const submitting = ref(false);
 const error = ref("");
 
+function redirectAfterConsent() {
+  return navigateTo(hasOrganization.value ? "/admin" : "/apply");
+}
+
 // 既に同意済みならリダイレクト
 watch(
   hasConsent,
   (v) => {
     if (v) {
-      navigateTo("/admin");
+      redirectAfterConsent();
     }
   },
   { immediate: true },
@@ -39,7 +43,7 @@ async function handleConsent() {
     }
 
     show("同意を記録しました", "success");
-    await navigateTo("/admin");
+    await redirectAfterConsent();
   } catch {
     error.value = "同意の記録に失敗しました。もう一度お試しください。";
   } finally {
