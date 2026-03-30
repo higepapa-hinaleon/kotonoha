@@ -25,6 +25,12 @@ const showAddDialog = ref(false);
 const addRole = ref<"admin" | "member">("member");
 const adding = ref(false);
 
+// グループ情報編集
+const editName = ref("");
+const editDescription = ref("");
+const editIsActive = ref(true);
+const saving = ref(false);
+
 // ページネーション
 const currentPage = ref(1);
 const itemsPerPage = 20;
@@ -52,8 +58,40 @@ async function fetchData() {
     ]);
     group.value = groups.find((g) => g.id === groupId) || null;
     members.value = membersData;
+    if (group.value) {
+      editName.value = group.value.name;
+      editDescription.value = group.value.description || "";
+      editIsActive.value = group.value.isActive;
+    }
   } finally {
     loading.value = false;
+  }
+}
+
+async function saveGroup() {
+  const trimmed = editName.value.trim();
+  if (!trimmed) {
+    show("グループ名は必須です", "error");
+    return;
+  }
+  if (trimmed.length > 100) {
+    show("グループ名は100文字以内にしてください", "error");
+    return;
+  }
+  saving.value = true;
+  try {
+    const updated = await apiFetch<Group>(`/api/groups/${groupId}`, {
+      method: "PUT",
+      body: {
+        name: editName.value.trim(),
+        description: editDescription.value.trim(),
+        isActive: editIsActive.value,
+      },
+    });
+    group.value = { ...group.value, ...updated } as Group;
+    show("グループ情報を更新しました", "success");
+  } finally {
+    saving.value = false;
   }
 }
 
@@ -122,141 +160,192 @@ onMounted(fetchData);
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
       </NuxtLink>
-      <h1 class="text-2xl font-bold text-gray-900">{{ group?.name || "..." }} - メンバー管理</h1>
-    </div>
-
-    <div class="flex justify-end">
-      <button
-        class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-        @click="openAddDialog"
-      >
-        メンバーを追加
-      </button>
+      <h1 class="text-2xl font-bold text-gray-900">{{ group?.name || "..." }}</h1>
     </div>
 
     <div v-if="loading" class="py-8 text-center text-gray-500">読み込み中...</div>
 
-    <!-- 空状態 -->
-    <div
-      v-else-if="members.length === 0"
-      class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-500"
-    >
-      メンバーがいません
-    </div>
-
-    <template v-else>
-      <!-- モバイル: カード表示 -->
-      <div class="space-y-3 md:hidden">
-        <div
-          v-for="member in paginatedMembers"
-          :key="member.userId"
-          class="rounded-lg border border-gray-200 bg-white p-4"
-        >
-          <p class="mb-1 text-sm font-medium text-gray-900">{{ member.displayName }}</p>
-          <p class="mb-2 text-xs text-gray-500">{{ member.email }}</p>
-          <div class="flex items-center justify-between">
-            <select
-              :value="member.role"
-              class="rounded-md border border-gray-300 px-2 py-1 text-xs"
-              @change="
-                updateRole(
-                  member.userId,
-                  ($event.target as HTMLSelectElement).value as 'admin' | 'member',
-                )
-              "
-            >
-              <option value="admin">管理者</option>
-              <option value="member">メンバー</option>
-            </select>
-            <button
-              class="text-xs text-red-600 hover:text-red-800"
-              @click="removeMember(member.userId, member.displayName)"
-            >
-              削除
-            </button>
+    <template v-else-if="group">
+      <!-- グループ情報編集 -->
+      <div class="rounded-lg border border-gray-200 bg-white p-6">
+        <h2 class="mb-4 text-lg font-bold text-gray-900">グループ情報</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">グループ名</label>
+            <input
+              v-model="editName"
+              type="text"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">状態</label>
+            <label class="mt-2 inline-flex cursor-pointer items-center gap-2">
+              <input v-model="editIsActive" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+              <span class="text-sm text-gray-700">{{ editIsActive ? "有効" : "無効" }}</span>
+            </label>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">説明</label>
+            <textarea
+              v-model="editDescription"
+              rows="2"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              placeholder="グループの説明（任意）"
+            />
+          </div>
+        </div>
+        <div class="mt-2 text-xs text-gray-400">
+          作成日: {{ new Date(group.createdAt).toLocaleDateString("ja-JP") }} / 更新日:
+          {{ new Date(group.updatedAt).toLocaleDateString("ja-JP") }}
+        </div>
+        <div class="mt-4">
+          <button
+            class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            :disabled="saving || !editName.trim()"
+            @click="saveGroup"
+          >
+            {{ saving ? "保存中..." : "保存" }}
+          </button>
         </div>
       </div>
 
-      <!-- PC: テーブル表示 -->
-      <div class="hidden overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-              >
-                ユーザー
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-              >
-                メール
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-              >
-                グループロール
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
-              >
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr v-for="member in paginatedMembers" :key="member.userId">
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                {{ member.displayName }}
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ member.email }}</td>
-              <td class="px-6 py-4 text-sm">
-                <select
-                  :value="member.role"
-                  class="rounded-md border border-gray-300 px-2 py-1 text-sm"
-                  @change="
-                    updateRole(
-                      member.userId,
-                      ($event.target as HTMLSelectElement).value as 'admin' | 'member',
-                    )
-                  "
-                >
-                  <option value="admin">管理者</option>
-                  <option value="member">メンバー</option>
-                </select>
-              </td>
-              <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                <button
-                  class="text-red-600 hover:text-red-800"
-                  @click="removeMember(member.userId, member.displayName)"
-                >
-                  削除
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- メンバー管理 -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-900">メンバー管理</h2>
+        <button
+          class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+          @click="openAddDialog"
+        >
+          メンバーを追加
+        </button>
       </div>
 
-      <!-- ページネーション -->
-      <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        :total-items="members.length"
-        :items-per-page="itemsPerPage"
-        @page-change="currentPage = $event"
-      />
+      <!-- 空状態 -->
+      <div
+        v-if="members.length === 0"
+        class="rounded-lg border border-gray-200 bg-white px-6 py-8 text-center text-sm text-gray-500"
+      >
+        メンバーがいません
+      </div>
+
+      <template v-else>
+        <!-- モバイル: カード表示 -->
+        <div class="space-y-3 md:hidden">
+          <div
+            v-for="member in paginatedMembers"
+            :key="member.userId"
+            class="rounded-lg border border-gray-200 bg-white p-4"
+          >
+            <p class="mb-1 text-sm font-medium text-gray-900">{{ member.displayName }}</p>
+            <p class="mb-2 text-xs text-gray-500">{{ member.email }}</p>
+            <div class="flex items-center justify-between">
+              <select
+                :value="member.role"
+                class="rounded-md border border-gray-300 px-2 py-1 text-xs"
+                @change="
+                  updateRole(
+                    member.userId,
+                    ($event.target as HTMLSelectElement).value as 'admin' | 'member',
+                  )
+                "
+              >
+                <option value="admin">管理者</option>
+                <option value="member">メンバー</option>
+              </select>
+              <button
+                class="text-xs text-red-600 hover:text-red-800"
+                @click="removeMember(member.userId, member.displayName)"
+              >
+                削除
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PC: テーブル表示 -->
+        <div class="hidden overflow-hidden rounded-lg border border-gray-200 bg-white md:block">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  ユーザー
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  メール
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  グループロール
+                </th>
+                <th
+                  class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="member in paginatedMembers" :key="member.userId">
+                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                  {{ member.displayName }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ member.email }}</td>
+                <td class="px-6 py-4 text-sm">
+                  <select
+                    :value="member.role"
+                    class="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                    @change="
+                      updateRole(
+                        member.userId,
+                        ($event.target as HTMLSelectElement).value as 'admin' | 'member',
+                      )
+                    "
+                  >
+                    <option value="admin">管理者</option>
+                    <option value="member">メンバー</option>
+                  </select>
+                </td>
+                <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+                  <button
+                    class="text-red-600 hover:text-red-800"
+                    @click="removeMember(member.userId, member.displayName)"
+                  >
+                    削除
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ページネーション -->
+        <Pagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          :total-items="members.length"
+          :items-per-page="itemsPerPage"
+          @page-change="currentPage = $event"
+        />
+      </template>
     </template>
 
     <!-- メンバー追加ダイアログ -->
     <Teleport to="body">
       <div
         v-if="showAddDialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-member-title"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       >
         <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-          <h2 class="mb-4 text-lg font-bold text-gray-900">メンバーを追加</h2>
+          <h2 id="add-member-title" class="mb-4 text-lg font-bold text-gray-900">メンバーを追加</h2>
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">ユーザー</label>

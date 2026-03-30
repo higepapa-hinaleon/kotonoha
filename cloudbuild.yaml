@@ -44,7 +44,7 @@ steps:
       - "--timeout"
       - "300"
       - "--update-env-vars"
-      - "NUXT_FIREBASE_DATABASE_ID=kotonoha,NUXT_PUBLIC_FIREBASE_DATABASE_ID=kotonoha"
+      - "NUXT_FIREBASE_DATABASE_ID=kotonoha-ai-chat,NUXT_PUBLIC_FIREBASE_DATABASE_ID=kotonoha-ai-chat"
 
 images:
   - "asia-northeast1-docker.pkg.dev/$PROJECT_ID/kotonoha/app:$COMMIT_SHA"
