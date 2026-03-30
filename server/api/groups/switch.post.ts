@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: "このグループへのアクセス権がありません" });
   }
 
-  // system_admin は同一組織内の任意グループに切替可能、それ以外は所属チェック
-  if (user.role !== "system_admin") {
+  // owner / system_admin は同一組織内の任意グループに切替可能、それ以外は所属チェック
+  if (user.role !== "owner" && user.role !== "system_admin") {
     const isMember = await isGroupMember(user.id, body.groupId);
     if (!isMember) {
       throw createError({

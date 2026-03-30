@@ -48,7 +48,7 @@ shared/types/
 | `Contract`            | `contracts`                   | 契約（組織ごとの契約履歴）       | `organizationId`, `planId`, `status`, `startDate`, `endDate`       |
 | `Group`               | `groups`                      | グループ（組織内の部門・チーム） | `organizationId`, `isActive`                                       |
 | `UserGroupMembership` | `userGroupMemberships`        | ユーザー・グループ紐付け         | ID形式: `${userId}_${groupId}`                                     |
-| `User`                | `users`                       | ユーザー                         | `role: "system_admin" \| "admin" \| "member"`                      |
+| `User`                | `users`                       | ユーザー                         | `role: "owner" \| "system_admin" \| "admin" \| "member"`           |
 | `Service`             | `services`                    | サービス（チャットボット単位）   | `groupId`, `googleFormUrl?`                                        |
 | `Document`            | `documents`                   | ドキュメント                     | `status: "uploading" \| "processing" \| "ready" \| "error"`        |
 | `DocumentChunk`       | `documentChunks`              | ドキュメントチャンク             | `embedding: number[]` (768次元), `parentContent?`                  |
@@ -368,7 +368,7 @@ async function generateStructuredJson<T>(systemPrompt: string, userMessage: stri
 **責務:** グループ管理ユーティリティ。
 
 ```typescript
-async function findOrCreateDefaultGroup(organizationId: string, db?: Firestore): Promise<string>;
+async function findOrCreateDefaultGroup(organizationId: string, db?: Firestore, groupName?: string): Promise<string>;
 async function getUserGroupMemberships(
   userId: string,
   db?: Firestore,

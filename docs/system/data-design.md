@@ -649,8 +649,8 @@ flowchart TD
     Login["ログイン"] --> FBAuth["Firebase Auth"]
     FBAuth -->|初回ログイン| Register["自動登録 API"]
     Register --> CreateOrg["organizations 作成"]
-    Register --> CreateGroup["groups 作成<br/>(デフォルトグループ)"]
-    Register --> CreateUser["users 作成<br/>(role: admin)"]
+    Register --> CreateGroup["groups 作成<br/>(ユーザー名の組織)"]
+    Register --> CreateUser["users 作成<br/>(role: owner)"]
     Register --> CreateMembership["userGroupMemberships<br/>作成"]
     Register --> CreateSettings["settings 作成<br/>(デフォルト値)"]
 

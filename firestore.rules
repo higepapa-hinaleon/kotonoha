@@ -86,7 +86,9 @@ service cloud.firestore {
 
     // ===== users =====
     match /users/{userId} {
-      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated()
+        && (request.auth.uid == userId
+            || (isSystemAdmin() && getUserData().organizationId == resource.data.organizationId));
       allow create: if isAuthenticated() && request.auth.uid == userId;
       // システム管理者のみ他ユーザーを更新可能
       allow update: if isAuthenticated()
