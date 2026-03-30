@@ -91,18 +91,16 @@ export default defineEventHandler(async (event) => {
 
   const body = (await readBody(event)) as ApplicationSubmitRequest;
 
-  // 必須フィールドバリデーション
-  const requiredFields = [
+  // 共通必須フィールドバリデーション
+  const commonRequiredFields = [
     "organizationType",
     "organizationName",
     "contactName",
-    "address",
-    "phone",
     "planId",
     "paymentMethod",
   ] as const;
 
-  for (const field of requiredFields) {
+  for (const field of commonRequiredFields) {
     if (!body[field] || typeof body[field] !== "string") {
       throw createError({
         statusCode: 400,
@@ -111,11 +109,38 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // 組織区分別の必須フィールドバリデーション
+  if (body.organizationType === "individual") {
+    if (!body.phone || typeof body.phone !== "string") {
+      throw createError({ statusCode: 400, statusMessage: "個人の場合、電話番号（phone）は必須です" });
+    }
+  } else if (body.organizationType === "sole_proprietor") {
+    if (!body.tradeName || typeof body.tradeName !== "string") {
+      throw createError({ statusCode: 400, statusMessage: "個人事業主の場合、屋号（tradeName）は必須です" });
+    }
+  } else if (body.organizationType === "corporation") {
+    if (!body.phone || typeof body.phone !== "string") {
+      throw createError({ statusCode: 400, statusMessage: "法人の場合、電話番号（phone）は必須です" });
+    }
+    if (!body.address || typeof body.address !== "string") {
+      throw createError({ statusCode: 400, statusMessage: "法人の場合、住所（address）は必須です" });
+    }
+  }
+  // representativeName・corporateNumber は法人でも任意
+
   // planId バリデーション
   if (!VALID_PLAN_IDS.includes(body.planId)) {
     throw createError({
       statusCode: 400,
       statusMessage: `無効なプランIDです: ${body.planId}`,
+    });
+  }
+
+  // Enterpriseプランはフォームから申請不可（個別見積のためお問い合わせ対応）
+  if (body.planId === "enterprise") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Enterpriseプランは個別見積となります。お問い合わせください。",
     });
   }
 
@@ -136,21 +161,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 組織区分別の必須フィールド
-  if (body.organizationType === "sole_proprietor" && !body.tradeName) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "個人事業主の場合、屋号（tradeName）は必須です",
-    });
-  }
-
-  if (body.organizationType === "corporation" && !body.representativeName) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "法人の場合、代表者名（representativeName）は必須です",
-    });
-  }
-
   // 申請ドキュメントを作成
   const now = new Date().toISOString();
   const applicationRef = db.collection("applications").doc();
@@ -161,8 +171,8 @@ export default defineEventHandler(async (event) => {
     organizationType: body.organizationType,
     organizationName: body.organizationName.trim(),
     contactName: body.contactName.trim(),
-    address: body.address.trim(),
-    phone: body.phone.trim(),
+    ...(body.address ? { address: body.address.trim() } : {}),
+    ...(body.phone ? { phone: body.phone.trim() } : {}),
     ...(body.tradeName ? { tradeName: body.tradeName.trim() } : {}),
     ...(body.representativeName ? { representativeName: body.representativeName.trim() } : {}),
     ...(body.corporateNumber ? { corporateNumber: body.corporateNumber.trim() } : {}),
@@ -170,6 +180,8 @@ export default defineEventHandler(async (event) => {
     paymentMethod: body.paymentMethod,
     termsAcceptedAt: now,
     privacyPolicyAcceptedAt: now,
+    ...(body.termsVersion ? { termsVersion: body.termsVersion } : {}),
+    ...(body.privacyVersion ? { privacyVersion: body.privacyVersion } : {}),
     status: "pending",
     createdAt: now,
     updatedAt: now,

@@ -103,13 +103,17 @@ export interface ApplicationSubmitRequest {
   organizationType: import("./models").OrganizationType;
   organizationName: string;
   contactName: string;
-  address: string;
-  phone: string;
+  address?: string;
+  phone?: string;
   tradeName?: string;
   representativeName?: string;
   corporateNumber?: string;
   planId: import("../plans").PlanId;
   paymentMethod: import("./models").PaymentMethod;
+  /** 同意した利用規約バージョン */
+  termsVersion?: string;
+  /** 同意したプライバシーポリシーバージョン */
+  privacyVersion?: string;
 }
 
 /** 利用申請レビューリクエスト */

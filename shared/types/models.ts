@@ -313,13 +313,13 @@ export interface Application {
   organizationName: string;
   /** 担当者名 */
   contactName: string;
-  /** 住所 */
-  address: string;
-  /** 電話番号 */
-  phone: string;
+  /** 住所（法人の場合は必須） */
+  address?: string;
+  /** 電話番号（個人・法人の場合は必須） */
+  phone?: string;
   /** 屋号（個人事業主の場合） */
   tradeName?: string;
-  /** 代表者名（法人の場合） */
+  /** 代表者名（法人の場合、任意） */
   representativeName?: string;
   /** 法人番号（法人の場合、任意） */
   corporateNumber?: string;
@@ -339,6 +339,10 @@ export interface Application {
   // === 同意 ===
   termsAcceptedAt: string;
   privacyPolicyAcceptedAt: string;
+  /** 同意した利用規約のバージョン */
+  termsVersion?: string;
+  /** 同意したプライバシーポリシーのバージョン */
+  privacyVersion?: string;
 
   // === ステータス ===
   status: ApplicationStatus;

@@ -232,5 +232,13 @@ service cloud.firestore {
       // 書き込みはサーバーサイドのみ（Admin SDK）
       allow write: if false;
     }
+
+    // ===== legalDocuments（利用規約・プライバシーポリシー） =====
+    match /legalDocuments/{docId} {
+      // 誰でも読み取り可能（認証不要）
+      allow read: if true;
+      // 書き込みはサーバーサイドのみ（Admin SDK）
+      allow write: if false;
+    }
   }
 }
