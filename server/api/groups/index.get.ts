@@ -11,8 +11,8 @@ export default defineEventHandler(async (event) => {
 
   const db = getAdminFirestore();
 
-  // system_admin は全グループを返す
-  if (user.role === "system_admin") {
+  // owner / system_admin は全グループを返す
+  if (user.role === "owner" || user.role === "system_admin") {
     const snapshot = await db
       .collection("groups")
       .where("organizationId", "==", user.organizationId)

@@ -7,6 +7,7 @@ import type { Group, UserGroupMembership } from "~~/shared/types/models";
 export async function findOrCreateDefaultGroup(
   organizationId: string,
   db?: FirebaseFirestore.Firestore,
+  groupName?: string,
 ): Promise<string> {
   const firestore = db ?? getAdminFirestore();
 
@@ -21,11 +22,12 @@ export async function findOrCreateDefaultGroup(
     return groupsSnapshot.docs[0].id;
   }
 
+  const name = groupName || "デフォルトグループ";
   const now = new Date().toISOString();
   const groupRef = firestore.collection("groups").doc();
   await groupRef.set({
     organizationId,
-    name: "デフォルトグループ",
+    name,
     description: "自動作成されたデフォルトグループ",
     isActive: true,
     createdAt: now,

@@ -57,17 +57,22 @@ export default defineEventHandler(async (event) => {
     await checkPlanLimit(orgId, "users", db);
   }
 
-  // デフォルトグループを取得 or 作成
-  const defaultGroupId = await findOrCreateDefaultGroup(orgId, db);
-
-  // 同意情報の取得（リクエストボディから）
+  // リクエストボディの取得（グループ名・同意情報）
   let consentVersion: string | undefined;
+  let groupName: string | undefined;
   try {
     const body = await readBody(event);
     consentVersion = body?.consentVersion;
+    const rawGroupName = typeof body?.groupName === "string" ? body.groupName.trim() : undefined;
+    groupName = rawGroupName && rawGroupName.length <= 100 ? rawGroupName : undefined;
   } catch {
     // ボディなしの場合は無視
   }
+
+  // デフォルトグループを取得 or 作成
+  const displayName = decodedToken.name || decodedToken.email || "";
+  const defaultGroupName = groupName || (displayName ? `${displayName}の組織` : "デフォルトグループ");
+  const defaultGroupId = await findOrCreateDefaultGroup(orgId, db, defaultGroupName);
 
   const now = new Date().toISOString();
   const newUser: Omit<User, "id"> = {
