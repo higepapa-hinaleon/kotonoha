@@ -9,9 +9,12 @@ export default defineEventHandler(async (event) => {
 
   try {
     const db = getAdminFirestore();
-    const snapshot = await db.collection("organizations").orderBy("createdAt", "desc").get();
-
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // 自分の組織のみ返す
+    const orgDoc = await db.collection("organizations").doc(user.organizationId).get();
+    if (!orgDoc.exists) {
+      return [];
+    }
+    return [{ id: orgDoc.id, ...orgDoc.data() }];
   } catch (e: unknown) {
     if (e && typeof e === "object" && "statusCode" in e) throw e;
     const message = e instanceof Error ? e.message : String(e);

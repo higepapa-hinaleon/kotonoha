@@ -10,6 +10,11 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "組織IDが必要です" });
 
+  // 自分の組織のみアクセス可能
+  if (id !== user.organizationId) {
+    throw createError({ statusCode: 403, statusMessage: "自分の組織のみアクセスできます" });
+  }
+
   try {
     const db = getAdminFirestore();
     const orgDoc = await db.collection("organizations").doc(id).get();

@@ -47,13 +47,26 @@ export async function verifyAuthOptional(event: H3Event): Promise<User | null> {
 }
 
 /**
- * システム管理者権限を検証する
+ * システム管理者権限を検証する（owner も許可）
  */
 export async function verifySystemAdmin(event: H3Event): Promise<User> {
   const user = await verifyAuth(event);
 
-  if (user.role !== "system_admin") {
+  if (user.role !== "system_admin" && user.role !== "owner") {
     throw createError({ statusCode: 403, statusMessage: "システム管理者権限が必要です" });
+  }
+
+  return user;
+}
+
+/**
+ * オーナー権限を検証する
+ */
+export async function verifyOwner(event: H3Event): Promise<User> {
+  const user = await verifyAuth(event);
+
+  if (user.role !== "owner") {
+    throw createError({ statusCode: 403, statusMessage: "オーナー権限が必要です" });
   }
 
   return user;
@@ -96,8 +109,8 @@ export async function resolveGroupId(event: H3Event, user: User): Promise<string
     throw createError({ statusCode: 400, statusMessage: "グループが指定されていません" });
   }
 
-  // system_admin は全グループにアクセス可能
-  if (user.role === "system_admin") return groupId;
+  // owner / system_admin は全グループにアクセス可能
+  if (user.role === "owner" || user.role === "system_admin") return groupId;
 
   // メンバーシップ検証
   const isMember = await isGroupMember(user.id, groupId);
@@ -128,8 +141,8 @@ export async function verifyGroupAdmin(event: H3Event): Promise<{ user: User; gr
   const user = await verifyAuth(event);
   const groupId = await resolveGroupId(event, user);
 
-  // system_admin は全グループにアクセス可能
-  if (user.role === "system_admin") {
+  // owner / system_admin は全グループにアクセス可能
+  if (user.role === "owner" || user.role === "system_admin") {
     return { user, groupId };
   }
 

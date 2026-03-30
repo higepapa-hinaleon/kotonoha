@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { user, initializing, isSystemAdmin } = useAuth();
+  const { user, initializing, isSystemAdmin, hasConsent } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -16,6 +16,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // 未認証ならログイン画面へ
   if (!user.value) {
     return navigateTo("/login");
+  }
+
+  // 利用規約・プライバシーポリシーへの同意チェック
+  if (!hasConsent.value && to.path !== "/consent") {
+    return navigateTo("/consent");
   }
 
   // グループ未割当チェック（no-group ページ自体へのアクセスは許可）

@@ -17,7 +17,7 @@ export async function findOrCreateDefaultOrganization(
   const orgRef = firestore.collection("organizations").doc();
   await orgRef.set({
     name: "デフォルト組織",
-    plan: "starter",
+    plan: "free",
     createdAt: now,
     updatedAt: now,
   });

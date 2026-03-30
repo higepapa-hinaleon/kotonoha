@@ -3,7 +3,7 @@
 // ランディングページ・バックオフィス・バックエンドで共用
 // ==================================================
 
-export type PlanId = "starter" | "business" | "enterprise";
+export type PlanId = "free" | "starter" | "business" | "enterprise";
 
 /** プランごとのリソース上限 (-1 = 無制限) */
 export interface PlanFeatureLimits {
@@ -38,6 +38,35 @@ export interface PlanDefinition {
 }
 
 export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
+  free: {
+    id: "free",
+    displayName: "Free",
+    price: "0",
+    description: "まずは無料でお試し",
+    limits: {
+      maxGroups: 1,
+      maxServices: 1,
+      maxDocuments: 10,
+      maxMonthlyChats: 50,
+      maxUsers: 2,
+      maxWidgetSites: 0,
+    },
+    features: {
+      faqAutoGeneration: false,
+      weeklyReports: false,
+      ragDiagnostics: false,
+      customSso: false,
+    },
+    highlighted: false,
+    landingFeatures: [
+      "グループ数: 1",
+      "サービス数: 1",
+      "ドキュメント: 10件",
+      "月間チャット: 50回",
+      "ユーザー数: 2",
+      "メールサポート",
+    ],
+  },
   starter: {
     id: "starter",
     displayName: "Starter",
@@ -131,10 +160,11 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
 
 /** プラン一覧（表示順） */
 export const PLAN_LIST: PlanDefinition[] = [
+  PLAN_DEFINITIONS.free,
   PLAN_DEFINITIONS.starter,
   PLAN_DEFINITIONS.business,
   PLAN_DEFINITIONS.enterprise,
 ];
 
 /** プランIDの配列（バリデーション用） */
-export const VALID_PLAN_IDS: PlanId[] = ["starter", "business", "enterprise"];
+export const VALID_PLAN_IDS: PlanId[] = ["free", "starter", "business", "enterprise"];
