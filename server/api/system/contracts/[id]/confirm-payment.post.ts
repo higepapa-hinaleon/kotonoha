@@ -1,6 +1,7 @@
 import { verifySystemAdmin } from "~~/server/utils/auth";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { sendEmail } from "~~/server/utils/email";
+import { sendUsageApprovedEmail } from "~~/server/utils/email";
+import { PLAN_DEFINITIONS } from "~~/shared/plans";
 
 /**
  * 銀行振込の入金確認 - 契約を有効化する
@@ -37,27 +38,23 @@ export default defineEventHandler(async (event) => {
     updatedAt: now,
   });
 
-  // 組織の連絡先にメール送信（非ブロッキング・ベストエフォート）
+  // 利用承認メール送信（非ブロッキング・ベストエフォート）
   try {
     const orgDoc = await db.collection("organizations").doc(contract.organizationId).get();
     if (orgDoc.exists) {
       const org = orgDoc.data()!;
-      // 組織に紐づくメールアドレスを検索
       const contactEmail = await resolveOrgContactEmail(db, contract.organizationId);
       if (contactEmail) {
-        await sendEmail({
+        const config = useRuntimeConfig();
+        const baseUrl = config.publicUrl || "http://localhost:3000";
+        const plan = PLAN_DEFINITIONS[contract.planId as keyof typeof PLAN_DEFINITIONS];
+        sendUsageApprovedEmail({
           to: contactEmail,
-          subject: "【Kotonoha】入金確認・サービス有効化のお知らせ",
-          text: `${org.name} 様
-
-ご入金を確認いたしました。
-Kotonoha のサービスが有効化されました。ご利用いただけます。
-
-ご不明な点がございましたら、お気軽にお問い合わせください。
-
-──────────────
-Kotonoha 運営チーム
-`,
+          organizationName: org.name,
+          planName: plan?.displayName ?? contract.planId,
+          loginUrl: `${baseUrl}/login`,
+        }).catch((err) => {
+          console.warn("[system/contracts/confirm-payment] メール送信エラー（処理は続行）:", err);
         });
       }
     }

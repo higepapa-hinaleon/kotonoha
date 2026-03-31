@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupMember } from "~~/server/utils/auth";
+import { verifyGroupMember, verifyActiveContract } from "~~/server/utils/auth";
 import type { Faq } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+  await verifyActiveContract(user);
   const query = getQuery(event);
   const db = getAdminFirestore();
 

@@ -1,10 +1,11 @@
 import { getAdminFirestore, getAdminStorage } from "~~/server/utils/firebase-admin";
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import { BATCH_SIZE_LIMIT } from "~~/server/utils/constants";
 import type { Document } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
-  const { user: _user, groupId } = await verifyGroupAdmin(event);
+  const { user, groupId } = await verifyGroupAdmin(event);
+  await verifyActiveContract(user);
   const id = getRouterParam(event, "id");
 
   if (!id) {

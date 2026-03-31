@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import { checkFeatureFlag } from "~~/server/utils/plan-limit";
 import { generateStructuredJson } from "~~/server/utils/ai-generator";
 import { generateEmbedding } from "~~/server/utils/embeddings";
@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+  await verifyActiveContract(user);
 
   await checkFeatureFlag(user.organizationId, "faqAutoGeneration");
   const body = await readBody<{ serviceId: string }>(event);

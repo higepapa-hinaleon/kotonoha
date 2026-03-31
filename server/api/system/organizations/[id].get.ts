@@ -1,17 +1,14 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const user = await verifySystemAdmin(event);
-  if (!user.organizationId) {
-    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
-  }
 
   const id = getRouterParam(event, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "組織IDが必要です" });
 
-  // 自分の組織のみアクセス可能
-  if (id !== user.organizationId) {
+  // プラットフォーム管理者以外は自組織のみ
+  if (!isPlatformAdmin(user) && id !== user.organizationId) {
     throw createError({ statusCode: 403, statusMessage: "自分の組織のみアクセスできます" });
   }
 

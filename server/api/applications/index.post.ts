@@ -245,6 +245,6 @@ export default defineEventHandler(async (event) => {
     return { application: updatedApplication, checkoutUrl: session.url };
   }
 
-  // 銀行振込: そのまま返却
+  // 銀行振込: そのまま返却（振込依頼メールは管理者承認時に送信）
   return { application };
 });

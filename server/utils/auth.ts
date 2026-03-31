@@ -47,6 +47,14 @@ export async function verifyAuthOptional(event: H3Event): Promise<User | null> {
 }
 
 /**
+ * プラットフォーム管理者かどうかを判定する（owner / system_admin）
+ * 全組織を横断的に管理できるロール
+ */
+export function isPlatformAdmin(user: User): boolean {
+  return user.role === "owner" || user.role === "system_admin";
+}
+
+/**
  * システム管理者権限を検証する（owner も許可）
  */
 export async function verifySystemAdmin(event: H3Event): Promise<User> {
@@ -165,4 +173,43 @@ export async function verifyGroupAdmin(event: H3Event): Promise<{ user: User; gr
   }
 
   return { user, groupId };
+}
+
+/**
+ * ユーザーの組織が有効な契約（active）を持っていることを検証する
+ * プラットフォーム管理者・組織未所属ユーザー（ゲスト等）はスキップ
+ */
+export async function verifyActiveContract(user: User): Promise<void> {
+  // プラットフォーム管理者は常にアクセス可
+  if (isPlatformAdmin(user)) return;
+
+  // 組織未所属（ゲストアクセス等）はスキップ
+  if (!user.organizationId) return;
+
+  const db = getAdminFirestore();
+  const snapshot = await db
+    .collection("contracts")
+    .where("organizationId", "==", user.organizationId)
+    .orderBy("createdAt", "desc")
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) {
+    throw createError({ statusCode: 403, statusMessage: "有効な契約がありません" });
+  }
+
+  const contract = snapshot.docs[0].data();
+  if (contract.status === "active") return;
+
+  const messages: Record<string, string> = {
+    pending_payment: "ご入金の確認待ちです。入金完了後にサービスが有効化されます。",
+    suspended: "契約が一時停止中です。お支払い状況をご確認ください。",
+    cancelled: "契約が解約されています。",
+    expired: "契約の有効期限が切れています。",
+  };
+
+  throw createError({
+    statusCode: 403,
+    statusMessage: messages[contract.status] || "有効な契約がありません",
+  });
 }

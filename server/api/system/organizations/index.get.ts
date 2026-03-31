@@ -1,15 +1,22 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const user = await verifySystemAdmin(event);
-  if (!user.organizationId) {
-    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
-  }
 
   try {
     const db = getAdminFirestore();
-    // 自分の組織のみ返す
+
+    // プラットフォーム管理者は全組織を表示
+    if (isPlatformAdmin(user)) {
+      const snapshot = await db.collection("organizations").orderBy("createdAt", "desc").get();
+      return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    }
+
+    // それ以外は自組織のみ
+    if (!user.organizationId) {
+      return [];
+    }
     const orgDoc = await db.collection("organizations").doc(user.organizationId).get();
     if (!orgDoc.exists) {
       return [];

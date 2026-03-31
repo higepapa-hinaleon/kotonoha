@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Organization, Contract } from "~~/shared/types/models";
+import type { Organization, Contract, Group } from "~~/shared/types/models";
 import { PLAN_DEFINITIONS, PLAN_LIST } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
@@ -14,6 +14,7 @@ const orgId = route.params.id as string;
 
 const org = ref<Organization | null>(null);
 const contracts = ref<Contract[]>([]);
+const groups = ref<Group[]>([]);
 const loading = ref(true);
 const saving = ref(false);
 
@@ -70,12 +71,14 @@ function planDisplayName(plan: string): string {
 async function fetchData() {
   loading.value = true;
   try {
-    const [orgData, contractsData] = await Promise.all([
+    const [orgData, contractsData, groupsData] = await Promise.all([
       apiFetch<Organization>(`/api/system/organizations/${orgId}`),
       apiFetch<Contract[]>(`/api/system/organizations/${orgId}/contracts`),
+      apiFetch<Group[]>(`/api/system/organizations/${orgId}/groups`),
     ]);
     org.value = orgData;
     contracts.value = contractsData;
+    groups.value = groupsData;
     editName.value = orgData.name;
     editPlan.value = orgData.plan;
   } finally {
@@ -334,6 +337,35 @@ onMounted(fetchData);
         <p v-else class="text-sm text-gray-500">
           プラン「{{ org.plan }}」は定義されていません。プランを変更してください。
         </p>
+      </div>
+
+      <!-- グループ一覧 -->
+      <div class="rounded-lg border border-gray-200 bg-white p-6">
+        <h2 class="mb-4 text-lg font-bold text-gray-900">グループ</h2>
+        <div v-if="groups.length === 0" class="py-4 text-center text-sm text-gray-500">
+          グループがありません
+        </div>
+        <div v-else class="space-y-2">
+          <NuxtLink
+            v-for="group in groups"
+            :key="group.id"
+            :to="`/admin/system/groups/${group.id}`"
+            class="flex items-center justify-between rounded-md border border-gray-100 p-3 hover:bg-gray-50"
+          >
+            <div>
+              <span class="text-sm font-medium text-gray-900">{{ group.name }}</span>
+              <span
+                v-if="!group.isActive"
+                class="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+              >
+                無効
+              </span>
+            </div>
+            <span class="text-xs text-gray-400">
+              {{ new Date(group.createdAt).toLocaleDateString("ja-JP") }}
+            </span>
+          </NuxtLink>
+        </div>
       </div>
 
       <!-- 契約一覧 -->

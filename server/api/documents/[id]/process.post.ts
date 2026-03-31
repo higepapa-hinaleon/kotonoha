@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore, getAdminStorage } from "~~/server/utils/firebase-admin";
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import {
   extractText,
   splitTextIntoParentChildChunks,
@@ -345,6 +345,7 @@ async function doProcessing(
 
 export default defineEventHandler(async (event) => {
   const { user, groupId } = await verifyGroupAdmin(event);
+  await verifyActiveContract(user);
   const id = getRouterParam(event, "id");
 
   if (!id) {
