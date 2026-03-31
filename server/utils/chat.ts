@@ -4,11 +4,9 @@ import { searchRelevantChunks, searchFeedbackChunks, multiQuerySearch } from "~~
 import type { RagResult } from "~~/server/utils/rag";
 import { generateEmbedding } from "~~/server/utils/embeddings";
 import { generateChatResponse } from "~~/server/utils/gemini";
-import type { Conversation, Message, MessageSource, Settings } from "~~/shared/types/models";
+import { resolveBotConfig } from "~~/server/utils/resolve-bot-config";
+import type { Conversation, Message, MessageSource, Service, Settings } from "~~/shared/types/models";
 import {
-  DEFAULT_CONFIDENCE_THRESHOLD,
-  DEFAULT_RAG_TOP_K,
-  DEFAULT_RAG_SIMILARITY_THRESHOLD,
   ESCALATION_KEYWORDS,
   MAX_CONVERSATION_TITLE_LENGTH,
   MAX_SYSTEM_PROMPT_LENGTH,
@@ -61,20 +59,20 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   if (!serviceDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "サービスが見つかりません" });
   }
-  const serviceData = serviceDoc.data();
+  const serviceData = serviceDoc.data() as Omit<Service, "id">;
 
   const settingsSnapshot = await settingsPromise;
   const settings = settingsSnapshot.docs[0]?.data() as Settings | undefined;
-  const confidenceThreshold =
-    settings?.botConfig?.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
-  const ragTopK = settings?.botConfig?.ragTopK ?? DEFAULT_RAG_TOP_K;
-  const ragSimilarityThreshold =
-    settings?.botConfig?.ragSimilarityThreshold ?? DEFAULT_RAG_SIMILARITY_THRESHOLD;
-  const enableMultiQuery = settings?.botConfig?.enableMultiQuery ?? false;
-  const enableHyde = settings?.botConfig?.enableHyde ?? false;
-  const rawSystemPrompt = settings?.botConfig?.systemPrompt;
-  const systemPrompt = rawSystemPrompt
-    ? rawSystemPrompt.slice(0, MAX_SYSTEM_PROMPT_LENGTH)
+  const resolved = resolveBotConfig(serviceData.botConfig, settings?.botConfig);
+  const {
+    confidenceThreshold,
+    ragTopK,
+    ragSimilarityThreshold,
+    enableMultiQuery,
+    enableHyde,
+  } = resolved;
+  const systemPrompt = resolved.systemPrompt
+    ? resolved.systemPrompt.slice(0, MAX_SYSTEM_PROMPT_LENGTH)
     : undefined;
 
   // 1. 会話セッションの取得 or 作成

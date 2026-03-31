@@ -25,6 +25,13 @@ const formIsActive = ref(true);
 const formGoogleFormUrl = ref("");
 const saving = ref(false);
 
+// ボット設定（サービス個別）
+const showBotConfig = ref(false);
+const formUseCustomBotConfig = ref(false);
+const formConfidenceThreshold = ref<number | null>(null);
+const formRagTopK = ref<number | null>(null);
+const formSystemPrompt = ref<string | null>(null);
+
 // 削除確認
 const showDeleteConfirm = ref(false);
 const deletingService = ref<Service | null>(null);
@@ -51,12 +58,21 @@ async function fetchServices() {
   }
 }
 
+function resetBotConfigForm() {
+  formUseCustomBotConfig.value = false;
+  formConfidenceThreshold.value = null;
+  formRagTopK.value = null;
+  formSystemPrompt.value = null;
+  showBotConfig.value = false;
+}
+
 function openCreateModal() {
   editingService.value = null;
   formName.value = "";
   formDescription.value = "";
   formIsActive.value = true;
   formGoogleFormUrl.value = "";
+  resetBotConfigForm();
   showModal.value = true;
 }
 
@@ -66,6 +82,15 @@ function openEditModal(service: Service) {
   formDescription.value = service.description;
   formIsActive.value = service.isActive;
   formGoogleFormUrl.value = service.googleFormUrl || "";
+  if (service.botConfig) {
+    formUseCustomBotConfig.value = true;
+    formConfidenceThreshold.value = service.botConfig.confidenceThreshold ?? null;
+    formRagTopK.value = service.botConfig.ragTopK ?? null;
+    formSystemPrompt.value = service.botConfig.systemPrompt ?? null;
+    showBotConfig.value = true;
+  } else {
+    resetBotConfigForm();
+  }
   showModal.value = true;
 }
 
@@ -73,11 +98,35 @@ async function handleSave() {
   if (!formName.value.trim()) return;
   saving.value = true;
   try {
+    // 空文字列・NaN は未設定（グループ設定フォールバック）として扱う
+    const ct = typeof formConfidenceThreshold.value === "number" && !isNaN(formConfidenceThreshold.value)
+      ? formConfidenceThreshold.value
+      : null;
+    const topK = typeof formRagTopK.value === "number" && !isNaN(formRagTopK.value)
+      ? formRagTopK.value
+      : null;
+    const sp = formSystemPrompt.value && formSystemPrompt.value.trim()
+      ? formSystemPrompt.value.trim()
+      : null;
+
+    const botConfig = formUseCustomBotConfig.value
+      ? {
+          ...(ct !== null && { confidenceThreshold: ct }),
+          ...(topK !== null && { ragTopK: topK }),
+          ...(sp !== null && { systemPrompt: sp }),
+        }
+      : null;
+
     const payload = {
       name: formName.value,
       description: formDescription.value,
       isActive: formIsActive.value,
       googleFormUrl: formGoogleFormUrl.value,
+      ...(editingService.value
+        ? { botConfig }
+        : botConfig
+          ? { botConfig }
+          : {}),
     };
 
     if (editingService.value) {
@@ -319,6 +368,82 @@ onMounted(fetchServices);
                 />
                 <label for="isActive" class="text-sm text-gray-700">有効にする</label>
               </div>
+
+              <!-- ボット設定（サービス個別） -->
+              <div class="border-t border-gray-200 pt-4">
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-1 text-sm font-medium text-gray-700"
+                  @click="showBotConfig = !showBotConfig"
+                >
+                  <span
+                    class="inline-block transition-transform"
+                    :class="showBotConfig ? 'rotate-90' : ''"
+                  >
+                    &#9654;
+                  </span>
+                  ボット設定（サービス個別）
+                </button>
+                <div v-if="showBotConfig" class="mt-3 space-y-3">
+                  <div class="flex items-center gap-2">
+                    <input
+                      id="useCustomBotConfig"
+                      v-model="formUseCustomBotConfig"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <label for="useCustomBotConfig" class="text-sm text-gray-700">
+                      このサービス独自の設定を使用する
+                    </label>
+                  </div>
+                  <template v-if="formUseCustomBotConfig">
+                    <div class="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label class="block text-xs font-medium text-gray-700">
+                          確信度しきい値
+                        </label>
+                        <input
+                          v-model.number="formConfidenceThreshold"
+                          type="number"
+                          min="0"
+                          max="1"
+                          step="0.05"
+                          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                          placeholder="グループ設定を使用"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-gray-700">
+                          RAG 検索件数 (Top K)
+                        </label>
+                        <input
+                          v-model.number="formRagTopK"
+                          type="number"
+                          min="1"
+                          max="20"
+                          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                          placeholder="グループ設定を使用"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-700">
+                        システムプロンプト
+                      </label>
+                      <textarea
+                        v-model="formSystemPrompt"
+                        rows="3"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+                        placeholder="空欄の場合はグループ設定を使用"
+                      />
+                    </div>
+                    <p class="text-xs text-gray-400">
+                      空欄のフィールドはグループデフォルト設定が適用されます
+                    </p>
+                  </template>
+                </div>
+              </div>
+
               <div class="flex justify-end gap-3 pt-2">
                 <button
                   type="button"

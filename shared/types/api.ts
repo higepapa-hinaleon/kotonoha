@@ -56,6 +56,7 @@ export interface ServiceUpsertRequest {
   description: string;
   isActive?: boolean;
   googleFormUrl?: string;
+  botConfig?: Partial<import("./models").BotConfig> | null;
 }
 
 /** 改善要望更新リクエスト */

@@ -1,6 +1,7 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
 import { checkPlanLimit } from "~~/server/utils/plan-limit";
+import { validateBotConfig, sanitizeBotConfig } from "~~/server/utils/resolve-bot-config";
 import type { ServiceUpsertRequest } from "~~/shared/types/api";
 import type { Service } from "~~/shared/types/models";
 
@@ -21,6 +22,10 @@ export default defineEventHandler(async (event) => {
   const db = getAdminFirestore();
   const now = new Date().toISOString();
 
+  if (body.botConfig !== undefined && body.botConfig !== null) {
+    validateBotConfig(body.botConfig);
+  }
+
   const docRef = db.collection("services").doc();
   const service: Omit<Service, "id"> = {
     organizationId: user.organizationId,
@@ -32,6 +37,12 @@ export default defineEventHandler(async (event) => {
     createdAt: now,
     updatedAt: now,
   };
+  if (body.botConfig !== undefined && body.botConfig !== null) {
+    const sanitized = sanitizeBotConfig(body.botConfig);
+    if (Object.keys(sanitized).length > 0) {
+      service.botConfig = sanitized;
+    }
+  }
 
   await docRef.set(service);
 

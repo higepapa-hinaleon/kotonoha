@@ -116,7 +116,8 @@ onMounted(() => {
 
       <!-- ボット設定 -->
       <div class="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 class="mb-4 text-sm font-semibold text-gray-900">ボット設定</h2>
+        <h2 class="mb-1 text-sm font-semibold text-gray-900">ボット設定（グループデフォルト）</h2>
+        <p class="mb-4 text-xs text-gray-400">各サービスで個別設定がない場合に適用されます</p>
         <div class="space-y-4">
           <div class="grid gap-4 sm:grid-cols-2">
             <div>

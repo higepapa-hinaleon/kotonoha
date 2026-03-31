@@ -5,8 +5,8 @@ import {
   DEFAULT_RAG_TOP_K,
   DEFAULT_RAG_SIMILARITY_THRESHOLD,
   DEFAULT_SYSTEM_PROMPT,
-  MAX_SYSTEM_PROMPT_LENGTH,
 } from "~~/server/utils/constants";
+import { validateBotConfig } from "~~/server/utils/resolve-bot-config";
 import type { SettingsUpdateRequest } from "~~/shared/types/api";
 import type { Settings } from "~~/shared/types/models";
 
@@ -17,34 +17,8 @@ export default defineEventHandler(async (event) => {
   }
   const body = await readBody<SettingsUpdateRequest>(event);
 
-  // 数値パラメータのバリデーション
   if (body.botConfig) {
-    if (body.botConfig.confidenceThreshold !== undefined) {
-      body.botConfig.confidenceThreshold = Math.max(
-        0,
-        Math.min(1, body.botConfig.confidenceThreshold),
-      );
-    }
-    if (body.botConfig.ragTopK !== undefined) {
-      body.botConfig.ragTopK = Math.max(1, Math.min(100, Math.floor(body.botConfig.ragTopK)));
-    }
-    if (body.botConfig.ragSimilarityThreshold !== undefined) {
-      body.botConfig.ragSimilarityThreshold = Math.max(
-        0,
-        Math.min(1, body.botConfig.ragSimilarityThreshold),
-      );
-    }
-    if (
-      body.botConfig.systemPrompt !== undefined &&
-      typeof body.botConfig.systemPrompt === "string"
-    ) {
-      if (body.botConfig.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: `システムプロンプトが長すぎます（上限${MAX_SYSTEM_PROMPT_LENGTH.toLocaleString()}文字）`,
-        });
-      }
-    }
+    validateBotConfig(body.botConfig);
   }
 
   const db = getAdminFirestore();

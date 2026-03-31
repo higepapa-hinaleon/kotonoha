@@ -105,6 +105,8 @@ export interface Service {
   description: string;
   isActive: boolean;
   googleFormUrl?: string;
+  /** サービス個別のボット設定（未設定フィールドはグループ設定にフォールバック） */
+  botConfig?: Partial<BotConfig>;
   createdAt: string;
   updatedAt: string;
 }
