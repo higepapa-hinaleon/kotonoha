@@ -1,4 +1,4 @@
-import { verifyAuth } from "~~/server/utils/auth";
+import { verifyOrgAdmin } from "~~/server/utils/auth";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { createPortalSession } from "~~/server/utils/stripe";
 
@@ -7,7 +7,7 @@ import { createPortalSession } from "~~/server/utils/stripe";
  * 認証必須・Stripe 支払いユーザーのみ
  */
 export default defineEventHandler(async (event) => {
-  const user = await verifyAuth(event);
+  const user = await verifyOrgAdmin(event);
 
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "組織に所属していません" });

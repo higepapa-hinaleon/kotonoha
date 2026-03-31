@@ -1,4 +1,4 @@
-import { verifyAuth } from "~~/server/utils/auth";
+import { verifyOrgAdmin } from "~~/server/utils/auth";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import type { PaymentMethod } from "~~/shared/types/models";
 
@@ -6,7 +6,7 @@ import type { PaymentMethod } from "~~/shared/types/models";
  * 請求情報を取得する（認証ユーザーの組織の支払い方法・Stripe 連携有無）
  */
 export default defineEventHandler(async (event) => {
-  const user = await verifyAuth(event);
+  const user = await verifyOrgAdmin(event);
 
   if (!user.organizationId) {
     return { hasStripe: false, paymentMethod: "none" as PaymentMethod };
