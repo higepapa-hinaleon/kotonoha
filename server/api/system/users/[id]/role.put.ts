@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const admin = await verifySystemAdmin(event);
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     if (!userDoc.exists) {
       throw createError({ statusCode: 404, statusMessage: "ユーザーが見つかりません" });
     }
-    if (userDoc.data()?.organizationId !== admin.organizationId) {
+    if (!isPlatformAdmin(admin) && userDoc.data()?.organizationId !== admin.organizationId) {
       throw createError({ statusCode: 403, statusMessage: "同一組織のユーザーのみ変更できます" });
     }
 

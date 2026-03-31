@@ -66,77 +66,85 @@ service cloud.firestore {
 
     // ===== organizations =====
     match /organizations/{orgId} {
-      allow read: if belongsToOrg(orgId);
-      allow write: if isOwner() && belongsToOrg(orgId);
+      allow read: if belongsToOrg(orgId) || isOwner();
+      allow write: if isOwner();
     }
 
     // ===== groups =====
     match /groups/{groupId} {
       allow read: if isAuthenticated()
         && (belongsToGroup(groupId)
-            || (isSystemAdmin() && belongsToOrg(resource.data.organizationId)));
+            || (isSystemAdmin() && belongsToOrg(resource.data.organizationId))
+            || isOwner());
       allow write: if isAuthenticated()
-        && isSystemAdmin()
-        && belongsToOrg(resource.data.organizationId);
+        && (isSystemAdmin() && belongsToOrg(resource.data.organizationId)
+            || isOwner());
     }
 
     // ===== userGroupMemberships =====
     match /userGroupMemberships/{membershipId} {
       allow read: if isAuthenticated()
         && (request.auth.uid == resource.data.userId
-            || (isSystemAdmin() && belongsToOrg(resource.data.organizationId)));
+            || (isSystemAdmin() && belongsToOrg(resource.data.organizationId))
+            || isOwner());
       allow write: if isAuthenticated()
-        && isSystemAdmin()
-        && belongsToOrg(resource.data.organizationId);
+        && (isSystemAdmin() && belongsToOrg(resource.data.organizationId)
+            || isOwner());
     }
 
     // ===== users =====
     match /users/{userId} {
       allow read: if isAuthenticated()
         && (request.auth.uid == userId
-            || (isSystemAdmin() && getUserData().organizationId == resource.data.organizationId));
+            || (isSystemAdmin() && getUserData().organizationId == resource.data.organizationId)
+            || isOwner());
       allow create: if isAuthenticated() && request.auth.uid == userId;
-      // システム管理者のみ他ユーザーを更新可能
+      // システム管理者のみ他ユーザーを更新可能（ownerは全ユーザー更新可能）
       allow update: if isAuthenticated()
         && (request.auth.uid == userId
-            || (isSystemAdmin() && getUserData().organizationId == resource.data.organizationId));
+            || (isSystemAdmin() && getUserData().organizationId == resource.data.organizationId)
+            || isOwner());
     }
 
     // ===== services =====
     match /services/{serviceId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow create: if isAuthenticated()
-        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin() || isOwner());
       allow update, delete: if isAuthenticated()
-        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin() || isOwner());
     }
 
     // ===== documents =====
     match /documents/{docId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow create: if isAuthenticated()
-        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin() || isOwner());
       allow update, delete: if isAuthenticated()
-        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin() || isOwner());
     }
 
     // ===== documentChunks =====
     match /documentChunks/{chunkId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
     // ===== feedbackChunks =====
     match /feedbackChunks/{chunkId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
@@ -147,19 +155,22 @@ service cloud.firestore {
 
     // ===== conversations =====
     match /conversations/{convId} {
-      // 自分の会話 or 同一組織のシステム管理者 or 同一グループの管理者が閲覧可能
+      // 自分の会話 or 同一組織のシステム管理者 or 同一グループの管理者 or ownerが閲覧可能
       allow read: if isAuthenticated()
         && (resource.data.userId == request.auth.uid
             || (isSystemAdmin() && belongsToOrg(resource.data.organizationId))
-            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId)));
+            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId))
+            || isOwner());
       // 作成時は groupId の検証を含める
       allow create: if isAuthenticated()
         && (belongsToGroup(request.resource.data.groupId)
-            || (isSystemAdmin() && belongsToOrg(request.resource.data.organizationId)));
+            || (isSystemAdmin() && belongsToOrg(request.resource.data.organizationId))
+            || isOwner());
       allow update: if isAuthenticated()
         && (resource.data.userId == request.auth.uid
             || (isSystemAdmin() && belongsToOrg(resource.data.organizationId))
-            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId)));
+            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId))
+            || isOwner());
 
       // messages サブコレクション
       match /messages/{msgId} {
@@ -167,7 +178,8 @@ service cloud.firestore {
           && (get(/databases/$(database)/documents/conversations/$(convId)).data.userId == request.auth.uid
               || (isSystemAdmin() && belongsToOrg(get(/databases/$(database)/documents/conversations/$(convId)).data.organizationId))
               || (isGroupAdmin(get(/databases/$(database)/documents/conversations/$(convId)).data.groupId)
-                  && belongsToOrg(get(/databases/$(database)/documents/conversations/$(convId)).data.organizationId)));
+                  && belongsToOrg(get(/databases/$(database)/documents/conversations/$(convId)).data.organizationId))
+              || isOwner());
         allow write: if false; // サーバーサイドのみ（Admin SDK）
       }
     }
@@ -176,52 +188,57 @@ service cloud.firestore {
     match /improvementRequests/{reqId} {
       allow read: if isAuthenticated()
         && ((isSystemAdmin() && belongsToOrg(resource.data.organizationId))
-            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId)));
+            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId))
+            || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
     // ===== faqs =====
     match /faqs/{faqId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow create: if isAuthenticated()
-        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin() || isOwner());
       allow update, delete: if isAuthenticated()
-        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin() || isOwner());
     }
 
     // ===== weeklyReports =====
     match /weeklyReports/{reportId} {
       allow read: if isAuthenticated()
         && ((isSystemAdmin() && belongsToOrg(resource.data.organizationId))
-            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId)));
+            || (isGroupAdmin(resource.data.groupId) && belongsToOrg(resource.data.organizationId))
+            || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
     // ===== invitations =====
     match /invitations/{invId} {
-      allow read: if isAuthenticated() && isSystemAdmin()
-        && belongsToOrg(resource.data.organizationId);
+      allow read: if isAuthenticated()
+        && (isSystemAdmin() && belongsToOrg(resource.data.organizationId)
+            || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
     // ===== contracts =====
     match /contracts/{contractId} {
       allow read: if isAuthenticated()
-        && isOrgAdmin(resource.data.organizationId);
+        && (isOrgAdmin(resource.data.organizationId) || isOwner());
       allow write: if false; // サーバーサイドのみ（Admin SDK）
     }
 
     // ===== settings =====
     match /settings/{settingId} {
       allow read: if isAuthenticated()
-        && belongsToOrg(resource.data.organizationId)
-        && (belongsToGroup(resource.data.groupId) || isSystemAdmin());
+        && (belongsToOrg(resource.data.organizationId)
+            && (belongsToGroup(resource.data.groupId) || isSystemAdmin())
+            || isOwner());
       allow create: if isAuthenticated()
-        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(request.resource.data.groupId) || isSystemAdmin() || isOwner());
       allow update, delete: if isAuthenticated()
-        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin());
+        && (isGroupAdmin(resource.data.groupId) || isSystemAdmin() || isOwner());
     }
 
     // ===== applications（利用申請） =====

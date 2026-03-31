@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const admin = await verifySystemAdmin(event);
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const doc = await db.collection("invitations").doc(id).get();
-    if (!doc.exists || doc.data()?.organizationId !== admin.organizationId) {
+    if (!doc.exists || (!isPlatformAdmin(admin) && doc.data()?.organizationId !== admin.organizationId)) {
       throw createError({ statusCode: 404, statusMessage: "招待が見つかりません" });
     }
 

@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuth } from "~~/server/utils/auth";
+import { verifyAuth, isPlatformAdmin } from "~~/server/utils/auth";
 import { isGroupMember } from "~~/server/utils/group";
 
 export default defineEventHandler(async (event) => {
@@ -12,9 +12,9 @@ export default defineEventHandler(async (event) => {
 
   const db = getAdminFirestore();
 
-  // グループが同一組織に属することを検証（system_admin も組織内に制限）
+  // グループの存在確認と組織チェック（プラットフォーム管理者は全組織にアクセス可能）
   const groupDoc = await db.collection("groups").doc(body.groupId).get();
-  if (!groupDoc.exists || groupDoc.data()?.organizationId !== user.organizationId) {
+  if (!groupDoc.exists || (!isPlatformAdmin(user) && groupDoc.data()?.organizationId !== user.organizationId)) {
     throw createError({ statusCode: 403, statusMessage: "このグループへのアクセス権がありません" });
   }
 

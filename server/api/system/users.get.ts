@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 import { getUserGroupMemberships } from "~~/server/utils/group";
 import type { User } from "~~/shared/types/models";
 
@@ -9,10 +9,21 @@ export default defineEventHandler(async (event) => {
   try {
     const db = getAdminFirestore();
 
-    const snapshot = await db
-      .collection("users")
-      .where("organizationId", "==", admin.organizationId)
-      .get();
+    // プラットフォーム管理者はクエリで組織を指定可能（未指定時は全ユーザー）
+    const query = getQuery(event);
+    const targetOrgId =
+      isPlatformAdmin(admin) && typeof query.organizationId === "string"
+        ? query.organizationId
+        : isPlatformAdmin(admin)
+          ? null
+          : admin.organizationId;
+
+    let ref: FirebaseFirestore.Query = db.collection("users");
+    if (targetOrgId) {
+      ref = ref.where("organizationId", "==", targetOrgId);
+    }
+
+    const snapshot = await ref.get();
 
     const users = await Promise.all(
       snapshot.docs.map(async (doc) => {

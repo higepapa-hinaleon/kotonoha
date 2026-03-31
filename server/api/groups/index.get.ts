@@ -1,24 +1,28 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuth } from "~~/server/utils/auth";
+import { verifyAuth, isPlatformAdmin } from "~~/server/utils/auth";
 import { getUserGroupMemberships } from "~~/server/utils/group";
 import type { Group } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const user = await verifyAuth(event);
-  if (!user.organizationId) {
-    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
-  }
 
   const db = getAdminFirestore();
 
-  // owner / system_admin は全グループを返す
-  if (user.role === "owner" || user.role === "system_admin") {
-    const snapshot = await db
-      .collection("groups")
-      .where("organizationId", "==", user.organizationId)
-      .orderBy("createdAt", "desc")
-      .get();
+  // プラットフォーム管理者はクエリで組織を指定可能（未指定時は全グループ）
+  if (isPlatformAdmin(user)) {
+    const query = getQuery(event);
+    const targetOrgId = typeof query.organizationId === "string" ? query.organizationId : null;
+
+    let ref: FirebaseFirestore.Query = db.collection("groups");
+    if (targetOrgId) {
+      ref = ref.where("organizationId", "==", targetOrgId);
+    }
+    const snapshot = await ref.orderBy("createdAt", "desc").get();
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Group);
+  }
+
+  if (!user.organizationId) {
+    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
 
   // 一般ユーザーは所属グループのみ
