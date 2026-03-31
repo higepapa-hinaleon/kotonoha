@@ -138,6 +138,22 @@ export async function addUserToGroup(
   const existing = await firestore.collection("userGroupMemberships").doc(membershipId).get();
 
   if (existing.exists) {
+    // 最後のグループ管理者を降格させない
+    const currentRole = existing.data()?.role;
+    if (currentRole === "admin" && role === "member") {
+      const adminCount = await firestore
+        .collection("userGroupMemberships")
+        .where("groupId", "==", groupId)
+        .where("role", "==", "admin")
+        .count()
+        .get();
+      if (adminCount.data().count <= 1) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: "グループには最低1人の管理者が必要です",
+        });
+      }
+    }
     // 既存メンバー: role のみ更新（createdAt は保護）
     await firestore.collection("userGroupMemberships").doc(membershipId).update({
       role,

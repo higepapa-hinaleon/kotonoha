@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { Group } from "~~/shared/types/models";
+import type { GroupWithOrg } from "~~/shared/types/api";
 
 definePageMeta({ middleware: ["auth", "admin"], layout: "admin" });
 
 const { apiFetch } = useApi();
 const { show } = useNotification();
+const { isSystemAdmin } = useAuth();
 
-const groups = ref<Group[]>([]);
+const groups = ref<GroupWithOrg[]>([]);
 const loading = ref(true);
 const showCreateDialog = ref(false);
 const newGroupName = ref("");
@@ -30,7 +31,7 @@ watch(totalPages, (tp) => {
 async function fetchGroups() {
   loading.value = true;
   try {
-    groups.value = await apiFetch<Group[]>("/api/groups");
+    groups.value = await apiFetch<GroupWithOrg[]>("/api/groups");
   } finally {
     loading.value = false;
   }
@@ -117,6 +118,7 @@ onMounted(fetchGroups);
               {{ group.isActive ? "有効" : "無効" }}
             </span>
           </div>
+          <p v-if="isSystemAdmin && group.organizationName" class="mb-1 text-xs text-gray-400">{{ group.organizationName }}</p>
           <p class="mb-2 text-xs text-gray-500">{{ group.description || "-" }}</p>
           <button
             class="text-xs text-red-600 hover:text-red-800"
@@ -136,6 +138,12 @@ onMounted(fetchGroups);
                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
               >
                 グループ名
+              </th>
+              <th
+                v-if="isSystemAdmin"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                組織
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
@@ -164,6 +172,7 @@ onMounted(fetchGroups);
                   {{ group.name }}
                 </NuxtLink>
               </td>
+              <td v-if="isSystemAdmin" class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ group.organizationName || "-" }}</td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ group.description || "-" }}</td>
               <td class="px-6 py-4 text-sm">
                 <span
