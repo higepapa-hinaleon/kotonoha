@@ -1,3 +1,4 @@
+import type Stripe from "stripe";
 import { constructWebhookEvent, retrieveCheckoutSession } from "~~/server/utils/stripe";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 
@@ -42,11 +43,7 @@ export default defineEventHandler(async (event) => {
         break;
       }
       case "invoice.payment_failed": {
-        const invoice = stripeEvent.data.object;
-        console.warn("[stripe/webhook] 支払い失敗:", {
-          invoiceId: invoice.id,
-          customerId: invoice.customer,
-        });
+        handleInvoicePaymentFailed(db, stripeEvent);
         break;
       }
       default: {
@@ -169,4 +166,21 @@ async function handleSubscriptionDeleted(
   });
 
   console.log(`[stripe/webhook] 契約 ${contractDoc.id} をキャンセル済みに更新しました`);
+}
+
+/**
+ * invoice.payment_failed: 支払い失敗をログに記録する
+ * ステータス変更は customer.subscription.updated ハンドラに委譲する（Stripe が SoT）
+ */
+function handleInvoicePaymentFailed(
+  _db: FirebaseFirestore.Firestore,
+  stripeEvent: Stripe.Event,
+): void {
+  const invoice = stripeEvent.data.object as { id: string; subscription?: string | null; customer?: string | null };
+
+  console.warn("[stripe/webhook] 支払い失敗:", {
+    invoiceId: invoice.id,
+    customerId: invoice.customer,
+    subscriptionId: invoice.subscription,
+  });
 }

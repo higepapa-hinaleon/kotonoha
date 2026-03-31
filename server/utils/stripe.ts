@@ -75,6 +75,38 @@ export async function retrieveCheckoutSession(sessionId: string): Promise<{
 }
 
 /**
+ * プランIDに対応する Stripe Price ID を取得する
+ * 環境変数（runtimeConfig）を優先し、未設定の場合は plans.ts のフォールバック値を使用
+ */
+export function getStripePriceId(planId: PlanId): string {
+  if (planId === "free" || planId === "enterprise") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `プラン ${planId} は Stripe サブスクリプション対象外です`,
+    });
+  }
+
+  const config = useRuntimeConfig();
+
+  const envMapping: Record<string, string> = {
+    starter: config.stripePriceIdStarter,
+    business: config.stripePriceIdBusiness,
+  };
+
+  const envValue = envMapping[planId];
+  if (envValue) return envValue;
+
+  // plans.ts のフォールバック値
+  const fallback = PLAN_DEFINITIONS[planId].stripePriceId;
+  if (fallback) return fallback;
+
+  throw createError({
+    statusCode: 400,
+    statusMessage: `プラン ${planId} の Stripe Price ID が設定されていません。環境変数 NUXT_STRIPE_PRICE_ID_${planId.toUpperCase()} を設定してください。`,
+  });
+}
+
+/**
  * 承認後に Stripe サブスクリプションを作成する
  */
 export async function createSubscription(params: {
@@ -83,27 +115,18 @@ export async function createSubscription(params: {
   planId: PlanId;
 }): Promise<Stripe.Subscription> {
   const stripe = getStripeClient();
-  const plan = PLAN_DEFINITIONS[params.planId];
-
-  if (!plan.stripePriceId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: `プラン ${params.planId} の Stripe Price ID が設定されていません`,
-    });
-  }
+  const priceId = getStripePriceId(params.planId);
 
   // デフォルトの支払い方法を設定
   await stripe.customers.update(params.customerId, {
     invoice_settings: { default_payment_method: params.paymentMethodId },
   });
 
-  // サブスクリプション作成
+  // サブスクリプション作成（setup モードで取得済みの支払方法で自動課金）
   const subscription = await stripe.subscriptions.create({
     customer: params.customerId,
-    items: [{ price: plan.stripePriceId }],
+    items: [{ price: priceId }],
     default_payment_method: params.paymentMethodId,
-    payment_behavior: "default_incomplete",
-    expand: ["latest_invoice.payment_intent"],
   });
 
   return subscription;
