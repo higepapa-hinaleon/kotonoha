@@ -133,6 +133,21 @@ export async function createSubscription(params: {
 }
 
 /**
+ * Stripe Customer Portal セッションを作成する
+ */
+export async function createPortalSession(params: {
+  customerId: string;
+  returnUrl: string;
+}): Promise<Stripe.BillingPortal.Session> {
+  const stripe = getStripeClient();
+
+  return stripe.billingPortal.sessions.create({
+    customer: params.customerId,
+    return_url: params.returnUrl,
+  });
+}
+
+/**
  * Stripe サブスクリプションをキャンセルする
  */
 export async function cancelSubscription(subscriptionId: string): Promise<void> {
