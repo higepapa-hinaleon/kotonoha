@@ -159,3 +159,18 @@ export interface ConversationFilter extends PaginationParams {
   endDate?: string;
   keyword?: string;
 }
+
+/** 組織利用状況サマリー */
+export interface OrganizationUsage {
+  users: number;
+  groups: number;
+  services: number;
+  documents: number;
+  monthlyChats: number;
+  limits: import("../plans").PlanFeatureLimits;
+}
+
+/** 組織名付きグループ（プラットフォーム管理者向け） */
+export type GroupWithOrg = import("./models").Group & {
+  organizationName?: string;
+};

@@ -24,6 +24,22 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "メンバーシップが見つかりません" });
   }
 
+  // 最後のグループ管理者を削除させない
+  if (membershipDoc.data()?.role === "admin") {
+    const adminCount = await db
+      .collection("userGroupMemberships")
+      .where("groupId", "==", id)
+      .where("role", "==", "admin")
+      .count()
+      .get();
+    if (adminCount.data().count <= 1) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "グループには最低1人の管理者が必要です",
+      });
+    }
+  }
+
   await membershipRef.delete();
 
   // 削除したグループが activeGroupId の場合、別のグループに切替

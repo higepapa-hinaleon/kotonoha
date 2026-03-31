@@ -42,6 +42,26 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 403, statusMessage: "同一組織のユーザーのみ変更できます" });
     }
 
+    // 最後の org_admin を降格させない
+    const currentRole = userDoc.data()?.role;
+    if (currentRole === "org_admin" && body.role !== "org_admin") {
+      const targetOrgId = userDoc.data()?.organizationId;
+      if (targetOrgId) {
+        const orgAdminCount = await db
+          .collection("users")
+          .where("organizationId", "==", targetOrgId)
+          .where("role", "==", "org_admin")
+          .count()
+          .get();
+        if (orgAdminCount.data().count <= 1) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: "組織には最低1人の組織管理者が必要です",
+          });
+        }
+      }
+    }
+
     await userRef.update({
       role: body.role,
       updatedAt: new Date().toISOString(),

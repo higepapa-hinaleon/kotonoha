@@ -2,6 +2,7 @@ import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyAuth, isPlatformAdmin } from "~~/server/utils/auth";
 import { getUserGroupMemberships } from "~~/server/utils/group";
 import type { Group } from "~~/shared/types/models";
+import type { GroupWithOrg } from "~~/shared/types/api";
 
 export default defineEventHandler(async (event) => {
   const user = await verifyAuth(event);
@@ -18,7 +19,25 @@ export default defineEventHandler(async (event) => {
       ref = ref.where("organizationId", "==", targetOrgId);
     }
     const snapshot = await ref.orderBy("createdAt", "desc").get();
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Group);
+    const groups = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Group);
+
+    // 組織名を付加
+    const orgIds = [...new Set(groups.map((g) => g.organizationId).filter(Boolean))];
+    const orgNameMap = new Map<string, string>();
+    if (orgIds.length > 0) {
+      const orgRefs = orgIds.map((oid) => db.collection("organizations").doc(oid));
+      const orgDocs = await db.getAll(...orgRefs);
+      for (const doc of orgDocs) {
+        if (doc.exists) {
+          orgNameMap.set(doc.id, (doc.data()?.name as string) || "");
+        }
+      }
+    }
+
+    return groups.map((g) => ({
+      ...g,
+      organizationName: orgNameMap.get(g.organizationId) || "",
+    })) as GroupWithOrg[];
   }
 
   if (!user.organizationId) {

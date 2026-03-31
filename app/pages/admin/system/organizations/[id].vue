@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Organization, Contract, Group } from "~~/shared/types/models";
+import type { OrganizationUsage } from "~~/shared/types/api";
 import { PLAN_DEFINITIONS, PLAN_LIST } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
@@ -8,13 +9,14 @@ definePageMeta({ middleware: ["auth", "admin"], layout: "admin" });
 const route = useRoute();
 const { apiFetch } = useApi();
 const { show } = useNotification();
-const { isOwner } = useAuth();
+const { isOwner, isSystemAdmin } = useAuth();
 
 const orgId = route.params.id as string;
 
 const org = ref<Organization | null>(null);
 const contracts = ref<Contract[]>([]);
 const groups = ref<Group[]>([]);
+const usage = ref<OrganizationUsage | null>(null);
 const loading = ref(true);
 const saving = ref(false);
 
@@ -84,6 +86,33 @@ async function fetchData() {
   } finally {
     loading.value = false;
   }
+
+  // 利用状況は補助データのためエラーでも主要表示をブロックしない
+  if (isSystemAdmin.value || isOwner.value) {
+    try {
+      usage.value = await apiFetch<OrganizationUsage>(
+        `/api/system/organizations/${orgId}/usage`,
+      );
+    } catch {
+      // 利用状況の取得失敗は無視（主要データに影響しない）
+    }
+  }
+}
+
+function usageDisplay(current: number, limit: number): string {
+  return limit === -1 ? `${current}` : `${current} / ${limit}`;
+}
+
+function usageLimitLabel(limit: number): string {
+  return limit === -1 ? "無制限" : `上限 ${limit.toLocaleString()}`;
+}
+
+function usageColorClass(current: number, limit: number): string {
+  if (limit === -1) return "text-gray-900";
+  const ratio = current / limit;
+  if (ratio >= 1) return "text-red-600";
+  if (ratio >= 0.8) return "text-orange-600";
+  return "text-gray-900";
 }
 
 async function saveOrg() {
@@ -337,6 +366,48 @@ onMounted(fetchData);
         <p v-else class="text-sm text-gray-500">
           プラン「{{ org.plan }}」は定義されていません。プランを変更してください。
         </p>
+      </div>
+
+      <!-- 利用状況サマリー -->
+      <div v-if="usage && (isSystemAdmin || isOwner)" class="rounded-lg border border-gray-200 bg-white p-6">
+        <h2 class="mb-4 text-lg font-bold text-gray-900">利用状況サマリー</h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-md bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">ユーザー数</p>
+            <p class="text-lg font-semibold" :class="usageColorClass(usage.users, usage.limits.maxUsers)">
+              {{ usageDisplay(usage.users, usage.limits.maxUsers) }}
+            </p>
+            <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxUsers) }}</p>
+          </div>
+          <div class="rounded-md bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">グループ数</p>
+            <p class="text-lg font-semibold" :class="usageColorClass(usage.groups, usage.limits.maxGroups)">
+              {{ usageDisplay(usage.groups, usage.limits.maxGroups) }}
+            </p>
+            <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxGroups) }}</p>
+          </div>
+          <div class="rounded-md bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">サービス数</p>
+            <p class="text-lg font-semibold" :class="usageColorClass(usage.services, usage.limits.maxServices)">
+              {{ usageDisplay(usage.services, usage.limits.maxServices) }}
+            </p>
+            <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxServices) }}</p>
+          </div>
+          <div class="rounded-md bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">ドキュメント数</p>
+            <p class="text-lg font-semibold" :class="usageColorClass(usage.documents, usage.limits.maxDocuments)">
+              {{ usageDisplay(usage.documents, usage.limits.maxDocuments) }}
+            </p>
+            <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxDocuments) }}</p>
+          </div>
+          <div class="rounded-md bg-gray-50 p-3">
+            <p class="text-xs text-gray-500">月間チャット数</p>
+            <p class="text-lg font-semibold" :class="usageColorClass(usage.monthlyChats, usage.limits.maxMonthlyChats)">
+              {{ usageDisplay(usage.monthlyChats, usage.limits.maxMonthlyChats) }}
+            </p>
+            <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxMonthlyChats) }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- グループ一覧 -->

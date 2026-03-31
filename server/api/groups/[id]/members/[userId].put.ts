@@ -32,6 +32,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: "メンバーシップが見つかりません" });
   }
 
+  // 最後のグループ管理者を降格させない
+  const currentRole = membershipDoc.data()?.role;
+  if (currentRole === "admin" && body.role === "member") {
+    const adminCount = await db
+      .collection("userGroupMemberships")
+      .where("groupId", "==", id)
+      .where("role", "==", "admin")
+      .count()
+      .get();
+    if (adminCount.data().count <= 1) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "グループには最低1人の管理者が必要です",
+      });
+    }
+  }
+
   await membershipRef.update({
     role: body.role,
     updatedAt: new Date().toISOString(),
