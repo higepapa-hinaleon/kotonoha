@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig();
-  const baseUrl = config.appBaseUrl || "http://localhost:3000";
+  const baseUrl = config.publicUrl || "http://localhost:3000";
 
   const session = await createPortalSession({
     customerId: stripeCustomerId,
