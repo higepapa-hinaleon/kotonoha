@@ -226,6 +226,7 @@ async function handleSubmit() {
       window.location.href = res.checkoutUrl;
     } else {
       show("申請を受け付けました。", "success");
+      await fetchUser();
       await navigateTo("/admin");
     }
   } catch {
