@@ -133,7 +133,7 @@ export default defineEventHandler(async (event) => {
 
   // 補助処理: メール通知（非ブロッキング）
   const config = useRuntimeConfig();
-  const baseUrl = config.appBaseUrl || "http://localhost:3000";
+  const baseUrl = config.publicUrl || "http://localhost:3000";
 
   // 承認通知メール
   sendApplicationApprovedEmail({

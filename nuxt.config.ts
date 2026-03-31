@@ -42,7 +42,8 @@ export default defineNuxtConfig({
     smtpFrom: "",
 
     // アプリケーションURL（メールのリンク生成用）
-    appBaseUrl: "http://localhost:3000",
+    // 注意: NUXT_APP_BASE_URL は Nuxt 予約名(app.baseURL を上書き)のため使用不可
+    publicUrl: "http://localhost:3000",
 
     // 銀行振込情報（請求メール用）
     bankName: "",
