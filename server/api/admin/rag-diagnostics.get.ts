@@ -1,7 +1,8 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
 import { searchRelevantChunks } from "~~/server/utils/rag";
-import { DEFAULT_CONFIDENCE_THRESHOLD, DEFAULT_RAG_TOP_K } from "~~/server/utils/constants";
+import { resolveBotConfig } from "~~/server/utils/resolve-bot-config";
+import type { Service, Settings } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const { user, groupId } = await verifyGroupAdmin(event);
@@ -99,28 +100,21 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // 5. ボット設定
-  const settingsSnapshot = await db
-    .collection("settings")
-    .where("groupId", "==", groupId)
-    .limit(1)
-    .get();
+  // 5. ボット設定（サービス個別 → グループ → デフォルト の順で解決）
+  const [serviceDoc, settingsSnapshot] = await Promise.all([
+    db.collection("services").doc(serviceId).get(),
+    db.collection("settings").where("groupId", "==", groupId).limit(1).get(),
+  ]);
+  const serviceData = serviceDoc.exists ? (serviceDoc.data() as Omit<Service, "id">) : undefined;
+  const settingsData = settingsSnapshot.docs[0]?.data() as Settings | undefined;
+  const resolved = resolveBotConfig(serviceData?.botConfig, settingsData?.botConfig);
 
-  if (settingsSnapshot.docs.length > 0) {
-    const settings = settingsSnapshot.docs[0].data();
-    diagnostics.botConfig = {
-      confidenceThreshold: settings.botConfig?.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD,
-      ragTopK: settings.botConfig?.ragTopK ?? DEFAULT_RAG_TOP_K,
-      hasSystemPrompt: !!settings.botConfig?.systemPrompt,
-    };
-  } else {
-    diagnostics.botConfig = {
-      confidenceThreshold: DEFAULT_CONFIDENCE_THRESHOLD,
-      ragTopK: DEFAULT_RAG_TOP_K,
-      hasSystemPrompt: false,
-      note: "settings ドキュメントが存在しません（デフォルト値を使用）",
-    };
-  }
+  diagnostics.botConfig = {
+    confidenceThreshold: resolved.confidenceThreshold,
+    ragTopK: resolved.ragTopK,
+    hasSystemPrompt: !!resolved.systemPrompt,
+    isServiceOverride: !!serviceData?.botConfig,
+  };
 
   return diagnostics;
 });
