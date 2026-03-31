@@ -13,14 +13,16 @@ const { apiFetch } = useApi();
 const { show } = useNotification();
 const { currentGroup, activeGroupId } = useGroup();
 const route = useRoute();
-const { user, hasOrganization, hasPendingApplication, fetchPendingApplication, fetchUser } = useAuth();
+const { user, hasOrganization, isPendingPayment, hasPendingApplication, fetchPendingApplication, fetchUser } = useAuth();
 
 // --- 承認待ちビュー ---
 const pendingApp = ref<Application | null>(null);
 const pendingLoading = ref(true);
 let pendingRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
-const isPendingView = computed(() => !hasOrganization.value && hasPendingApplication.value);
+const isPendingView = computed(
+  () => (!hasOrganization.value && hasPendingApplication.value) || isPendingPayment.value,
+);
 const pendingPlan = computed(() => {
   const planId = pendingApp.value?.planId;
   return planId ? PLAN_DEFINITIONS[planId] : null;
@@ -52,6 +54,14 @@ async function fetchPendingApp() {
       stopPendingRefresh();
       await fetchUser();
     }
+
+    // 入金待ち状態: ユーザー情報を再取得して契約ステータス変化を検知
+    if (isPendingPayment.value) {
+      await fetchUser();
+      if (!isPendingPayment.value) {
+        stopPendingRefresh();
+      }
+    }
   } catch {
     // ignore
   } finally {
@@ -75,13 +85,6 @@ function stopPendingRefresh() {
     pendingRefreshTimer = null;
   }
 }
-
-// 承認待ちビュー: 組織が割り当てられたら通常ダッシュボードへ自動切替
-watch(hasOrganization, (hasOrg) => {
-  if (hasOrg) {
-    stopPendingRefresh();
-  }
-});
 
 const summary = ref<DashboardSummary | null>(null);
 const loading = ref(true);
@@ -228,12 +231,16 @@ function formatDateShort(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("ja-JP", { month: "short", day: "numeric" });
 }
 
-// 承認待ちビューの初期化: isPendingView が true になったら開始
-watch(isPendingView, (pending) => {
+// 承認待ちビューの初期化: isPendingView が true になったら開始、false になったら停止して通常ダッシュボードを取得
+watch(isPendingView, (pending, oldPending) => {
   if (pending) {
     fetchPendingApp().then(() => startPendingRefresh());
   } else {
     stopPendingRefresh();
+    // 初回ロード時（oldPending === undefined）は activeGroupId watcher が fetchDashboard を呼ぶため除外
+    if (oldPending) {
+      fetchDashboard();
+    }
   }
 }, { immediate: true });
 
