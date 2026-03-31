@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Settings } from "~~/shared/types/models";
+import type { Settings, PaymentMethod } from "~~/shared/types/models";
 
 definePageMeta({
   layout: "admin",
@@ -19,6 +19,11 @@ const confidenceThreshold = ref(0.6);
 const ragTopK = ref(5);
 const systemPrompt = ref("");
 
+// 請求情報
+const hasStripe = ref(false);
+const paymentMethod = ref<PaymentMethod>("none");
+const openingPortal = ref(false);
+
 async function fetchSettings() {
   loading.value = true;
   try {
@@ -30,6 +35,32 @@ async function fetchSettings() {
     systemPrompt.value = data.botConfig.systemPrompt;
   } finally {
     loading.value = false;
+  }
+}
+
+async function fetchBillingInfo() {
+  try {
+    const data = await apiFetch<{ hasStripe: boolean; paymentMethod: PaymentMethod }>(
+      "/api/billing/info",
+    );
+    hasStripe.value = data.hasStripe;
+    paymentMethod.value = data.paymentMethod;
+  } catch {
+    // 請求情報の取得失敗は非ブロッキング
+  }
+}
+
+async function openBillingPortal() {
+  openingPortal.value = true;
+  try {
+    const data = await apiFetch<{ portalUrl: string }>("/api/stripe/portal", {
+      method: "POST",
+    });
+    window.location.href = data.portalUrl;
+  } catch {
+    // useApi が自動通知
+  } finally {
+    openingPortal.value = false;
   }
 }
 
@@ -55,7 +86,10 @@ async function handleSave() {
   }
 }
 
-onMounted(fetchSettings);
+onMounted(() => {
+  fetchSettings();
+  fetchBillingInfo();
+});
 </script>
 
 <template>
@@ -135,5 +169,23 @@ onMounted(fetchSettings);
         </button>
       </div>
     </form>
+
+    <!-- お支払い管理（Stripe ユーザーのみ表示） -->
+    <div
+      v-if="hasStripe && paymentMethod === 'stripe'"
+      class="mt-8 max-w-2xl rounded-lg border border-gray-200 bg-white p-5"
+    >
+      <h2 class="mb-2 text-sm font-semibold text-gray-900">お支払い管理</h2>
+      <p class="mb-4 text-xs text-gray-500">
+        請求書の確認、お支払い方法の変更、サブスクリプションの管理ができます。
+      </p>
+      <button
+        :disabled="openingPortal"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        @click="openBillingPortal"
+      >
+        {{ openingPortal ? "移動中..." : "Stripe でお支払いを管理" }}
+      </button>
+    </div>
   </div>
 </template>
