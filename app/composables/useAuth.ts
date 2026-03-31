@@ -68,6 +68,10 @@ export function useAuth() {
       setActiveGroupId(userData.activeGroupId);
     }
     return async () => {
+      // 組織未所属ユーザーはグループAPIを呼べないためスキップ
+      if (!userData.organizationId) {
+        return;
+      }
       await fetchGroups();
       // owner / system_admin / org_admin: グループ未選択時に最初のグループを自動選択
       if ((userData.role === "owner" || userData.role === "system_admin" || userData.role === "org_admin") && !userData.activeGroupId && groups.value.length > 0) {

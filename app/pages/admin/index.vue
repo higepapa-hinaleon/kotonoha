@@ -2,6 +2,7 @@
 import type { DashboardSummary, ServiceDashboardSummary } from "~~/shared/types/api";
 import type { Conversation, Message, ImprovementRequest, Application } from "~~/shared/types/models";
 import { PLAN_DEFINITIONS } from "~~/shared/plans";
+import { BANK_TRANSFER_INFO } from "~~/shared/bank-transfer";
 
 definePageMeta({
   layout: "admin",
@@ -291,6 +292,10 @@ onUnmounted(() => {
                 <dt class="text-sm text-gray-500">選択プラン</dt>
                 <dd class="text-sm font-medium text-gray-900">{{ pendingPlan?.displayName || pendingApp.planId }}</dd>
               </div>
+              <div v-if="pendingApp.invoiceNumber" class="flex justify-between">
+                <dt class="text-sm text-gray-500">請求番号</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ pendingApp.invoiceNumber }}</dd>
+              </div>
               <div class="flex items-center justify-between">
                 <dt class="text-sm text-gray-500">ステータス</dt>
                 <dd>
@@ -334,6 +339,28 @@ onUnmounted(() => {
                 </div>
                 <h3 class="mb-1 text-base font-semibold text-gray-900">{{ pendingStatusDisplay.title }}</h3>
                 <p class="text-sm text-gray-600">{{ pendingStatusDisplay.message }}</p>
+
+                <!-- 振込先情報 -->
+                <div class="mx-auto mt-5 max-w-sm rounded-md border border-blue-200 bg-blue-50 p-4 text-left text-sm">
+                  <h4 class="mb-3 font-semibold text-gray-900">お振込先</h4>
+                  <dl class="space-y-1.5 text-gray-700">
+                    <div class="flex justify-between"><dt>銀行</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.bankName }}</dd></div>
+                    <div class="flex justify-between"><dt>支店</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.branchName }}</dd></div>
+                    <div class="flex justify-between"><dt>口座種別</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountType }}</dd></div>
+                    <div class="flex justify-between"><dt>口座番号</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountNumber }}</dd></div>
+                    <div class="flex justify-between"><dt>口座名義</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountHolder }}</dd></div>
+                  </dl>
+                  <div v-if="pendingApp?.invoiceNumber" class="mt-3 rounded bg-white p-2 text-center">
+                    <p class="text-xs text-gray-500">請求番号</p>
+                    <p class="text-base font-bold text-gray-900">{{ pendingApp.invoiceNumber }}</p>
+                  </div>
+                  <ul class="mt-3 space-y-1 text-xs text-gray-600">
+                    <li>※ 振込手数料はお客様負担となります。</li>
+                    <li>※ お振込の際は、登録時のお名前と同一の名義でお願いします。</li>
+                    <li v-if="pendingApp?.invoiceNumber">※ 振込人名の前に請求番号「{{ pendingApp.invoiceNumber }}」を付けてください。<br>　例: {{ pendingApp.invoiceNumber }} ヤマダタロウ</li>
+                  </ul>
+                </div>
+
                 <p class="mt-3 text-xs text-gray-400">入金確認後、自動的にご利用いただけます</p>
               </template>
 

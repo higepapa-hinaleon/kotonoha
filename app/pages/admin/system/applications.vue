@@ -272,6 +272,10 @@ onMounted(() => {
                 <dt class="text-gray-500">支払方法</dt>
                 <dd class="text-gray-900">{{ paymentMethodLabel(app.paymentMethod) }}</dd>
               </div>
+              <div v-if="app.invoiceNumber" class="flex justify-between">
+                <dt class="text-gray-500">請求番号</dt>
+                <dd class="font-medium text-gray-900">{{ app.invoiceNumber }}</dd>
+              </div>
               <div class="flex justify-between">
                 <dt class="text-gray-500">申請日</dt>
                 <dd class="text-gray-900">{{ formatDate(app.createdAt) }}</dd>
@@ -422,6 +426,10 @@ onMounted(() => {
                     <div v-if="app.reviewNote" class="col-span-2">
                       <dt class="text-gray-500">審査コメント</dt>
                       <dd class="text-gray-900">{{ app.reviewNote }}</dd>
+                    </div>
+                    <div v-if="app.invoiceNumber">
+                      <dt class="text-gray-500">請求番号</dt>
+                      <dd class="font-medium text-gray-900">{{ app.invoiceNumber }}</dd>
                     </div>
                     <div v-if="app.organizationId">
                       <dt class="text-gray-500">組織ID</dt>

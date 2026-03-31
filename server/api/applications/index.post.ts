@@ -165,6 +165,14 @@ export default defineEventHandler(async (event) => {
   const now = new Date().toISOString();
   const applicationRef = db.collection("applications").doc();
 
+  // 銀行振込の場合: 一意の請求番号を生成（Firestore doc ID ベースで重複なし）
+  let invoiceNumber: string | undefined;
+  if (body.paymentMethod === "bank_transfer") {
+    const datePart = now.slice(0, 10).replace(/-/g, "");
+    const suffix = applicationRef.id.slice(0, 6).toUpperCase();
+    invoiceNumber = `KTN-${datePart}-${suffix}`;
+  }
+
   const applicationData: Omit<Application, "id"> = {
     applicantUserId: user.id,
     applicantEmail: user.email,
@@ -178,6 +186,7 @@ export default defineEventHandler(async (event) => {
     ...(body.corporateNumber ? { corporateNumber: body.corporateNumber.trim() } : {}),
     planId: body.planId,
     paymentMethod: body.paymentMethod,
+    ...(invoiceNumber ? { invoiceNumber } : {}),
     termsAcceptedAt: now,
     privacyPolicyAcceptedAt: now,
     ...(body.termsVersion ? { termsVersion: body.termsVersion } : {}),
@@ -188,6 +197,14 @@ export default defineEventHandler(async (event) => {
   };
 
   await applicationRef.set(applicationData);
+
+  // displayName を contactName で更新（申請作成後に実行、補助処理のため非ブロッキング）
+  db.collection("users").doc(user.id).update({
+    displayName: body.contactName.trim(),
+    updatedAt: now,
+  }).catch((err) => {
+    console.error("[application] displayName 更新に失敗:", err);
+  });
 
   const application: Application = {
     id: applicationRef.id,
