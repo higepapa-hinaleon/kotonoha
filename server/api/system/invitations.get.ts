@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 import type { Invitation } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
@@ -8,11 +8,23 @@ export default defineEventHandler(async (event) => {
   try {
     const db = getAdminFirestore();
 
-    const snapshot = await db
+    // プラットフォーム管理者はクエリで組織を指定可能（未指定時は全組織）
+    const query = getQuery(event);
+    const targetOrgId =
+      isPlatformAdmin(admin) && typeof query.organizationId === "string"
+        ? query.organizationId
+        : isPlatformAdmin(admin)
+          ? null
+          : admin.organizationId;
+
+    let ref: FirebaseFirestore.Query = db
       .collection("invitations")
-      .where("organizationId", "==", admin.organizationId)
-      .where("status", "==", "pending")
-      .get();
+      .where("status", "==", "pending");
+    if (targetOrgId) {
+      ref = ref.where("organizationId", "==", targetOrgId);
+    }
+
+    const snapshot = await ref.get();
 
     return snapshot.docs.map((doc) => ({
       id: doc.id,

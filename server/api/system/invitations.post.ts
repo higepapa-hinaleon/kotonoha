@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 import { checkPlanLimit } from "~~/server/utils/plan-limit";
 import type { Invitation } from "~~/shared/types/models";
 
@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   try {
     const db = getAdminFirestore();
 
-    const body = await readBody<{ email: string; groupId: string; role: "admin" | "member" }>(event);
+    const body = await readBody<{ email: string; groupId: string; role: "admin" | "member"; organizationId?: string }>(event);
 
     if (!body.email || !body.groupId || !body.role) {
       throw createError({ statusCode: 400, statusMessage: "email, groupId, role は必須です" });
@@ -20,8 +20,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, statusMessage: "有効なメールアドレスを入力してください" });
     }
 
+    // プラットフォーム管理者は組織を指定可能
+    const targetOrgId = isPlatformAdmin(admin) && body.organizationId
+      ? body.organizationId
+      : admin.organizationId;
+
     // プランのユーザー上限チェック
-    await checkPlanLimit(admin.organizationId, "users", db);
+    await checkPlanLimit(targetOrgId, "users", db);
 
     if (!["admin", "member"].includes(body.role)) {
       throw createError({
@@ -30,9 +35,9 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // グループが同一組織に属するか確認
+    // グループが対象組織に属するか確認
     const groupDoc = await db.collection("groups").doc(body.groupId).get();
-    if (!groupDoc.exists || groupDoc.data()?.organizationId !== admin.organizationId) {
+    if (!groupDoc.exists || groupDoc.data()?.organizationId !== targetOrgId) {
       throw createError({ statusCode: 400, statusMessage: "指定されたグループが見つかりません" });
     }
 
@@ -52,7 +57,7 @@ export default defineEventHandler(async (event) => {
     const now = new Date().toISOString();
     const ref = db.collection("invitations").doc();
     const invitation: Omit<Invitation, "id"> = {
-      organizationId: admin.organizationId,
+      organizationId: targetOrgId,
       email,
       groupId: body.groupId,
       role: body.role,

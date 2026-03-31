@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const systemAdmin = await verifySystemAdmin(event);
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
   // グループの組織チェック
   const groupDoc = await db.collection("groups").doc(id).get();
-  if (!groupDoc.exists || groupDoc.data()?.organizationId !== systemAdmin.organizationId) {
+  if (!groupDoc.exists || (!isPlatformAdmin(systemAdmin) && groupDoc.data()?.organizationId !== systemAdmin.organizationId)) {
     throw createError({ statusCode: 404, statusMessage: "グループが見つかりません" });
   }
 

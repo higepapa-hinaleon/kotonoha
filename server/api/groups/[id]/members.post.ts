@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 import { addUserToGroup } from "~~/server/utils/group";
 
 export default defineEventHandler(async (event) => {
@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
   if (!groupDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "グループが見つかりません" });
   }
-  if (groupDoc.data()?.organizationId !== systemAdmin.organizationId) {
+  const groupOrgId = groupDoc.data()?.organizationId;
+  if (!isPlatformAdmin(systemAdmin) && groupOrgId !== systemAdmin.organizationId) {
     throw createError({ statusCode: 403, statusMessage: "アクセス権がありません" });
   }
 
@@ -29,11 +30,11 @@ export default defineEventHandler(async (event) => {
   if (!userDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "ユーザーが見つかりません" });
   }
-  if (userDoc.data()?.organizationId !== systemAdmin.organizationId) {
+  if (!isPlatformAdmin(systemAdmin) && userDoc.data()?.organizationId !== systemAdmin.organizationId) {
     throw createError({ statusCode: 403, statusMessage: "同一組織のユーザーのみ追加できます" });
   }
 
-  await addUserToGroup(body.userId, id, systemAdmin.organizationId, role, db);
+  await addUserToGroup(body.userId, id, groupOrgId, role, db);
 
   // ユーザーに activeGroupId が未設定の場合、このグループを設定
   if (!userDoc.data()?.activeGroupId) {

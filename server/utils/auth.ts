@@ -130,8 +130,18 @@ export async function resolveGroupId(event: H3Event, user: User): Promise<string
     throw createError({ statusCode: 400, statusMessage: "グループが指定されていません" });
   }
 
-  // owner / system_admin / org_admin は全グループにアクセス可能（同一組織内）
-  if (user.role === "owner" || user.role === "system_admin" || user.role === "org_admin") return groupId;
+  // owner / system_admin は全組織の全グループにアクセス可能
+  if (user.role === "owner" || user.role === "system_admin") return groupId;
+
+  // org_admin は同一組織内の全グループにアクセス可能
+  if (user.role === "org_admin") {
+    const db = getAdminFirestore();
+    const groupDoc = await db.collection("groups").doc(groupId).get();
+    if (groupDoc.exists && groupDoc.data()?.organizationId === user.organizationId) {
+      return groupId;
+    }
+    throw createError({ statusCode: 403, statusMessage: "このグループへのアクセス権がありません" });
+  }
 
   // メンバーシップ検証
   const isMember = await isGroupMember(user.id, groupId);
@@ -162,7 +172,7 @@ export async function verifyGroupAdmin(event: H3Event): Promise<{ user: User; gr
   const user = await verifyAuth(event);
   const groupId = await resolveGroupId(event, user);
 
-  // owner / system_admin / org_admin は全グループにアクセス可能（同一組織内）
+  // owner / system_admin は全グループにアクセス可能、org_admin は resolveGroupId で組織チェック済み
   if (user.role === "owner" || user.role === "system_admin" || user.role === "org_admin") {
     return { user, groupId };
   }
