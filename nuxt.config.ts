@@ -31,6 +31,8 @@ export default defineNuxtConfig({
     // Stripe
     stripeSecretKey: "",
     stripeWebhookSecret: "",
+    stripePriceIdStarter: "",
+    stripePriceIdBusiness: "",
 
     // SMTP（メール送信）
     smtpHost: "",
