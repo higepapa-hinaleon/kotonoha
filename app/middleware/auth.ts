@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { user, initializing, isSystemAdmin, hasConsent, hasOrganization, hasPendingApplication, fetchPendingApplication } = useAuth();
+  const { user, initializing, isSystemAdmin, hasConsent, hasOrganization, isPendingPayment, hasPendingApplication, fetchPendingApplication } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -36,6 +36,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
       }
     }
     return navigateTo("/apply");
+  }
+
+  // 入金待ちユーザーの制限: /admin のみ許可
+  if (isPendingPayment.value && !isSystemAdmin.value) {
+    if (to.path !== "/admin") {
+      return navigateTo("/admin");
+    }
   }
 
   // グループ未割当チェック（no-group ページ自体へのアクセスは許可）

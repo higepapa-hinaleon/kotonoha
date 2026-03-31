@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { isAdmin, hasOrganization, initializing, hasPendingApplication, fetchPendingApplication } = useAuth();
+  const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment, initializing, hasPendingApplication, fetchPendingApplication } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {
@@ -24,6 +24,14 @@ export default defineNuxtRouteMiddleware(async (to) => {
       return; // /admin へのアクセスを許可
     }
     return navigateTo("/apply");
+  }
+
+  // 入金待ちユーザー: /admin のみ許可（role チェックをスキップ、システム管理者は除外）
+  if (isPendingPayment.value && !isSystemAdmin.value) {
+    if (to.path !== "/admin") {
+      return navigateTo("/admin");
+    }
+    return;
   }
 
   // 管理者でなければチャット画面へリダイレクト

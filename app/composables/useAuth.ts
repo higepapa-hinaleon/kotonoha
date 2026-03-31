@@ -17,6 +17,7 @@ interface AuthState {
   initialized: boolean;
   pendingApplication: Application | null;
   pendingApplicationFetched: boolean;
+  hasPendingPayment: boolean;
 }
 
 const authState = reactive<AuthState>({
@@ -27,6 +28,7 @@ const authState = reactive<AuthState>({
   initialized: false,
   pendingApplication: null,
   pendingApplicationFetched: false,
+  hasPendingPayment: false,
 });
 
 // 明示的な signup/login 中に onAuthStateChanged の fetchUser を抑制するフラグ
@@ -83,14 +85,15 @@ export function useAuth() {
   async function fetchUser(options?: { organizationName?: string }) {
     try {
       const token = await getIdToken();
-      const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>(
+      const data = await $fetch<User & { groupMemberships?: UserGroupMembership[]; hasPendingPayment?: boolean }>(
         "/api/auth/me",
         {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      const { groupMemberships, ...userData } = data;
+      const { groupMemberships, hasPendingPayment, ...userData } = data;
       authState.user = userData;
+      authState.hasPendingPayment = hasPendingPayment ?? false;
       const completeInit = initializeUserGroups(userData, groupMemberships);
       await completeInit();
     } catch {
@@ -185,6 +188,7 @@ export function useAuth() {
     authState.user = null;
     authState.pendingApplication = null;
     authState.pendingApplicationFetched = false;
+    authState.hasPendingPayment = false;
     const { setMemberships, setActiveGroupId } = useGroup();
     setMemberships([]);
     setActiveGroupId(null);
@@ -215,6 +219,7 @@ export function useAuth() {
     isOwner: computed(() => authState.user?.role === "owner"),
     hasConsent: computed(() => !!authState.user?.consentAcceptedAt),
     hasOrganization: computed(() => !!authState.user?.organizationId),
+    isPendingPayment: computed(() => authState.hasPendingPayment),
     isAuthenticated: computed(() => !!authState.user),
     pendingApplication: computed(() => authState.pendingApplication),
     hasPendingApplication: computed(() => !!authState.pendingApplication),
