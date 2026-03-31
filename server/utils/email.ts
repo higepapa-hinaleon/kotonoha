@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { BANK_TRANSFER_INFO } from "~~/shared/bank-transfer";
 // nodemailer メール送信ユーティリティ
 
 let transporterInstance: nodemailer.Transporter | null = null;
@@ -59,31 +60,35 @@ export async function sendEmail(params: {
 export async function sendInvoiceEmail(params: {
   to: string;
   organizationName: string;
+  contactName: string;
   planName: string;
   amount: number;
+  invoiceNumber?: string;
 }): Promise<void> {
-  const config = useRuntimeConfig();
-  const bankInfo = [
-    `銀行名: ${config.bankName || "（未設定）"}`,
-    `支店名: ${config.bankBranch || "（未設定）"}`,
-    `口座種別: ${config.bankAccountType || "（未設定）"}`,
-    `口座番号: ${config.bankAccountNumber || "（未設定）"}`,
-    `口座名義: ${config.bankAccountHolder || "（未設定）"}`,
-  ].join("\n");
+  const b = BANK_TRANSFER_INFO;
+  const invoiceRef = params.invoiceNumber ? `\n請求番号: ${params.invoiceNumber}` : "";
+  const invoiceNote = params.invoiceNumber
+    ? `\n※振込人名の前に請求番号「${params.invoiceNumber}」を付けてください。\n　例: ${params.invoiceNumber} ${params.contactName}`
+    : "";
 
   const text = `${params.organizationName} 様
 
 この度は Kotonoha のご利用申し込みありがとうございます。
 ご利用申請が承認されましたので、下記の通りお振込みをお願いいたします。
 
-【ご請求内容】
+【ご請求内容】${invoiceRef}
 プラン: ${params.planName}
 金額: ¥${params.amount.toLocaleString()}（税込）/ 月
 
 【お振込先】
-${bankInfo}
+銀行名: ${b.bankName}
+支店名: ${b.branchName}
+口座種別: ${b.accountType}
+口座番号: ${b.accountNumber}
+口座名義: ${b.accountHolder}
 
-※お振込名義は「${params.organizationName}」でお願いいたします。
+※振込手数料はお客様負担となります。
+※お振込の際は、登録時のお名前と同一の名義でお願いします。${invoiceNote}
 ※入金確認後、サービスが有効化されます。
 
 ご不明な点がございましたら、お気軽にお問い合わせください。

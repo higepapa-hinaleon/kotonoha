@@ -150,8 +150,10 @@ export default defineEventHandler(async (event) => {
     sendInvoiceEmail({
       to: application.applicantEmail,
       organizationName: application.organizationName,
+      contactName: application.contactName,
       planName: plan.displayName,
       amount: plan.priceMonthly,
+      invoiceNumber: application.invoiceNumber,
     }).catch((err) => {
       console.error("[approve] 請求メール送信に失敗:", err);
     });

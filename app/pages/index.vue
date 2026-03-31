@@ -684,9 +684,10 @@ const mobileMenuOpen = ref(false);
           <span class="text-sm text-gray-400"
             >&copy; {{ new Date().getFullYear() }} Kotonoha. All rights reserved.</span
           >
-          <div class="flex gap-4">
+          <div class="flex flex-wrap gap-4">
             <NuxtLink to="/terms" class="text-sm text-gray-400 hover:text-gray-600">利用規約</NuxtLink>
             <NuxtLink to="/privacy" class="text-sm text-gray-400 hover:text-gray-600">プライバシーポリシー</NuxtLink>
+            <NuxtLink to="/tokushoho" class="text-sm text-gray-400 hover:text-gray-600">特定商取引法に基づく表記</NuxtLink>
           </div>
         </div>
       </div>

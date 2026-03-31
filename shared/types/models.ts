@@ -327,6 +327,8 @@ export interface Application {
   // === プラン・支払い ===
   planId: PlanId;
   paymentMethod: PaymentMethod;
+  /** 請求番号（銀行振込の場合に発行） */
+  invoiceNumber?: string;
   /** Stripe顧客ID */
   stripeCustomerId?: string;
   /** Stripe SetupIntent ID */
