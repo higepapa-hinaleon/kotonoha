@@ -135,17 +135,8 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const baseUrl = config.publicUrl || "http://localhost:3000";
 
-  // 承認通知メール
-  sendApplicationApprovedEmail({
-    to: application.applicantEmail,
-    organizationName: application.organizationName,
-    loginUrl: `${baseUrl}/login`,
-  }).catch((err) => {
-    console.error("[approve] 承認通知メール送信に失敗:", err);
-  });
-
-  // 銀行振込の場合は請求メールも送信
   if (application.paymentMethod === "bank_transfer") {
+    // 銀行振込: 振込依頼メールのみ送信（利用承認は入金確認時に送信）
     const plan = PLAN_DEFINITIONS[application.planId];
     sendInvoiceEmail({
       to: application.applicantEmail,
@@ -155,7 +146,16 @@ export default defineEventHandler(async (event) => {
       amount: plan.priceMonthly,
       invoiceNumber: application.invoiceNumber,
     }).catch((err) => {
-      console.error("[approve] 請求メール送信に失敗:", err);
+      console.error("[approve] 振込依頼メール送信に失敗:", err);
+    });
+  } else {
+    // Stripe / フリープラン: 承認通知メール
+    sendApplicationApprovedEmail({
+      to: application.applicantEmail,
+      organizationName: application.organizationName,
+      loginUrl: `${baseUrl}/login`,
+    }).catch((err) => {
+      console.error("[approve] 承認通知メール送信に失敗:", err);
     });
   }
 

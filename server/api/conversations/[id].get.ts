@@ -1,9 +1,10 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuth, resolveGroupId } from "~~/server/utils/auth";
+import { verifyAuth, verifyActiveContract, resolveGroupId } from "~~/server/utils/auth";
 import type { Conversation, Message } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const user = await verifyAuth(event);
+  await verifyActiveContract(user);
   const groupId = await resolveGroupId(event, user);
   const id = getRouterParam(event, "id");
 

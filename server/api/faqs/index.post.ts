@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import { generateEmbedding } from "~~/server/utils/embeddings";
 import type { FaqUpsertRequest } from "~~/shared/types/api";
 import type { Faq } from "~~/shared/types/models";
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+  await verifyActiveContract(user);
   const body = await readBody<FaqUpsertRequest>(event);
 
   if (!body.question?.trim() || !body.answer?.trim() || !body.serviceId) {

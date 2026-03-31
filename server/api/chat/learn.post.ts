@@ -1,4 +1,4 @@
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import { processChatMessage } from "~~/server/utils/chat";
 import type { ChatSendRequest, ChatSendResponse } from "~~/shared/types/api";
 import { MAX_CHAT_MESSAGE_LENGTH, CHAT_RATE_LIMIT } from "~~/server/utils/constants";
@@ -11,6 +11,7 @@ import { checkRateLimit } from "~~/server/utils/rate-limiter";
  */
 export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
   const { user, groupId } = await verifyGroupAdmin(event);
+  await verifyActiveContract(user);
   const body = await readBody<ChatSendRequest>(event);
 
   // レート制限チェック

@@ -1,9 +1,10 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupMember } from "~~/server/utils/auth";
+import { verifyGroupMember, verifyActiveContract } from "~~/server/utils/auth";
 import type { Conversation } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const { user, groupId } = await verifyGroupMember(event);
+  await verifyActiveContract(user);
   const db = getAdminFirestore();
 
   // 一般ユーザーは自分のグループ内の自分の会話のみ

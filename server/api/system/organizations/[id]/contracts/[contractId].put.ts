@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyOwner } from "~~/server/utils/auth";
+import { verifyOwner, isPlatformAdmin } from "~~/server/utils/auth";
 import { VALID_PLAN_IDS } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
@@ -8,9 +8,6 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export default defineEventHandler(async (event) => {
   const user = await verifyOwner(event);
-  if (!user.organizationId) {
-    throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
-  }
 
   const orgId = getRouterParam(event, "id");
   const contractId = getRouterParam(event, "contractId");
@@ -18,8 +15,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "組織IDと契約IDが必要です" });
   }
 
-  // 自分の組織のみ管理可能
-  if (orgId !== user.organizationId) {
+  // プラットフォーム管理者以外は自組織のみ
+  if (!isPlatformAdmin(user) && orgId !== user.organizationId) {
     throw createError({ statusCode: 403, statusMessage: "自分の組織のみ管理できます" });
   }
 

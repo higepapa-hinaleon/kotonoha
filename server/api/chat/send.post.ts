@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuthOptional, resolveGroupId, resolveExternalUser } from "~~/server/utils/auth";
+import { verifyAuthOptional, verifyActiveContract, resolveGroupId, resolveExternalUser } from "~~/server/utils/auth";
 import { processChatMessage } from "~~/server/utils/chat";
 import { checkMonthlyChats } from "~~/server/utils/plan-limit";
 import type { ChatSendRequest, ChatSendResponse } from "~~/shared/types/api";
@@ -8,6 +8,7 @@ import { checkRateLimit } from "~~/server/utils/rate-limiter";
 
 export default defineEventHandler(async (event): Promise<ChatSendResponse> => {
   const user = await verifyAuthOptional(event);
+  if (user) await verifyActiveContract(user);
   const body = await readBody<ChatSendRequest>(event);
 
   if (!body.serviceId || !body.message?.trim()) {

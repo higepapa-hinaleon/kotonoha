@@ -1,8 +1,9 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupMember } from "~~/server/utils/auth";
+import { verifyGroupMember, verifyActiveContract } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const { user, groupId } = await verifyGroupMember(event);
+  await verifyActiveContract(user);
   const id = getRouterParam(event, "id");
 
   if (!id) {

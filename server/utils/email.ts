@@ -73,7 +73,7 @@ export async function sendInvoiceEmail(params: {
 
   const text = `${params.organizationName} 様
 
-この度は Kotonoha のご利用申し込みありがとうございます。
+この度は Kotonoha のご利用お申し込みありがとうございます。
 ご利用申請が承認されましたので、下記の通りお振込みをお願いいたします。
 
 【ご請求内容】${invoiceRef}
@@ -128,6 +128,40 @@ Kotonoha 運営チーム
   await sendEmail({
     to: params.to,
     subject: "【Kotonoha】ご利用申請が承認されました",
+    text,
+  });
+}
+
+/**
+ * 利用承認通知メール（入金確認後）を送信する
+ */
+export async function sendUsageApprovedEmail(params: {
+  to: string;
+  organizationName: string;
+  planName: string;
+  loginUrl: string;
+}): Promise<void> {
+  const text = `${params.organizationName} 様
+
+ご入金を確認いたしました。
+Kotonoha のご利用が承認されましたので、サービスをご利用いただけます。
+
+【ご契約内容】
+プラン: ${params.planName}
+
+以下のURLからログインしてご利用ください。
+
+${params.loginUrl}
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+
+──────────────
+Kotonoha 運営チーム
+`;
+
+  await sendEmail({
+    to: params.to,
+    subject: `【Kotonoha】ご利用承認のお知らせ（${params.planName}プラン）`,
     text,
   });
 }

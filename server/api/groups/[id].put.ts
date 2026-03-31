@@ -1,8 +1,8 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifySystemAdmin } from "~~/server/utils/auth";
+import { verifyOrgAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
-  const user = await verifySystemAdmin(event);
+  const user = await verifyOrgAdmin(event);
   const id = getRouterParam(event, "id");
   if (!id) throw createError({ statusCode: 400, statusMessage: "IDが必要です" });
 
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   if (!groupDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "グループが見つかりません" });
   }
-  if (groupDoc.data()?.organizationId !== user.organizationId) {
+  if (!isPlatformAdmin(user) && groupDoc.data()?.organizationId !== user.organizationId) {
     throw createError({ statusCode: 403, statusMessage: "アクセス権がありません" });
   }
 

@@ -1,5 +1,5 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyGroupAdmin } from "~~/server/utils/auth";
+import { verifyGroupAdmin, verifyActiveContract } from "~~/server/utils/auth";
 import { checkPlanLimit } from "~~/server/utils/plan-limit";
 import { validateBotConfig, sanitizeBotConfig } from "~~/server/utils/resolve-bot-config";
 import type { ServiceUpsertRequest } from "~~/shared/types/api";
@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!user.organizationId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });
   }
+  await verifyActiveContract(user);
 
   await checkPlanLimit(user.organizationId, "services");
 
