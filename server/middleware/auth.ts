@@ -16,6 +16,7 @@ export default defineEventHandler((event) => {
     "/api/settings/form-url",
     "/api/chat/send",
     "/api/health",
+    "/api/contact",
     "/api/stripe/webhook",
   ];
   if (publicPaths.includes(path)) return;

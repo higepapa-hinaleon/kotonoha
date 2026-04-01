@@ -40,6 +40,7 @@ export default defineNuxtConfig({
     smtpUser: "",
     smtpPass: "",
     smtpFrom: "",
+    supportEmail: "", // NUXT_SUPPORT_EMAIL: お問い合わせメール送信先
 
     // アプリケーションURL（メールのリンク生成用）
     // 注意: NUXT_APP_BASE_URL は Nuxt 予約名(app.baseURL を上書き)のため使用不可
