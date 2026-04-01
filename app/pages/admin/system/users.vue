@@ -8,6 +8,7 @@ const { show } = useNotification();
 
 interface UserWithMemberships extends User {
   groupMemberships: UserGroupMembership[];
+  organizationName: string;
 }
 
 const users = ref<UserWithMemberships[]>([]);
@@ -143,7 +144,8 @@ onMounted(async () => {
           class="rounded-lg border border-gray-200 bg-white p-4"
         >
           <p class="mb-1 text-sm font-medium text-gray-900">{{ u.displayName }}</p>
-          <p class="mb-2 text-xs text-gray-500">{{ u.email }}</p>
+          <p class="text-xs text-gray-500">{{ u.email }}</p>
+          <p class="mb-2 text-xs text-gray-400">組織: {{ u.organizationName || "未所属" }}</p>
           <div class="flex items-center justify-between">
             <select
               :value="u.role"
@@ -181,6 +183,11 @@ onMounted(async () => {
               <th
                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
               >
+                組織
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 システムロール
               </th>
               <th
@@ -196,6 +203,9 @@ onMounted(async () => {
                 {{ u.displayName }}
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ u.email }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                {{ u.organizationName || "未所属" }}
+              </td>
               <td class="px-6 py-4 text-sm">
                 <select
                   :value="u.role"

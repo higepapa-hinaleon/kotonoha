@@ -167,6 +167,38 @@ Kotonoha 運営チーム
 }
 
 /**
+ * 組織招待メールを送信する
+ */
+export async function sendInvitationEmail(params: {
+  to: string;
+  organizationName: string;
+  loginUrl: string;
+}): Promise<void> {
+  const text = `Kotonoha へのご招待
+
+${params.organizationName} から Kotonoha への招待が届いています。
+
+以下のURLからログインまたはアカウントを作成してご参加ください。
+
+${params.loginUrl}
+
+既にアカウントをお持ちの場合は、上記URLからログインしてください。
+招待は自動的に適用されます。
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+
+──────────────
+Kotonoha 運営チーム
+`;
+
+  await sendEmail({
+    to: params.to,
+    subject: `【Kotonoha】${params.organizationName} への招待`,
+    text,
+  });
+}
+
+/**
  * 申請却下通知メールを送信する
  */
 export async function sendApplicationRejectedEmail(params: {

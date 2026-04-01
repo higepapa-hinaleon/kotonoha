@@ -30,7 +30,8 @@ export default defineEventHandler(async (event) => {
   if (!userDoc.exists) {
     throw createError({ statusCode: 404, statusMessage: "ユーザーが見つかりません" });
   }
-  if (!isPlatformAdmin(systemAdmin) && userDoc.data()?.organizationId !== systemAdmin.organizationId) {
+  // ユーザーはグループと同一組織に所属している必要がある
+  if (userDoc.data()?.organizationId !== groupOrgId) {
     throw createError({ statusCode: 403, statusMessage: "同一組織のユーザーのみ追加できます" });
   }
 
