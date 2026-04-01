@@ -645,13 +645,13 @@ const mobileMenuOpen = ref(false);
             >
               {{ plan.price === "0" ? "無料で始める" : "申し込む" }}
             </NuxtLink>
-            <a
+            <NuxtLink
               v-else
-              href="mailto:support@kotonoha.ai"
+              to="/contact"
               class="mt-8 block w-full rounded-lg border border-gray-300 py-3 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               お問い合わせ
-            </a>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -692,6 +692,7 @@ const mobileMenuOpen = ref(false);
             <NuxtLink to="/terms" class="text-sm text-gray-400 hover:text-gray-600">利用規約</NuxtLink>
             <NuxtLink to="/privacy" class="text-sm text-gray-400 hover:text-gray-600">プライバシーポリシー</NuxtLink>
             <NuxtLink to="/tokushoho" class="text-sm text-gray-400 hover:text-gray-600">特定商取引法に基づく表記</NuxtLink>
+            <NuxtLink to="/contact" class="text-sm text-gray-400 hover:text-gray-600">お問い合わせ</NuxtLink>
           </div>
         </div>
       </div>
