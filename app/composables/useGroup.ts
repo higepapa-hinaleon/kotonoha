@@ -25,7 +25,8 @@ export function useGroup() {
       const groups = await apiFetch<Group[]>("/api/groups");
       groupState.groups = groups;
       groupState.initialized = true;
-    } catch {
+    } catch (err) {
+      console.error("[group] fetchGroups failed:", err);
       groupState.groups = [];
       const { show } = useNotification();
       show("グループの読み込みに失敗しました", "error");
@@ -49,8 +50,8 @@ export function useGroup() {
         body: { groupId },
       });
       groupState.activeGroupId = groupId;
-    } catch {
-      // エラーは useApi が処理
+    } catch (err) {
+      console.error("[group] switchGroup failed:", err);
     }
   }
 

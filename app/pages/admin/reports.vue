@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WeeklyReport } from "~~/shared/types/models";
+import type { Report } from "~~/shared/types/models";
 
 definePageMeta({
   layout: "admin",
@@ -9,9 +9,9 @@ definePageMeta({
 const { apiFetch } = useApi();
 const { show } = useNotification();
 
-const reports = ref<WeeklyReport[]>([]);
+const reports = ref<Report[]>([]);
 const loading = ref(true);
-const selectedReport = ref<WeeklyReport | null>(null);
+const selectedReport = ref<Report | null>(null);
 
 // レポート生成
 const generating = ref(false);
@@ -30,7 +30,7 @@ async function handleGenerate() {
   if (!periodStart.value || !periodEnd.value) return;
   generating.value = true;
   try {
-    await apiFetch<WeeklyReport>("/api/reports/generate", {
+    await apiFetch<Report>("/api/reports/generate", {
       method: "POST",
       body: {
         periodStart: periodStart.value + "T00:00:00.000Z",
@@ -39,8 +39,8 @@ async function handleGenerate() {
     });
     show("レポートを生成しました", "success");
     await fetchReports();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[reports] handleGenerate failed:", err);
   } finally {
     generating.value = false;
   }
@@ -49,18 +49,18 @@ async function handleGenerate() {
 async function fetchReports() {
   loading.value = true;
   try {
-    reports.value = await apiFetch<WeeklyReport[]>("/api/reports");
+    reports.value = await apiFetch<Report[]>("/api/reports");
   } finally {
     loading.value = false;
   }
 }
 
-async function selectReport(report: WeeklyReport) {
+async function selectReport(report: Report) {
   if (selectedReport.value?.id === report.id) {
     selectedReport.value = null;
     return;
   }
-  const detail = await apiFetch<WeeklyReport>(`/api/reports/${report.id}`);
+  const detail = await apiFetch<Report>(`/api/reports/${report.id}`);
   selectedReport.value = detail;
 }
 
@@ -87,7 +87,7 @@ onMounted(() => {
 <template>
   <div>
     <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-xl font-bold text-gray-900">週次レポート</h1>
+      <h1 class="text-xl font-bold text-gray-900">レポート</h1>
     </div>
 
     <!-- レポート生成 -->

@@ -40,8 +40,8 @@ async function handleGenerate() {
     });
     show("FAQを自動生成しました", "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[faqs] auto-generate failed:", err);
   } finally {
     generating.value = false;
   }
@@ -124,8 +124,8 @@ async function handleSave() {
     showModal.value = false;
     show(editingFaq.value ? "FAQを更新しました" : "FAQを追加しました", "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[faqs] handleSave failed:", err);
   } finally {
     saving.value = false;
   }
@@ -144,8 +144,8 @@ async function handleDelete() {
     deletingFaq.value = null;
     show("FAQを削除しました", "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[faqs] handleDelete failed:", err);
   }
 }
 

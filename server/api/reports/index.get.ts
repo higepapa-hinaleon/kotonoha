@@ -1,6 +1,6 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
-import type { WeeklyReport } from "~~/shared/types/models";
+import type { Report } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const { user, groupId } = await verifyGroupAdmin(event);
@@ -19,5 +19,5 @@ export default defineEventHandler(async (event) => {
   return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  })) as WeeklyReport[];
+  })) as Report[];
 });

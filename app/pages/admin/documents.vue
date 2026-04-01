@@ -151,8 +151,8 @@ async function handleUpload() {
     showUploadModal.value = false;
     show("ドキュメントをアップロードしました", "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[documents] handleUpload failed:", err);
   } finally {
     uploading.value = false;
   }
@@ -258,8 +258,8 @@ async function handleBulkUpload() {
       const title = file.name.replace(/\.[^.]+$/, "");
       try {
         await doUpload(file, bulkServiceId.value, title, bulkType.value, bulkTags.value, false);
-      } catch {
-        // 個別のエラーは通知されるので続行
+      } catch (err) {
+        console.error("[documents] Bulk upload individual file failed:", err);
       }
       bulkProgress.value++;
     }
@@ -285,7 +285,8 @@ async function processDocument(docId: string) {
   processingIds.value.add(docId);
   try {
     await apiFetch(`/api/documents/${docId}/process`, { method: "POST" });
-  } catch {
+  } catch (err) {
+    console.error("[documents] processDocument failed:", err);
     processingIds.value.delete(docId);
     return;
   }
@@ -306,7 +307,8 @@ async function processDocument(docId: string) {
     try {
       await fetchDocuments();
       errorCount = 0;
-    } catch {
+    } catch (err) {
+      console.error("[documents] Polling fetchDocuments failed:", err);
       errorCount++;
       if (errorCount >= maxErrors) {
         stopPolling(docId);
@@ -342,8 +344,8 @@ async function handleDelete() {
     deletingDoc.value = null;
     show("ドキュメントを削除しました", "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[documents] handleDelete failed:", err);
   }
 }
 

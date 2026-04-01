@@ -40,8 +40,9 @@ export default defineEventHandler(async (event) => {
     groupName = rawGroupName && rawGroupName.length <= 100 ? rawGroupName : undefined;
     const rawOrgName = typeof body?.organizationName === "string" ? body.organizationName.trim() : undefined;
     organizationName = rawOrgName && rawOrgName.length <= 100 ? rawOrgName : undefined;
-  } catch {
+  } catch (err) {
     // ボディなしの場合は無視
+    console.warn("[register] Failed to parse request body:", err);
   }
 
   // デフォルト組織を取得 or 作成

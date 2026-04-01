@@ -53,7 +53,8 @@ export default defineEventHandler(async (event) => {
   if (tagsRaw) {
     try {
       tags = JSON.parse(tagsRaw);
-    } catch {
+    } catch (err) {
+      console.warn("[documents] Tags JSON parse failed, falling back to CSV:", err);
       tags = tagsRaw
         .split(",")
         .map((t) => t.trim())

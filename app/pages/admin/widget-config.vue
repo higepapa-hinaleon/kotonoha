@@ -20,7 +20,8 @@ async function fetchServices() {
     if (services.value.length > 0 && !selectedServiceId.value) {
       selectedServiceId.value = services.value[0].id;
     }
-  } catch {
+  } catch (err) {
+    console.error("[widget-config] fetchServices failed:", err);
     services.value = [];
   } finally {
     loading.value = false;
@@ -181,8 +182,8 @@ async function copyToClipboard(text: string, field: string) {
     setTimeout(() => {
       copiedField.value = "";
     }, 2000);
-  } catch {
-    // フォールバック不要 — ブラウザがクリップボード非対応の場合は無視
+  } catch (err) {
+    console.warn("[widget-config] Clipboard write failed:", err);
   }
 }
 

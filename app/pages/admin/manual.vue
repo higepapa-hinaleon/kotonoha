@@ -249,7 +249,7 @@ function scrollToSection(id: string) {
         </h2>
         <ManualScreenshot id="reports-list" alt="レポート一覧・生成画面" />
         <div class="space-y-2 text-sm text-gray-700">
-          <p>週次レポートを生成・閲覧できます。レポートには以下が含まれます：</p>
+          <p>レポートを生成・閲覧できます。レポートには以下が含まれます：</p>
           <ul class="ml-4 list-disc space-y-1">
             <li>期間中の会話統計（総数、解決率、エスカレーション数）</li>
             <li>サービス別利用状況</li>

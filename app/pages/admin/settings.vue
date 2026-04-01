@@ -45,8 +45,8 @@ async function fetchBillingInfo() {
     );
     hasStripe.value = data.hasStripe;
     paymentMethod.value = data.paymentMethod;
-  } catch {
-    // 請求情報の取得失敗は非ブロッキング
+  } catch (err) {
+    console.warn("[settings] Failed to fetch billing info:", err);
   }
 }
 
@@ -57,8 +57,8 @@ async function openBillingPortal() {
       method: "POST",
     });
     window.location.href = data.portalUrl;
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[settings] openBillingPortal failed:", err);
   } finally {
     openingPortal.value = false;
   }
@@ -79,8 +79,8 @@ async function handleSave() {
       },
     });
     show("設定を保存しました", "success");
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[settings] handleSave failed:", err);
   } finally {
     saving.value = false;
   }

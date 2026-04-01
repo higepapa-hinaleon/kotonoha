@@ -66,8 +66,9 @@ watch(
         await navigateTo("/admin");
         return;
       }
-    } catch {
+    } catch (err) {
       // No existing application — continue
+      console.warn("[apply] Failed to check existing application:", err);
     }
     checkingApplication.value = false;
   },
@@ -107,8 +108,9 @@ async function fetchLegalVersions() {
     }>("/api/legal/current");
     if (res.terms) termsVersion.value = res.terms.version;
     if (res.privacy) privacyVersion.value = res.privacy.version;
-  } catch {
+  } catch (err) {
     // フォールバック: デフォルト値を使用（シード未完了の場合）
+    console.warn("[apply] Failed to fetch legal versions:", err);
   }
 }
 
@@ -229,8 +231,8 @@ async function handleSubmit() {
       await fetchUser();
       await navigateTo("/admin");
     }
-  } catch {
-    // Error already handled by useApi
+  } catch (err) {
+    console.error("[apply] handleSubmit failed:", err);
   } finally {
     submitting.value = false;
   }

@@ -35,7 +35,8 @@ export async function generateStructuredJson<T>(
 
   try {
     return JSON.parse(jsonMatch[1]) as T;
-  } catch {
+  } catch (err) {
+    console.error("[ai-generator] JSON parse failed:", err);
     throw createError({
       statusCode: 500,
       statusMessage: "AIからの応答のJSON解析に失敗しました",

@@ -43,8 +43,8 @@ async function handleCategorize() {
     lastCategorizedCount.value = result.categorized;
     show(`${result.categorized}件を分類しました`, "success");
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[improvements] categorize failed:", err);
   } finally {
     categorizing.value = false;
   }
@@ -63,8 +63,8 @@ async function fetchData() {
     ]);
     improvements.value = items;
     services.value = svcs;
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[improvements] fetchData failed:", err);
   } finally {
     loading.value = false;
   }
@@ -94,8 +94,8 @@ async function handleSave() {
     show("改善要望を更新しました", "success");
     selectedItem.value = null;
     await fetchData();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[improvements] handleSave failed:", err);
   } finally {
     saving.value = false;
   }
@@ -112,8 +112,8 @@ async function openConversationModal(conversationId: string) {
     );
     modalConversation.value = data.conversation;
     modalMessages.value = data.messages;
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[improvements] openConversationModal failed:", err);
     showConversationModal.value = false;
   } finally {
     conversationLoading.value = false;

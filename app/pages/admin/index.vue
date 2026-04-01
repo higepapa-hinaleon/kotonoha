@@ -62,8 +62,8 @@ async function fetchPendingApp() {
         stopPendingRefresh();
       }
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.error("[dashboard] fetchPendingApp failed:", err);
   } finally {
     pendingLoading.value = false;
   }
@@ -121,8 +121,8 @@ async function fetchDashboard() {
   serviceSummary.value = null;
   try {
     summary.value = await apiFetch<DashboardSummary>("/api/dashboard/summary");
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[dashboard] fetchDashboard failed:", err);
   } finally {
     loading.value = false;
   }
@@ -135,7 +135,8 @@ async function selectService(serviceId: string) {
     serviceSummary.value = await apiFetch<ServiceDashboardSummary>(
       `/api/dashboard/service-summary?serviceId=${serviceId}`,
     );
-  } catch {
+  } catch (err) {
+    console.error("[dashboard] selectService failed:", err);
     selectedServiceId.value = null;
   } finally {
     serviceLoading.value = false;
@@ -170,7 +171,8 @@ async function openFeedbackModal(conversationId: string) {
       feedbackCorrectedAnswer.value = first.correctedAnswer || "";
       feedbackNote.value = first.adminNote || "";
     }
-  } catch {
+  } catch (err) {
+    console.error("[dashboard] openFeedbackModal failed:", err);
     showFeedbackModal.value = false;
   } finally {
     feedbackLoading.value = false;
@@ -211,8 +213,8 @@ async function saveFeedback() {
     } else {
       await fetchDashboard();
     }
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[dashboard] saveFeedback failed:", err);
   } finally {
     feedbackSaving.value = false;
   }

@@ -49,16 +49,16 @@ async function fetchUsers() {
 async function fetchInvitations() {
   try {
     invitations.value = await apiFetch<Invitation[]>("/api/system/invitations");
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[users] fetchInvitations failed:", err);
   }
 }
 
 async function fetchGroups() {
   try {
     groups.value = await apiFetch<Group[]>("/api/groups");
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[users] fetchGroups failed:", err);
   }
 }
 
@@ -70,8 +70,8 @@ async function updateRole(userId: string, role: string) {
     });
     show("ロールを変更しました", "success");
     await fetchUsers();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[users] updateRole failed:", err);
   }
 }
 
@@ -95,8 +95,8 @@ async function sendInvitation() {
     show("招待を作成しました", "success");
     showInviteDialog.value = false;
     await fetchInvitations();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[users] sendInvitation failed:", err);
   } finally {
     inviting.value = false;
   }
@@ -107,8 +107,8 @@ async function deleteInvitation(id: string) {
     await apiFetch(`/api/system/invitations/${id}`, { method: "DELETE" });
     show("招待を削除しました", "success");
     await fetchInvitations();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[users] deleteInvitation failed:", err);
   }
 }
 

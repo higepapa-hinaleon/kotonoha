@@ -1,6 +1,6 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
-import type { WeeklyReport } from "~~/shared/types/models";
+import type { Report } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
   const { user: _user, groupId } = await verifyGroupAdmin(event);
@@ -14,10 +14,10 @@ export default defineEventHandler(async (event) => {
   if (!doc.exists)
     throw createError({ statusCode: 404, statusMessage: "レポートが見つかりません" });
 
-  const report = doc.data() as Omit<WeeklyReport, "id">;
+  const report = doc.data() as Omit<Report, "id">;
   if (report.groupId !== groupId) {
     throw createError({ statusCode: 403, statusMessage: "アクセス権がありません" });
   }
 
-  return { id: doc.id, ...report } as WeeklyReport;
+  return { id: doc.id, ...report } as Report;
 });

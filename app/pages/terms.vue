@@ -14,7 +14,8 @@ onMounted(async () => {
     const version = current.terms?.version ?? "1.0";
     const doc = await $fetch<LegalDocumentVersion>(`/api/legal/terms/${version}`);
     content.value = doc.content;
-  } catch {
+  } catch (err) {
+    console.error("[terms] Failed to load terms:", err);
     error.value = "利用規約の読み込みに失敗しました。";
   } finally {
     loading.value = false;

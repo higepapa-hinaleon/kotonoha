@@ -18,8 +18,9 @@ export function useApi() {
       try {
         const token = await getIdToken();
         headers.Authorization = `Bearer ${token}`;
-      } catch {
+      } catch (err) {
         // ゲストモード: トークンなしで続行
+        console.warn("[api] Failed to get auth token:", err);
       }
 
       // アクティブグループIDをヘッダーに自動付与

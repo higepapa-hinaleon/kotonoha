@@ -104,5 +104,5 @@ export const DEFAULT_RATE_LIMIT = {
 /** Embedding L2 キャッシュ TTL (30日) */
 export const L2_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-/** 週次レポート保持期間 (90日) */
-export const WEEKLY_REPORT_RETENTION_DAYS = 90;
+/** レポート保持期間 (90日) */
+export const REPORT_RETENTION_DAYS = 90;
