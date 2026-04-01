@@ -9,7 +9,8 @@ export default defineEventHandler(async () => {
     const db = getAdminFirestore();
     await db.collection("organizations").limit(1).get();
     checks.firestore = "ok";
-  } catch {
+  } catch (err) {
+    console.error("[health] Firestore check failed:", err);
     checks.firestore = "error";
     healthy = false;
   }

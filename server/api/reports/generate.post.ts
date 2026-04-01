@@ -2,8 +2,8 @@ import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifyGroupAdmin } from "~~/server/utils/auth";
 import { checkFeatureFlag } from "~~/server/utils/plan-limit";
 import { generateStructuredJson } from "~~/server/utils/ai-generator";
-import { WEEKLY_REPORT_RETENTION_DAYS, BATCH_SIZE_LIMIT } from "~~/server/utils/constants";
-import type { WeeklyReport, ReportStats } from "~~/shared/types/models";
+import { REPORT_RETENTION_DAYS, BATCH_SIZE_LIMIT } from "~~/server/utils/constants";
+import type { Report, ReportStats } from "~~/shared/types/models";
 
 interface GeminiInsights {
   insights: string[];
@@ -110,7 +110,7 @@ export default defineEventHandler(async (event) => {
 
   // 5. Gemini でインサイトを生成
   const systemPrompt = `あなたはAIサポートボットの運用アナリストです。
-以下の週次統計データを分析し、インサイトと改善提案を生成してください。
+以下の統計データを分析し、インサイトと改善提案を生成してください。
 
 ルール:
 - insightsは3〜5項目の分析結果（現状の評価や傾向）
@@ -130,8 +130,9 @@ export default defineEventHandler(async (event) => {
     );
     insights = generated.insights || [];
     recommendations = generated.recommendations || [];
-  } catch {
+  } catch (err) {
     // AI生成に失敗しても統計データだけでレポートを作成する
+    console.warn("[reports] AI insight generation failed:", err);
     insights = ["AI分析の生成に失敗しました。統計データのみのレポートです。"];
     recommendations = [];
   }
@@ -140,7 +141,7 @@ export default defineEventHandler(async (event) => {
   const now = new Date().toISOString();
   const docRef = db.collection("weeklyReports").doc();
 
-  const report: Omit<WeeklyReport, "id"> = {
+  const report: Omit<Report, "id"> = {
     organizationId: orgId,
     groupId,
     periodStart: body.periodStart,
@@ -155,7 +156,7 @@ export default defineEventHandler(async (event) => {
 
   // 古いレポートを非同期で削除（非ブロッキング）
   const retentionDate = new Date(
-    Date.now() - WEEKLY_REPORT_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+    Date.now() - REPORT_RETENTION_DAYS * 24 * 60 * 60 * 1000,
   ).toISOString();
   db.collection("weeklyReports")
     .where("groupId", "==", groupId)
@@ -183,5 +184,5 @@ export default defineEventHandler(async (event) => {
       console.warn("[reports] Failed to clean up old weekly reports:", err);
     });
 
-  return { id: docRef.id, ...report } as WeeklyReport;
+  return { id: docRef.id, ...report } as Report;
 });

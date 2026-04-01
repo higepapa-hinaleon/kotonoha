@@ -93,8 +93,8 @@ async function fetchData() {
       usage.value = await apiFetch<OrganizationUsage>(
         `/api/system/organizations/${orgId}/usage`,
       );
-    } catch {
-      // 利用状況の取得失敗は無視（主要データに影響しない）
+    } catch (err) {
+      console.warn("[organizations] Failed to fetch usage:", err);
     }
   }
 }
@@ -202,7 +202,8 @@ async function confirmPayment(contract: Contract) {
     });
     show("入金を確認し、契約を有効化しました", "success");
     contracts.value = await apiFetch<Contract[]>(`/api/system/organizations/${orgId}/contracts`);
-  } catch {
+  } catch (err) {
+    console.error("[organizations] confirmPayment failed:", err);
     show("入金確認に失敗しました", "error");
   }
 }

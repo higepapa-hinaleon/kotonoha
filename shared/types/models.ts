@@ -226,8 +226,8 @@ export interface Faq {
   updatedAt: string;
 }
 
-/** 週次レポート */
-export interface WeeklyReport {
+/** レポート */
+export interface Report {
   id: string;
   organizationId: string;
   groupId: string;

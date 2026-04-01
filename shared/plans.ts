@@ -134,7 +134,7 @@ export const PLAN_DEFINITIONS: Record<PlanId, PlanDefinition> = {
       "月間チャット: 10,000回",
       "ユーザー数: 20",
       "FAQ自動生成",
-      "週次レポート",
+      "レポート",
       "RAG診断ツール",
       "SLA 99.5%",
     ],

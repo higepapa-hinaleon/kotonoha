@@ -92,8 +92,8 @@ async function fetchApplications() {
   try {
     const data = await apiFetch<{ applications: Application[] }>("/api/applications");
     applications.value = data.applications;
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[applications] fetchApplications failed:", err);
   } finally {
     loading.value = false;
   }
@@ -116,8 +116,8 @@ async function confirmApprove() {
     showApproveDialog.value = false;
     approveTargetId.value = null;
     await fetchApplications();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[applications] confirmApprove failed:", err);
   } finally {
     processing.value = false;
   }
@@ -143,8 +143,8 @@ async function confirmReject() {
     rejectTargetId.value = null;
     rejectNote.value = "";
     await fetchApplications();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[applications] confirmReject failed:", err);
   } finally {
     processing.value = false;
   }

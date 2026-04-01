@@ -14,7 +14,8 @@ onMounted(async () => {
     const version = current.privacy?.version ?? "1.0";
     const doc = await $fetch<LegalDocumentVersion>(`/api/legal/privacy/${version}`);
     content.value = doc.content;
-  } catch {
+  } catch (err) {
+    console.error("[privacy] Failed to load privacy policy:", err);
     error.value = "プライバシーポリシーの読み込みに失敗しました。";
   } finally {
     loading.value = false;

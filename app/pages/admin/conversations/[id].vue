@@ -65,8 +65,8 @@ async function loadFeedback() {
       feedbackCorrectedAnswer.value = "";
       feedbackNote.value = "";
     }
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[conversations] fetchDetail failed:", err);
   } finally {
     feedbackLoading.value = false;
   }
@@ -106,8 +106,8 @@ async function saveFeedback() {
     }
     show("フィードバックを保存しました", "success");
     await fetchDetail();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[conversations] saveFeedback failed:", err);
   } finally {
     feedbackSaving.value = false;
   }

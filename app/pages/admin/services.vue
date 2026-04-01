@@ -51,7 +51,8 @@ async function fetchServices() {
   loading.value = true;
   try {
     services.value = await apiFetch<Service[]>("/api/services");
-  } catch {
+  } catch (err) {
+    console.error("[services] fetchServices failed:", err);
     services.value = [];
   } finally {
     loading.value = false;
@@ -144,8 +145,8 @@ async function handleSave() {
     showModal.value = false;
     show(editingService.value ? "サービスを更新しました" : "サービスを追加しました", "success");
     await fetchServices();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[services] handleSave failed:", err);
   } finally {
     saving.value = false;
   }
@@ -166,8 +167,8 @@ async function handleDelete() {
     deletingService.value = null;
     show("サービスを削除しました", "success");
     await fetchServices();
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[services] handleDelete failed:", err);
   }
 }
 

@@ -41,7 +41,8 @@ export async function verifyAuthOptional(event: H3Event): Promise<User | null> {
   if (!authorization?.startsWith("Bearer ")) return null;
   try {
     return await verifyAuth(event);
-  } catch {
+  } catch (err) {
+    console.warn("[auth] Optional auth verification failed:", err);
     return null;
   }
 }

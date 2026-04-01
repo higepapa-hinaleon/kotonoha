@@ -82,7 +82,9 @@ async function getL2CachedEmbedding(text: string): Promise<number[] | null> {
     const createdAt = data.createdAt ? new Date(data.createdAt).getTime() : 0;
     if (Date.now() - createdAt > L2_CACHE_TTL_MS) {
       // 期限切れ - 非同期で削除
-      doc.ref.delete().catch(() => {});
+      doc.ref.delete().catch((err) => {
+        console.warn("[embeddings] L2 cache deletion failed:", err);
+      });
       return null;
     }
 
@@ -93,7 +95,8 @@ async function getL2CachedEmbedding(text: string): Promise<number[] | null> {
     setCachedEmbedding(text, vector);
 
     return vector;
-  } catch {
+  } catch (err) {
+    console.warn("[embeddings] L2 cache read failed:", err);
     return null;
   }
 }

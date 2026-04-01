@@ -8,7 +8,7 @@ test.describe("管理者フロー", () => {
     { path: "/admin/conversations", name: "会話一覧" },
     { path: "/admin/improvements", name: "改善要望管理" },
     { path: "/admin/faqs", name: "FAQ管理" },
-    { path: "/admin/reports", name: "週次レポート" },
+    { path: "/admin/reports", name: "レポート" },
     { path: "/admin/settings", name: "設定" },
   ];
 

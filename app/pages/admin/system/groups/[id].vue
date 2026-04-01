@@ -129,8 +129,8 @@ async function updateRole(userId: string, role: "admin" | "member") {
     });
     show("ロールを変更しました", "success");
     await fetchData();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[groups] updateRole failed:", err);
   }
 }
 
@@ -140,8 +140,8 @@ async function removeMember(userId: string, name: string) {
     await apiFetch(`/api/groups/${groupId}/members/${userId}`, { method: "DELETE" });
     show("メンバーを削除しました", "success");
     await fetchData();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[groups] removeMember failed:", err);
   }
 }
 

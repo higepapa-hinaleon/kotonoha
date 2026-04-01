@@ -46,7 +46,8 @@ async function handleGoogleSignup() {
   try {
     await loginWithGoogle();
     emit("account-created");
-  } catch {
+  } catch (err) {
+    console.error("[apply] Google signup failed:", err);
     signupError.value = "Google認証に失敗しました。";
   }
 }

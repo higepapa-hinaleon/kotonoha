@@ -66,8 +66,8 @@ async function deleteGroup(id: string, name: string) {
     await apiFetch(`/api/groups/${id}`, { method: "DELETE" });
     show("グループを削除しました", "success");
     await fetchGroups();
-  } catch {
-    // useApi handles errors
+  } catch (err) {
+    console.error("[groups] deleteGroup failed:", err);
   }
 }
 

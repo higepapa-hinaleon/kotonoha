@@ -44,7 +44,8 @@ async function handleConsent() {
 
     show("同意を記録しました", "success");
     await redirectAfterConsent();
-  } catch {
+  } catch (err) {
+    console.error("[consent] handleAccept failed:", err);
     error.value = "同意の記録に失敗しました。もう一度お試しください。";
   } finally {
     submitting.value = false;

@@ -27,7 +27,8 @@ async function handleEmailLogin() {
   try {
     await loginWithEmail(email.value, password.value);
     await redirectAfterLogin();
-  } catch {
+  } catch (err) {
+    console.error("[login] handleEmailLogin failed:", err);
     error.value = "ログインに失敗しました。メールアドレスとパスワードを確認してください。";
   }
 }
@@ -37,7 +38,8 @@ async function handleGoogleLogin() {
   try {
     await loginWithGoogle();
     await redirectAfterLogin();
-  } catch {
+  } catch (err) {
+    console.error("[login] handleGoogleLogin failed:", err);
     error.value = "Googleログインに失敗しました。";
   }
 }

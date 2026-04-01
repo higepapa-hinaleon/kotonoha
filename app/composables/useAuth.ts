@@ -96,8 +96,9 @@ export function useAuth() {
       authState.hasPendingPayment = hasPendingPayment ?? false;
       const completeInit = initializeUserGroups(userData, groupMemberships);
       await completeInit();
-    } catch {
+    } catch (err) {
       // ユーザーがFirestoreに未登録の場合、自動登録
+      console.warn("[auth] fetchUser failed, attempting auto-register:", err);
       try {
         const token = await getIdToken();
         const data = await $fetch<User & { groupMemberships?: UserGroupMembership[] }>(
@@ -112,7 +113,8 @@ export function useAuth() {
         authState.user = userData;
         const completeInit = initializeUserGroups(userData, groupMemberships);
         await completeInit();
-      } catch {
+      } catch (regErr) {
+        console.error("[auth] Auto-register failed:", regErr);
         authState.user = null;
         authState.initializing = false;
       }
@@ -170,7 +172,8 @@ export function useAuth() {
         headers: { Authorization: `Bearer ${token}` },
       });
       authState.pendingApplication = data.application ?? null;
-    } catch {
+    } catch (err) {
+      console.warn("[auth] fetchPendingApplication failed:", err);
       authState.pendingApplication = null;
     }
     authState.pendingApplicationFetched = true;

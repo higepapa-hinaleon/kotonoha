@@ -33,8 +33,8 @@ async function fetchServices() {
       selectedServiceId.value = services.value[0].id;
       await fetchFormUrl(services.value[0].id);
     }
-  } catch {
-    // エラーハンドリング
+  } catch (err) {
+    console.error("[chat] fetchServices failed:", err);
   }
 }
 
@@ -45,7 +45,8 @@ async function fetchFormUrl(serviceId: string) {
       `/api/settings/form-url?serviceId=${serviceId}`,
     );
     formUrl.value = data.formUrl;
-  } catch {
+  } catch (err) {
+    console.error("[chat] fetchFormUrl failed:", err);
     formUrl.value = "";
   }
 }
@@ -84,7 +85,8 @@ async function handleSend(messageText: string) {
       messageId: response.message.id,
       feedback: null,
     });
-  } catch {
+  } catch (err) {
+    console.error("[chat] handleSend failed:", err);
     messages.value.push({
       role: "assistant",
       content:
@@ -130,7 +132,8 @@ async function handleFeedback(index: number, value: "positive" | "negative") {
         feedback: value,
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("[chat] handleFeedback failed:", err);
     // 失敗時はUI状態を戻す
     messages.value[index].feedback = previousFeedback;
   }

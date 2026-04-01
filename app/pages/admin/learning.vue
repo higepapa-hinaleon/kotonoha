@@ -40,8 +40,8 @@ async function fetchServices() {
     if (services.value.length > 0 && !selectedServiceId.value) {
       selectedServiceId.value = services.value[0].id;
     }
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[learning] fetchServices failed:", err);
   }
 }
 
@@ -71,7 +71,8 @@ async function handleSend(messageText: string) {
       confidence: response.message.confidence,
       userQuestion: messageText,
     });
-  } catch {
+  } catch (err) {
+    console.error("[learning] handleSend failed:", err);
     messages.value.push({
       role: "assistant",
       content: "エラーが発生しました。再度お試しください。",
@@ -117,8 +118,8 @@ async function submitCorrection(index: number) {
     correctingIndex.value = null;
     correctionText.value = "";
     show("訂正を学習しました", "success");
-  } catch {
-    // useApi が自動通知
+  } catch (err) {
+    console.error("[learning] submitCorrection failed:", err);
   } finally {
     submittingCorrection.value = false;
   }
