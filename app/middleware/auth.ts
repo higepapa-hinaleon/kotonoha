@@ -38,9 +38,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo("/apply");
   }
 
-  // 入金待ちユーザーの制限: /admin のみ許可
+  // 入金待ちユーザーの制限: /admin と /admin/contact のみ許可
   if (isPendingPayment.value && !isSystemAdmin.value) {
-    if (to.path !== "/admin") {
+    if (to.path !== "/admin" && to.path !== "/admin/contact") {
       return navigateTo("/admin");
     }
   }

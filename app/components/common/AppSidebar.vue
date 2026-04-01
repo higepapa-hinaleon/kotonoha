@@ -8,7 +8,7 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
-const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment } = useAuth();
+const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment, hasPendingApplication } = useAuth();
 const { groups, currentGroup, activeGroupId, switchGroup } = useGroup();
 
 const showGroupDropdown = ref(false);
@@ -56,6 +56,7 @@ const systemAdminItems: NavItem[] = [
   { label: "申請管理", to: "/admin/system/applications", icon: "applications" },
 ];
 
+const contactItem: NavItem = { label: "お問い合わせ", to: "/admin/contact", icon: "contact" };
 const settingsItem: NavItem = { label: "設定", to: "/admin/settings", icon: "settings" };
 
 function isActive(path: string) {
@@ -226,6 +227,20 @@ watch(
             {{ settingsItem.label }}
           </NuxtLink>
         </div>
+        <div v-if="hasOrganization || !hasPendingApplication" class="border-t border-gray-200 pt-2">
+          <NuxtLink
+            :to="contactItem.to"
+            class="flex items-center rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
+            :class="
+              isActive(contactItem.to)
+                ? 'bg-primary-50 text-primary-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            "
+            @click="handleNavClick"
+          >
+            {{ contactItem.label }}
+          </NuxtLink>
+        </div>
       </nav>
     </aside>
   </Transition>
@@ -380,6 +395,19 @@ watch(
           "
         >
           {{ settingsItem.label }}
+        </NuxtLink>
+      </div>
+      <div v-if="hasOrganization || !hasPendingApplication" class="border-t border-gray-200 pt-2">
+        <NuxtLink
+          :to="contactItem.to"
+          class="flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
+          :class="
+            isActive(contactItem.to)
+              ? 'bg-primary-50 text-primary-700'
+              : 'text-gray-700 hover:bg-gray-100'
+          "
+        >
+          {{ contactItem.label }}
         </NuxtLink>
       </div>
     </nav>

@@ -26,11 +26,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo("/apply");
   }
 
-  // 入金待ちユーザー: /admin のみ許可（role チェックをスキップ、システム管理者は除外）
+  // 入金待ちユーザー: /admin と /admin/contact のみ許可（role チェックをスキップ、システム管理者は除外）
   if (isPendingPayment.value && !isSystemAdmin.value) {
-    if (to.path !== "/admin") {
+    if (to.path !== "/admin" && to.path !== "/admin/contact") {
       return navigateTo("/admin");
     }
+    return;
+  }
+
+  // お問い合わせページは全ての認証済みユーザーがアクセス可能
+  if (to.path === "/admin/contact") {
     return;
   }
 
