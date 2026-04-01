@@ -224,7 +224,7 @@ export default defineEventHandler(async (event) => {
   // Stripe: Checkout セッション作成
   if (body.paymentMethod === "stripe") {
     const config = useRuntimeConfig();
-    const baseUrl = config.publicUrl || "http://localhost:3000";
+    const baseUrl = config.publicUrl;
 
     const session = await createCheckoutSession({
       applicationId: application.id,

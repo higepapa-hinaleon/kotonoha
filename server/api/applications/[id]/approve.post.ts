@@ -133,7 +133,7 @@ export default defineEventHandler(async (event) => {
 
   // 補助処理: メール通知（非ブロッキング）
   const config = useRuntimeConfig();
-  const baseUrl = config.publicUrl || "http://localhost:3000";
+  const baseUrl = config.publicUrl;
 
   if (application.paymentMethod === "bank_transfer") {
     // 銀行振込: 振込依頼メールのみ送信（利用承認は入金確認時に送信）

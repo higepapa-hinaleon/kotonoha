@@ -68,7 +68,7 @@ export async function sendInvoiceEmail(params: {
   const b = BANK_TRANSFER_INFO;
   const invoiceRef = params.invoiceNumber ? `\n請求番号: ${params.invoiceNumber}` : "";
   const invoiceNote = params.invoiceNumber
-    ? `\n※振込人名の前に請求番号「${params.invoiceNumber}」を付けてください。\n　例: ${params.invoiceNumber} ${params.contactName}`
+    ? `\n※振込人名の前に請求番号「${params.invoiceNumber}」を付けてください。\n  例: ${params.invoiceNumber} ${params.contactName}`
     : "";
 
   const text = `${params.organizationName} 様
