@@ -99,6 +99,7 @@ const mobileMenuOpen = ref(false);
           <a href="#features" class="text-sm text-gray-600 hover:text-gray-900">機能</a>
           <a href="#use-cases" class="text-sm text-gray-600 hover:text-gray-900">活用シーン</a>
           <a href="#pricing" class="text-sm text-gray-600 hover:text-gray-900">料金</a>
+          <NuxtLink to="/login" class="text-sm text-gray-600 hover:text-gray-900">ログイン</NuxtLink>
           <NuxtLink
             to="/apply"
             class="rounded-lg bg-primary-600 px-5 py-2 text-sm font-medium text-white hover:bg-primary-700"
@@ -137,6 +138,9 @@ const mobileMenuOpen = ref(false);
             >活用シーン</a
           >
           <a href="#pricing" class="text-sm text-gray-600" @click="mobileMenuOpen = false">料金</a>
+          <NuxtLink to="/login" class="text-sm text-gray-600" @click="mobileMenuOpen = false"
+            >ログイン</NuxtLink
+          >
           <NuxtLink
             to="/apply"
             class="rounded-lg bg-primary-600 px-5 py-2 text-center text-sm font-medium text-white hover:bg-primary-700"
