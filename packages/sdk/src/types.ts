@@ -40,7 +40,7 @@ export interface Service {
 
 /** SDK 初期化オプション */
 export interface kotonohaChatClientOptions {
-  /** API のベース URL (例: https://your-app.example.com) */
+  /** API のベース URL (例: https://app.kotonoha-ai.net) */
   baseUrl: string;
   /** Firebase ID トークン（認証済みユーザーの場合） */
   authToken?: string;

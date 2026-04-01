@@ -107,7 +107,7 @@ graph TD
 ```html
 <!-- 1行で設置可能 -->
 <kotonoha-chat-widget
-  api-base-url="https://your-domain.com"
+  api-base-url="https://app.kotonoha-ai.net"
   service-id="your-service-id"
 ></kotonoha-chat-widget>
 ```

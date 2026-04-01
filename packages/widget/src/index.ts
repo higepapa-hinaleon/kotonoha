@@ -18,9 +18,9 @@ interface ChatMessage {
  *
  * @example
  * ```html
- * <script type="module" src="https://<your-domain>/embed/kotonoha-chat-widget.js"></script>
+ * <script type="module" src="https://app.kotonoha-ai.net/embed/kotonoha-chat-widget.js"></script>
  * <kotonoha-chat-widget
- *   api-base-url="https://<your-domain>"
+ *   api-base-url="https://app.kotonoha-ai.net"
  *   service-id="your-service-id"
  *   placeholder="ご質問をどうぞ..."
  *   user-name="山田太郎"

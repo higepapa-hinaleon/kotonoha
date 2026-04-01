@@ -118,7 +118,7 @@ const widgetAttributes = [
     name: "api-base-url",
     required: true,
     description: "APIのベースURL",
-    example: "https://your-domain.com",
+    example: "https://app.kotonoha-ai.net",
   },
   { name: "service-id", required: true, description: "対象サービスのID", example: "abc123" },
   {

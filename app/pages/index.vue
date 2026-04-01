@@ -546,7 +546,7 @@ const mobileMenuOpen = ref(false);
             <div class="mt-6 overflow-x-auto rounded-lg bg-gray-900 p-4">
               <code class="text-sm text-green-400">
                 &lt;kotonoha-chat-widget<br />
-                &nbsp;&nbsp;api-base-url="https://your-domain.com"<br />
+                &nbsp;&nbsp;api-base-url="https://app.kotonoha-ai.net"<br />
                 &nbsp;&nbsp;service-id="your-service-id"<br />
                 &gt;&lt;/kotonoha-chat-widget&gt;
               </code>

@@ -14,7 +14,7 @@ export type {
  *
  * @example
  * ```ts
- * const client = new kotonohaChatClient({ baseUrl: "https://your-app.example.com" });
+ * const client = new kotonohaChatClient({ baseUrl: "https://app.kotonoha-ai.net" });
  * const services = await client.getServices();
  * const response = await client.sendMessage({
  *   serviceId: services[0].id,
