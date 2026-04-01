@@ -364,7 +364,7 @@ onUnmounted(() => {
                   <ul class="mt-3 space-y-1 text-xs text-gray-600">
                     <li>※ 振込手数料はお客様負担となります。</li>
                     <li>※ お振込の際は、登録時のお名前と同一の名義でお願いします。</li>
-                    <li v-if="pendingApp?.invoiceNumber">※ 振込人名の前に請求番号「{{ pendingApp.invoiceNumber }}」を付けてください。<br>　例: {{ pendingApp.invoiceNumber }} ヤマダタロウ</li>
+                    <li v-if="pendingApp?.invoiceNumber">※ 振込人名の前に請求番号「{{ pendingApp.invoiceNumber }}」を付けてください。<br>&nbsp;&nbsp;例: {{ pendingApp.invoiceNumber }} ヤマダタロウ</li>
                   </ul>
                 </div>
 
