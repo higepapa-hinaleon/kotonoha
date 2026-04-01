@@ -97,7 +97,7 @@ async function saveGroup() {
 
 async function openAddDialog() {
   const users =
-    await apiFetch<{ id: string; email: string; displayName: string }[]>("/api/system/users");
+    await apiFetch<{ id: string; email: string; displayName: string }[]>(`/api/system/users?organizationId=${group.value!.organizationId}`);
   // 既にメンバーのユーザーを除外
   const memberIds = new Set(members.value.map((m) => m.userId));
   allUsers.value = users.filter((u) => !memberIds.has(u.id));

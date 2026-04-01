@@ -1,6 +1,7 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { verifySystemAdmin, isPlatformAdmin } from "~~/server/utils/auth";
 import { checkPlanLimit } from "~~/server/utils/plan-limit";
+import { sendInvitationEmail } from "~~/server/utils/email";
 import type { Invitation } from "~~/shared/types/models";
 
 export default defineEventHandler(async (event) => {
@@ -68,6 +69,20 @@ export default defineEventHandler(async (event) => {
     };
 
     await ref.set(invitation);
+
+    // 招待メールを非同期送信（失敗しても招待作成は成功とする）
+    const orgDoc = await db.collection("organizations").doc(targetOrgId).get();
+    const orgName = orgDoc.exists ? (orgDoc.data()?.name as string) || "組織" : "組織";
+    const config = useRuntimeConfig();
+    const baseUrl = config.publicUrl;
+
+    sendInvitationEmail({
+      to: email,
+      organizationName: orgName,
+      loginUrl: `${baseUrl}/login`,
+    }).catch((err) => {
+      console.error("[system/invitations/post] 招待メール送信失敗:", err);
+    });
 
     return { id: ref.id, ...invitation } as Invitation;
   } catch (e: unknown) {

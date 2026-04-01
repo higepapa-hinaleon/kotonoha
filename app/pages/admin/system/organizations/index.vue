@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import type { Organization } from "~~/shared/types/models";
+import type { Organization, Contract, ContractStatus } from "~~/shared/types/models";
 import { PLAN_DEFINITIONS } from "~~/shared/plans";
 import type { PlanId } from "~~/shared/plans";
 
 definePageMeta({ middleware: ["auth", "admin"], layout: "admin" });
 
+interface OrgWithContract extends Organization {
+  contract: Contract | null;
+}
+
 const { apiFetch } = useApi();
 
-const organizations = ref<Organization[]>([]);
+const organizations = ref<OrgWithContract[]>([]);
 const loading = ref(true);
 
 // ページネーション
@@ -40,10 +44,36 @@ function planBadgeClass(plan: string): string {
   }
 }
 
+function contractStatusLabel(status: ContractStatus | null): string {
+  if (!status) return "未契約";
+  const labels: Record<ContractStatus, string> = {
+    active: "有効",
+    pending_payment: "入金待ち",
+    suspended: "停止",
+    expired: "期限切れ",
+    cancelled: "解約",
+  };
+  return labels[status] || status;
+}
+
+function contractBadgeClass(status: ContractStatus | null): string {
+  switch (status) {
+    case "active":
+      return "bg-green-100 text-green-800";
+    case "pending_payment":
+      return "bg-yellow-100 text-yellow-800";
+    case "suspended":
+    case "cancelled":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
+
 async function fetchOrganizations() {
   loading.value = true;
   try {
-    organizations.value = await apiFetch<Organization[]>("/api/system/organizations");
+    organizations.value = await apiFetch<OrgWithContract[]>("/api/system/organizations");
   } finally {
     loading.value = false;
   }
@@ -82,12 +112,20 @@ onMounted(fetchOrganizations);
             >
               {{ org.name }}
             </NuxtLink>
-            <span
-              class="inline-flex shrink-0 rounded-full px-2 py-1 text-xs font-semibold"
-              :class="planBadgeClass(org.plan)"
-            >
-              {{ planDisplayName(org.plan) }}
-            </span>
+            <div class="flex shrink-0 gap-1">
+              <span
+                class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
+                :class="planBadgeClass(org.plan)"
+              >
+                {{ planDisplayName(org.plan) }}
+              </span>
+              <span
+                class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
+                :class="contractBadgeClass(org.contract?.status ?? null)"
+              >
+                {{ contractStatusLabel(org.contract?.status ?? null) }}
+              </span>
+            </div>
           </div>
           <p class="text-xs text-gray-500">
             作成日: {{ new Date(org.createdAt).toLocaleDateString("ja-JP") }}
@@ -109,6 +147,11 @@ onMounted(fetchOrganizations);
                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
               >
                 プラン
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                契約ステータス
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
@@ -138,6 +181,14 @@ onMounted(fetchOrganizations);
                   :class="planBadgeClass(org.plan)"
                 >
                   {{ planDisplayName(org.plan) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm">
+                <span
+                  class="inline-flex rounded-full px-2 py-1 text-xs font-semibold"
+                  :class="contractBadgeClass(org.contract?.status ?? null)"
+                >
+                  {{ contractStatusLabel(org.contract?.status ?? null) }}
                 </span>
               </td>
               <td class="px-6 py-4 text-sm text-gray-500">

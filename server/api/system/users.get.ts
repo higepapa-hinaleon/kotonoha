@@ -33,7 +33,21 @@ export default defineEventHandler(async (event) => {
       }),
     );
 
-    return users;
+    // 組織名を解決
+    const orgIds = [...new Set(users.map((u) => u.organizationId).filter(Boolean))];
+    const orgNameMap = new Map<string, string>();
+    for (let i = 0; i < orgIds.length; i += 30) {
+      const batch = orgIds.slice(i, i + 30);
+      const orgSnap = await db.collection("organizations").where("__name__", "in", batch).get();
+      for (const doc of orgSnap.docs) {
+        orgNameMap.set(doc.id, (doc.data() as { name: string }).name);
+      }
+    }
+
+    return users.map((u) => ({
+      ...u,
+      organizationName: u.organizationId ? (orgNameMap.get(u.organizationId) || "不明") : "",
+    }));
   } catch (e: unknown) {
     if (e && typeof e === "object" && "statusCode" in e) throw e;
     const message = e instanceof Error ? e.message : String(e);
