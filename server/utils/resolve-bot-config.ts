@@ -39,7 +39,10 @@ export function resolveBotConfig(
 export function validateBotConfig(botConfig: Partial<BotConfig>): void {
   if (botConfig.confidenceThreshold !== undefined) {
     if (typeof botConfig.confidenceThreshold !== "number" || isNaN(botConfig.confidenceThreshold)) {
-      throw createError({ statusCode: 400, statusMessage: "確信度しきい値は数値で指定してください" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "確信度しきい値は数値で指定してください",
+      });
     }
     botConfig.confidenceThreshold = Math.max(0, Math.min(1, botConfig.confidenceThreshold));
   }
@@ -59,10 +62,7 @@ export function validateBotConfig(botConfig: Partial<BotConfig>): void {
         statusMessage: "類似度しきい値は数値で指定してください",
       });
     }
-    botConfig.ragSimilarityThreshold = Math.max(
-      0,
-      Math.min(1, botConfig.ragSimilarityThreshold),
-    );
+    botConfig.ragSimilarityThreshold = Math.max(0, Math.min(1, botConfig.ragSimilarityThreshold));
   }
   if (botConfig.systemPrompt !== undefined) {
     if (typeof botConfig.systemPrompt !== "string") {

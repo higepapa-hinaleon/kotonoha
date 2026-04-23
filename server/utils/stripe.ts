@@ -158,15 +158,15 @@ export async function cancelSubscription(subscriptionId: string): Promise<void> 
 /**
  * Stripe Webhook イベントを検証・解析する
  */
-export function constructWebhookEvent(
-  rawBody: string | Buffer,
-  signature: string,
-): Stripe.Event {
+export function constructWebhookEvent(rawBody: string | Buffer, signature: string): Stripe.Event {
   const config = useRuntimeConfig();
   const stripe = getStripeClient();
 
   if (!config.stripeWebhookSecret) {
-    throw createError({ statusCode: 500, statusMessage: "Stripe Webhook Secret が設定されていません" });
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Stripe Webhook Secret が設定されていません",
+    });
   }
 
   return stripe.webhooks.constructEvent(rawBody, signature, config.stripeWebhookSecret);

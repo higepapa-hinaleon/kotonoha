@@ -5,7 +5,13 @@ import type { RagResult } from "~~/server/utils/rag";
 import { generateEmbedding } from "~~/server/utils/embeddings";
 import { generateChatResponse } from "~~/server/utils/gemini";
 import { resolveBotConfig } from "~~/server/utils/resolve-bot-config";
-import type { Conversation, Message, MessageSource, Service, Settings } from "~~/shared/types/models";
+import type {
+  Conversation,
+  Message,
+  MessageSource,
+  Service,
+  Settings,
+} from "~~/shared/types/models";
 import {
   ESCALATION_KEYWORDS,
   MAX_CONVERSATION_TITLE_LENGTH,
@@ -64,13 +70,8 @@ export async function processChatMessage(params: ChatCoreParams): Promise<ChatCo
   const settingsSnapshot = await settingsPromise;
   const settings = settingsSnapshot.docs[0]?.data() as Settings | undefined;
   const resolved = resolveBotConfig(serviceData.botConfig, settings?.botConfig);
-  const {
-    confidenceThreshold,
-    ragTopK,
-    ragSimilarityThreshold,
-    enableMultiQuery,
-    enableHyde,
-  } = resolved;
+  const { confidenceThreshold, ragTopK, ragSimilarityThreshold, enableMultiQuery, enableHyde } =
+    resolved;
   const systemPrompt = resolved.systemPrompt
     ? resolved.systemPrompt.slice(0, MAX_SYSTEM_PROMPT_LENGTH)
     : undefined;

@@ -90,9 +90,7 @@ async function fetchData() {
   // 利用状況は補助データのためエラーでも主要表示をブロックしない
   if (isSystemAdmin.value || isOwner.value) {
     try {
-      usage.value = await apiFetch<OrganizationUsage>(
-        `/api/system/organizations/${orgId}/usage`,
-      );
+      usage.value = await apiFetch<OrganizationUsage>(`/api/system/organizations/${orgId}/usage`);
     } catch (err) {
       console.warn("[organizations] Failed to fetch usage:", err);
     }
@@ -261,9 +259,7 @@ onMounted(fetchData);
             {{ saving ? "保存中..." : "保存" }}
           </button>
         </div>
-        <p v-else class="mt-4 text-xs text-gray-400">
-          組織情報の変更はオーナーのみ可能です。
-        </p>
+        <p v-else class="mt-4 text-xs text-gray-400">組織情報の変更はオーナーのみ可能です。</p>
       </div>
 
       <!-- プラン詳細 -->
@@ -370,40 +366,58 @@ onMounted(fetchData);
       </div>
 
       <!-- 利用状況サマリー -->
-      <div v-if="usage && (isSystemAdmin || isOwner)" class="rounded-lg border border-gray-200 bg-white p-6">
+      <div
+        v-if="usage && (isSystemAdmin || isOwner)"
+        class="rounded-lg border border-gray-200 bg-white p-6"
+      >
         <h2 class="mb-4 text-lg font-bold text-gray-900">利用状況サマリー</h2>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-md bg-gray-50 p-3">
             <p class="text-xs text-gray-500">ユーザー数</p>
-            <p class="text-lg font-semibold" :class="usageColorClass(usage.users, usage.limits.maxUsers)">
+            <p
+              class="text-lg font-semibold"
+              :class="usageColorClass(usage.users, usage.limits.maxUsers)"
+            >
               {{ usageDisplay(usage.users, usage.limits.maxUsers) }}
             </p>
             <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxUsers) }}</p>
           </div>
           <div class="rounded-md bg-gray-50 p-3">
             <p class="text-xs text-gray-500">グループ数</p>
-            <p class="text-lg font-semibold" :class="usageColorClass(usage.groups, usage.limits.maxGroups)">
+            <p
+              class="text-lg font-semibold"
+              :class="usageColorClass(usage.groups, usage.limits.maxGroups)"
+            >
               {{ usageDisplay(usage.groups, usage.limits.maxGroups) }}
             </p>
             <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxGroups) }}</p>
           </div>
           <div class="rounded-md bg-gray-50 p-3">
             <p class="text-xs text-gray-500">サービス数</p>
-            <p class="text-lg font-semibold" :class="usageColorClass(usage.services, usage.limits.maxServices)">
+            <p
+              class="text-lg font-semibold"
+              :class="usageColorClass(usage.services, usage.limits.maxServices)"
+            >
               {{ usageDisplay(usage.services, usage.limits.maxServices) }}
             </p>
             <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxServices) }}</p>
           </div>
           <div class="rounded-md bg-gray-50 p-3">
             <p class="text-xs text-gray-500">ドキュメント数</p>
-            <p class="text-lg font-semibold" :class="usageColorClass(usage.documents, usage.limits.maxDocuments)">
+            <p
+              class="text-lg font-semibold"
+              :class="usageColorClass(usage.documents, usage.limits.maxDocuments)"
+            >
               {{ usageDisplay(usage.documents, usage.limits.maxDocuments) }}
             </p>
             <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxDocuments) }}</p>
           </div>
           <div class="rounded-md bg-gray-50 p-3">
             <p class="text-xs text-gray-500">月間チャット数</p>
-            <p class="text-lg font-semibold" :class="usageColorClass(usage.monthlyChats, usage.limits.maxMonthlyChats)">
+            <p
+              class="text-lg font-semibold"
+              :class="usageColorClass(usage.monthlyChats, usage.limits.maxMonthlyChats)"
+            >
               {{ usageDisplay(usage.monthlyChats, usage.limits.maxMonthlyChats) }}
             </p>
             <p class="text-xs text-gray-400">{{ usageLimitLabel(usage.limits.maxMonthlyChats) }}</p>

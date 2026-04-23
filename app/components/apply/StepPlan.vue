@@ -89,9 +89,7 @@ defineExpose({ isValid });
       >
         Enterpriseプランは個別見積となります。お問い合わせください。
         <br />
-        <a href="mailto:support@kotonoha.ai" class="font-medium underline">
-          support@kotonoha.ai
-        </a>
+        <a href="mailto:support@kotonoha.ai" class="font-medium underline"> support@kotonoha.ai </a>
       </div>
     </div>
 
@@ -100,10 +98,10 @@ defineExpose({ isValid });
       <h2 class="mb-4 text-lg font-semibold text-gray-800">支払方法</h2>
       <div class="flex flex-wrap gap-4">
         <label
-          v-for="opt in ([
+          v-for="opt in [
             { value: 'stripe', label: 'クレジットカード（Stripe）' },
             { value: 'bank_transfer', label: '銀行振込' },
-          ] as const)"
+          ] as const"
           :key="opt.value"
           class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2 transition-colors"
           :class="

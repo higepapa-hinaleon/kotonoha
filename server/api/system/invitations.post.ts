@@ -10,7 +10,12 @@ export default defineEventHandler(async (event) => {
   try {
     const db = getAdminFirestore();
 
-    const body = await readBody<{ email: string; groupId: string; role: "admin" | "member"; organizationId?: string }>(event);
+    const body = await readBody<{
+      email: string;
+      groupId: string;
+      role: "admin" | "member";
+      organizationId?: string;
+    }>(event);
 
     if (!body.email || !body.groupId || !body.role) {
       throw createError({ statusCode: 400, statusMessage: "email, groupId, role は必須です" });
@@ -18,13 +23,15 @@ export default defineEventHandler(async (event) => {
 
     const email = body.email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw createError({ statusCode: 400, statusMessage: "有効なメールアドレスを入力してください" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "有効なメールアドレスを入力してください",
+      });
     }
 
     // プラットフォーム管理者は組織を指定可能
-    const targetOrgId = isPlatformAdmin(admin) && body.organizationId
-      ? body.organizationId
-      : admin.organizationId;
+    const targetOrgId =
+      isPlatformAdmin(admin) && body.organizationId ? body.organizationId : admin.organizationId;
 
     // プランのユーザー上限チェック
     await checkPlanLimit(targetOrgId, "users", db);

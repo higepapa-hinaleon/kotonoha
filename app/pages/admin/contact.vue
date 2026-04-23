@@ -57,7 +57,9 @@ async function handleSubmit() {
   } catch (e: unknown) {
     const err = e as { data?: { message?: string }; statusMessage?: string };
     errorMessage.value =
-      err.data?.message || err.statusMessage || "送信に失敗しました。時間を置いて再度お試しください。";
+      err.data?.message ||
+      err.statusMessage ||
+      "送信に失敗しました。時間を置いて再度お試しください。";
   } finally {
     submitting.value = false;
   }
@@ -99,7 +101,9 @@ async function handleSubmit() {
       <!-- お名前（読み取り専用） -->
       <div>
         <label class="block text-sm font-medium text-gray-700">お名前</label>
-        <div class="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+        <div
+          class="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+        >
           {{ userName || "未設定" }}
         </div>
         <p v-if="!userName.trim()" class="mt-1 text-xs text-red-500">
@@ -110,7 +114,9 @@ async function handleSubmit() {
       <!-- メールアドレス（読み取り専用） -->
       <div>
         <label class="block text-sm font-medium text-gray-700">メールアドレス</label>
-        <div class="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+        <div
+          class="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+        >
           {{ userEmail || "未設定" }}
         </div>
         <p v-if="!userEmail.includes('@')" class="mt-1 text-xs text-red-500">

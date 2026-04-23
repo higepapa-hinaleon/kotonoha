@@ -100,7 +100,15 @@ function handleLogout() {
                         : 'bg-gray-100 text-gray-600'
                 "
               >
-                {{ isOwner ? "オーナー" : isSystemAdmin ? "システム管理者" : isOrgAdmin ? "組織管理者" : "ユーザー" }}
+                {{
+                  isOwner
+                    ? "オーナー"
+                    : isSystemAdmin
+                      ? "システム管理者"
+                      : isOrgAdmin
+                        ? "組織管理者"
+                        : "ユーザー"
+                }}
               </span>
             </div>
             <NuxtLink

@@ -31,7 +31,7 @@ definePageMeta({ layout: false });
             <tr>
               <th class="whitespace-nowrap text-left align-top">連絡先</th>
               <td>
-                TEL: 070-2209-7079<br>
+                TEL: 070-2209-7079<br />
                 Email: t.yamashita.73530@gmail.com
               </td>
             </tr>
@@ -50,7 +50,7 @@ definePageMeta({ layout: false });
             <tr>
               <th class="whitespace-nowrap text-left align-top">支払時期</th>
               <td>
-                クレジットカード: お申込み時に即時決済<br>
+                クレジットカード: お申込み時に即時決済<br />
                 銀行振込: 申請承認後7日以内にお振込みください
               </td>
             </tr>
@@ -61,8 +61,8 @@ definePageMeta({ layout: false });
             <tr>
               <th class="whitespace-nowrap text-left align-top">返品・キャンセルについて</th>
               <td>
-                デジタルサービスの性質上、返品・返金には対応いたしかねます。<br>
-                解約をご希望の場合は、管理画面またはお問い合わせよりご連絡ください。<br>
+                デジタルサービスの性質上、返品・返金には対応いたしかねます。<br />
+                解約をご希望の場合は、管理画面またはお問い合わせよりご連絡ください。<br />
                 解約は月末締めで、翌月末日をもってサービスが終了します。
               </td>
             </tr>

@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
 
   // グループの存在確認と組織チェック（プラットフォーム管理者は全組織にアクセス可能）
   const groupDoc = await db.collection("groups").doc(body.groupId).get();
-  if (!groupDoc.exists || (!isPlatformAdmin(user) && groupDoc.data()?.organizationId !== user.organizationId)) {
+  if (
+    !groupDoc.exists ||
+    (!isPlatformAdmin(user) && groupDoc.data()?.organizationId !== user.organizationId)
+  ) {
     throw createError({ statusCode: 403, statusMessage: "このグループへのアクセス権がありません" });
   }
 

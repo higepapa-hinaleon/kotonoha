@@ -368,7 +368,11 @@ async function generateStructuredJson<T>(systemPrompt: string, userMessage: stri
 **責務:** グループ管理ユーティリティ。
 
 ```typescript
-async function findOrCreateDefaultGroup(organizationId: string, db?: Firestore, groupName?: string): Promise<string>;
+async function findOrCreateDefaultGroup(
+  organizationId: string,
+  db?: Firestore,
+  groupName?: string,
+): Promise<string>;
 async function getUserGroupMemberships(
   userId: string,
   db?: Firestore,

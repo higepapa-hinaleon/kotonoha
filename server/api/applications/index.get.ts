@@ -9,9 +9,7 @@ export default defineEventHandler(async (event) => {
   const status = typeof query.status === "string" ? query.status : undefined;
 
   const db = getAdminFirestore();
-  let ref: FirebaseFirestore.Query = db
-    .collection("applications")
-    .orderBy("createdAt", "desc");
+  let ref: FirebaseFirestore.Query = db.collection("applications").orderBy("createdAt", "desc");
 
   if (status) {
     // ステータスが有効な値かバリデーション

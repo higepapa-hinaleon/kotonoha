@@ -99,7 +99,9 @@ const mobileMenuOpen = ref(false);
           <a href="#features" class="text-sm text-gray-600 hover:text-gray-900">機能</a>
           <a href="#use-cases" class="text-sm text-gray-600 hover:text-gray-900">活用シーン</a>
           <a href="#pricing" class="text-sm text-gray-600 hover:text-gray-900">料金</a>
-          <NuxtLink to="/login" class="text-sm text-gray-600 hover:text-gray-900">ログイン</NuxtLink>
+          <NuxtLink to="/login" class="text-sm text-gray-600 hover:text-gray-900"
+            >ログイン</NuxtLink
+          >
           <NuxtLink
             to="/apply"
             class="rounded-lg bg-primary-600 px-5 py-2 text-sm font-medium text-white hover:bg-primary-700"
@@ -609,9 +611,18 @@ const mobileMenuOpen = ref(false);
                 class="text-4xl font-bold text-gray-900"
                 :class="plan.price === '個別見積' ? 'text-2xl' : ''"
               >
-                {{ plan.price === "個別見積" ? plan.price : plan.price === "0" ? "無料" : `\u00A5${plan.price}` }}
+                {{
+                  plan.price === "個別見積"
+                    ? plan.price
+                    : plan.price === "0"
+                      ? "無料"
+                      : `\u00A5${plan.price}`
+                }}
               </span>
-              <span v-if="plan.price !== '個別見積' && plan.price !== '0'" class="text-sm text-gray-500">
+              <span
+                v-if="plan.price !== '個別見積' && plan.price !== '0'"
+                class="text-sm text-gray-500"
+              >
                 /月（税抜）</span
               >
             </div>
@@ -689,10 +700,18 @@ const mobileMenuOpen = ref(false);
             >&copy; {{ new Date().getFullYear() }} Kotonoha. All rights reserved.</span
           >
           <div class="flex flex-wrap gap-4">
-            <NuxtLink to="/terms" class="text-sm text-gray-400 hover:text-gray-600">利用規約</NuxtLink>
-            <NuxtLink to="/privacy" class="text-sm text-gray-400 hover:text-gray-600">プライバシーポリシー</NuxtLink>
-            <NuxtLink to="/tokushoho" class="text-sm text-gray-400 hover:text-gray-600">特定商取引法に基づく表記</NuxtLink>
-            <NuxtLink to="/contact" class="text-sm text-gray-400 hover:text-gray-600">お問い合わせ</NuxtLink>
+            <NuxtLink to="/terms" class="text-sm text-gray-400 hover:text-gray-600"
+              >利用規約</NuxtLink
+            >
+            <NuxtLink to="/privacy" class="text-sm text-gray-400 hover:text-gray-600"
+              >プライバシーポリシー</NuxtLink
+            >
+            <NuxtLink to="/tokushoho" class="text-sm text-gray-400 hover:text-gray-600"
+              >特定商取引法に基づく表記</NuxtLink
+            >
+            <NuxtLink to="/contact" class="text-sm text-gray-400 hover:text-gray-600"
+              >お問い合わせ</NuxtLink
+            >
           </div>
         </div>
       </div>

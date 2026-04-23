@@ -1,5 +1,13 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment, initializing, hasPendingApplication, fetchPendingApplication } = useAuth();
+  const {
+    isAdmin,
+    isSystemAdmin,
+    hasOrganization,
+    isPendingPayment,
+    initializing,
+    hasPendingApplication,
+    fetchPendingApplication,
+  } = useAuth();
 
   // 認証状態の初期化完了を待つ
   if (initializing.value) {

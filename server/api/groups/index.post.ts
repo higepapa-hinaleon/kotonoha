@@ -8,9 +8,8 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   // プラットフォーム管理者は組織を指定可能
-  const targetOrgId = isPlatformAdmin(user) && body.organizationId
-    ? body.organizationId
-    : user.organizationId;
+  const targetOrgId =
+    isPlatformAdmin(user) && body.organizationId ? body.organizationId : user.organizationId;
 
   if (!targetOrgId) {
     throw createError({ statusCode: 400, statusMessage: "ユーザーに組織が割り当てられていません" });

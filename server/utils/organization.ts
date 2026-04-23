@@ -45,7 +45,9 @@ export async function createOrganizationFromApplication(
     ...(application.address ? { address: application.address } : {}),
     ...(application.phone ? { phone: application.phone } : {}),
     ...(application.tradeName ? { tradeName: application.tradeName } : {}),
-    ...(application.representativeName ? { representativeName: application.representativeName } : {}),
+    ...(application.representativeName
+      ? { representativeName: application.representativeName }
+      : {}),
     ...(application.corporateNumber ? { corporateNumber: application.corporateNumber } : {}),
     ...(application.stripeCustomerId ? { stripeCustomerId: application.stripeCustomerId } : {}),
     createdAt: now,

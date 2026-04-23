@@ -18,7 +18,11 @@ export default defineEventHandler(async (event) => {
         if (!orgIds.includes(c.organizationId)) continue;
         const existing = map.get(c.organizationId);
         // active を優先、既にactiveなら上書きしない、それ以外はstartDateが新しい方を採用
-        if (!existing || (c.status === "active" && existing.status !== "active") || (existing.status !== "active" && c.startDate > existing.startDate)) {
+        if (
+          !existing ||
+          (c.status === "active" && existing.status !== "active") ||
+          (existing.status !== "active" && c.startDate > existing.startDate)
+        ) {
           map.set(c.organizationId, c);
         }
       }
@@ -48,6 +52,9 @@ export default defineEventHandler(async (event) => {
     if (e && typeof e === "object" && "statusCode" in e) throw e;
     const message = e instanceof Error ? e.message : String(e);
     console.error("[system/organizations/list] Firestore操作エラー:", message);
-    throw createError({ statusCode: 500, statusMessage: `組織一覧の取得に失敗しました: ${message}` });
+    throw createError({
+      statusCode: 500,
+      statusMessage: `組織一覧の取得に失敗しました: ${message}`,
+    });
   }
 });

@@ -41,7 +41,7 @@ defineProps<{
           </div>
           <!-- Label -->
           <span
-            class="mt-1.5 text-center text-xs font-medium whitespace-nowrap"
+            class="mt-1.5 whitespace-nowrap text-center text-xs font-medium"
             :class="index <= currentStep ? 'text-primary-600' : 'text-gray-400'"
           >
             {{ step.label }}

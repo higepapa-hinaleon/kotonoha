@@ -112,18 +112,30 @@ export default defineEventHandler(async (event) => {
   // 組織区分別の必須フィールドバリデーション
   if (body.organizationType === "individual") {
     if (!body.phone || typeof body.phone !== "string") {
-      throw createError({ statusCode: 400, statusMessage: "個人の場合、電話番号（phone）は必須です" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "個人の場合、電話番号（phone）は必須です",
+      });
     }
   } else if (body.organizationType === "sole_proprietor") {
     if (!body.tradeName || typeof body.tradeName !== "string") {
-      throw createError({ statusCode: 400, statusMessage: "個人事業主の場合、屋号（tradeName）は必須です" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "個人事業主の場合、屋号（tradeName）は必須です",
+      });
     }
   } else if (body.organizationType === "corporation") {
     if (!body.phone || typeof body.phone !== "string") {
-      throw createError({ statusCode: 400, statusMessage: "法人の場合、電話番号（phone）は必須です" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "法人の場合、電話番号（phone）は必須です",
+      });
     }
     if (!body.address || typeof body.address !== "string") {
-      throw createError({ statusCode: 400, statusMessage: "法人の場合、住所（address）は必須です" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "法人の場合、住所（address）は必須です",
+      });
     }
   }
   // representativeName・corporateNumber は法人でも任意
@@ -149,14 +161,15 @@ export default defineEventHandler(async (event) => {
     if (body.paymentMethod !== "none") {
       throw createError({
         statusCode: 400,
-        statusMessage: "フリープランの支払方法は \"none\" である必要があります",
+        statusMessage: 'フリープランの支払方法は "none" である必要があります',
       });
     }
   } else {
     if (body.paymentMethod !== "stripe" && body.paymentMethod !== "bank_transfer") {
       throw createError({
         statusCode: 400,
-        statusMessage: "有料プランの支払方法は \"stripe\" または \"bank_transfer\" である必要があります",
+        statusMessage:
+          '有料プランの支払方法は "stripe" または "bank_transfer" である必要があります',
       });
     }
   }
@@ -199,12 +212,15 @@ export default defineEventHandler(async (event) => {
   await applicationRef.set(applicationData);
 
   // displayName を contactName で更新（申請作成後に実行、補助処理のため非ブロッキング）
-  db.collection("users").doc(user.id).update({
-    displayName: body.contactName.trim(),
-    updatedAt: now,
-  }).catch((err) => {
-    console.error("[application] displayName 更新に失敗:", err);
-  });
+  db.collection("users")
+    .doc(user.id)
+    .update({
+      displayName: body.contactName.trim(),
+      updatedAt: now,
+    })
+    .catch((err) => {
+      console.error("[application] displayName 更新に失敗:", err);
+    });
 
   const application: Application = {
     id: applicationRef.id,

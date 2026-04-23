@@ -32,6 +32,9 @@ export default defineEventHandler(async (event) => {
     if (e && typeof e === "object" && "statusCode" in e) throw e;
     const message = e instanceof Error ? e.message : String(e);
     console.error("[system/contracts/get] Firestore操作エラー:", message);
-    throw createError({ statusCode: 500, statusMessage: `契約一覧の取得に失敗しました: ${message}` });
+    throw createError({
+      statusCode: 500,
+      statusMessage: `契約一覧の取得に失敗しました: ${message}`,
+    });
   }
 });

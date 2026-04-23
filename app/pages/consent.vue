@@ -58,7 +58,9 @@ async function handleConsent() {
     <div class="w-full max-w-lg space-y-6 rounded-lg bg-white p-8 shadow-md">
       <div class="text-center">
         <h1 class="text-2xl font-bold text-primary-600">kotonoha AI Support</h1>
-        <p class="mt-1 text-sm text-gray-500">サービスをご利用いただくには、以下の規約への同意が必要です</p>
+        <p class="mt-1 text-sm text-gray-500">
+          サービスをご利用いただくには、以下の規約への同意が必要です
+        </p>
       </div>
 
       <div v-if="error" class="rounded-md bg-red-50 p-3 text-sm text-red-600">
@@ -89,16 +91,20 @@ async function handleConsent() {
         </ul>
       </div>
 
-      <label class="flex items-start gap-3 cursor-pointer">
+      <label class="flex cursor-pointer items-start gap-3">
         <input
           v-model="agreed"
           type="checkbox"
           class="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
         />
         <span class="text-sm text-gray-700">
-          <NuxtLink to="/terms" target="_blank" class="text-primary-600 underline">利用規約</NuxtLink>
+          <NuxtLink to="/terms" target="_blank" class="text-primary-600 underline"
+            >利用規約</NuxtLink
+          >
           および
-          <NuxtLink to="/privacy" target="_blank" class="text-primary-600 underline">プライバシーポリシー</NuxtLink>
+          <NuxtLink to="/privacy" target="_blank" class="text-primary-600 underline"
+            >プライバシーポリシー</NuxtLink
+          >
           に同意します
         </span>
       </label>

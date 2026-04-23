@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const doc = await db.collection("invitations").doc(id).get();
-    if (!doc.exists || (!isPlatformAdmin(admin) && doc.data()?.organizationId !== admin.organizationId)) {
+    if (
+      !doc.exists ||
+      (!isPlatformAdmin(admin) && doc.data()?.organizationId !== admin.organizationId)
+    ) {
       throw createError({ statusCode: 404, statusMessage: "招待が見つかりません" });
     }
 

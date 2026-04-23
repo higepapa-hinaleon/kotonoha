@@ -8,7 +8,8 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
-const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment, hasPendingApplication } = useAuth();
+const { isAdmin, isSystemAdmin, hasOrganization, isPendingPayment, hasPendingApplication } =
+  useAuth();
 const { groups, currentGroup, activeGroupId, switchGroup } = useGroup();
 
 const showGroupDropdown = ref(false);
@@ -122,7 +123,10 @@ watch(
         </button>
       </div>
       <!-- モバイル: グループセレクター（承認待ちユーザーには非表示） -->
-      <div v-if="hasOrganization && !isPendingPayment" class="shrink-0 border-b border-gray-200 px-3 py-3">
+      <div
+        v-if="hasOrganization && !isPendingPayment"
+        class="shrink-0 border-b border-gray-200 px-3 py-3"
+      >
         <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
           グループ
         </p>
@@ -192,7 +196,10 @@ watch(
           </li>
         </ul>
         <!-- システム管理セクション（承認待ちユーザーには非表示） -->
-        <div v-if="isSystemAdmin && hasOrganization && !isPendingPayment" class="border-t border-gray-200 pt-2">
+        <div
+          v-if="isSystemAdmin && hasOrganization && !isPendingPayment"
+          class="border-t border-gray-200 pt-2"
+        >
           <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
             システム管理
           </p>
@@ -213,7 +220,10 @@ watch(
             </li>
           </ul>
         </div>
-        <div v-if="isAdmin && hasOrganization && !isPendingPayment" class="border-t border-gray-200 pt-2">
+        <div
+          v-if="isAdmin && hasOrganization && !isPendingPayment"
+          class="border-t border-gray-200 pt-2"
+        >
           <NuxtLink
             :to="settingsItem.to"
             class="flex items-center rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
@@ -250,7 +260,10 @@ watch(
     class="hidden w-56 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white md:flex"
   >
     <!-- デスクトップ: グループセレクター（承認待ちユーザーには非表示） -->
-    <div v-if="hasOrganization && !isPendingPayment" class="shrink-0 border-b border-gray-200 px-3 py-3">
+    <div
+      v-if="hasOrganization && !isPendingPayment"
+      class="shrink-0 border-b border-gray-200 px-3 py-3"
+    >
       <p class="mb-1 px-1 text-xs font-semibold uppercase tracking-wider text-gray-400">グループ</p>
       <div
         v-if="groups.length <= 1"
@@ -364,7 +377,10 @@ watch(
         </li>
       </ul>
       <!-- システム管理セクション（承認待ちユーザーには非表示） -->
-      <div v-if="isSystemAdmin && hasOrganization && !isPendingPayment" class="border-t border-gray-200 pt-2">
+      <div
+        v-if="isSystemAdmin && hasOrganization && !isPendingPayment"
+        class="border-t border-gray-200 pt-2"
+      >
         <p class="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
           システム管理
         </p>
@@ -384,7 +400,10 @@ watch(
           </li>
         </ul>
       </div>
-      <div v-if="isAdmin && hasOrganization && !isPendingPayment" class="border-t border-gray-200 pt-2">
+      <div
+        v-if="isAdmin && hasOrganization && !isPendingPayment"
+        class="border-t border-gray-200 pt-2"
+      >
         <NuxtLink
           :to="settingsItem.to"
           class="flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
