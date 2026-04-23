@@ -24,7 +24,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // 自分自身の owner / system_admin を剥奪することは禁止
-    if (id === admin.id && (admin.role === "owner" || admin.role === "system_admin") && body.role !== admin.role) {
+    if (
+      id === admin.id &&
+      (admin.role === "owner" || admin.role === "system_admin") &&
+      body.role !== admin.role
+    ) {
       throw createError({
         statusCode: 400,
         statusMessage: "自分自身の管理者権限を変更することはできません",

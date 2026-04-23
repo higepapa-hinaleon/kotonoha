@@ -46,12 +46,15 @@ export default defineEventHandler(async (event) => {
 
     return users.map((u) => ({
       ...u,
-      organizationName: u.organizationId ? (orgNameMap.get(u.organizationId) || "不明") : "",
+      organizationName: u.organizationId ? orgNameMap.get(u.organizationId) || "不明" : "",
     }));
   } catch (e: unknown) {
     if (e && typeof e === "object" && "statusCode" in e) throw e;
     const message = e instanceof Error ? e.message : String(e);
     console.error("[system/users/list] Firestore操作エラー:", message);
-    throw createError({ statusCode: 500, statusMessage: `ユーザー一覧の取得に失敗しました: ${message}` });
+    throw createError({
+      statusCode: 500,
+      statusMessage: `ユーザー一覧の取得に失敗しました: ${message}`,
+    });
   }
 });

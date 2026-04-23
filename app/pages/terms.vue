@@ -39,15 +39,30 @@ onMounted(async () => {
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
         </svg>
       </div>
       <div v-else-if="error" class="rounded-md bg-red-50 p-4 text-sm text-red-600">
         {{ error }}
       </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <article v-else class="prose prose-gray max-w-none rounded-lg bg-white p-8 shadow-sm" v-html="content" />
+      <article
+        v-else
+        class="prose prose-gray max-w-none rounded-lg bg-white p-8 shadow-sm"
+        v-html="content"
+      />
     </main>
   </div>
 </template>

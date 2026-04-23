@@ -41,7 +41,10 @@ export default defineEventHandler(async (event) => {
       });
     }
     if (body.startDate > body.endDate) {
-      throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "開始日は終了日以前である必要があります",
+      });
     }
     if (body.status && !VALID_STATUSES.includes(body.status)) {
       throw createError({ statusCode: 400, statusMessage: "無効なステータスです" });

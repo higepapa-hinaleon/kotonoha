@@ -45,9 +45,7 @@ async function main() {
     credential: cert({ projectId, clientEmail, privateKey } as ServiceAccount),
   });
 
-  const db = databaseId
-    ? getFirestore(app, databaseId)
-    : getFirestore(app);
+  const db = databaseId ? getFirestore(app, databaseId) : getFirestore(app);
 
   // ユーザー一覧を取得
   const usersSnapshot = await db.collection("users").get();

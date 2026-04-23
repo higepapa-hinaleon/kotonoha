@@ -173,9 +173,7 @@ const SEED_DOCS: SeedDoc[] = [
 /**
  * legalDocuments コレクションが空の場合に v1.0 をシードする（冪等）
  */
-export async function ensureLegalDocumentsSeeded(
-  db?: FirebaseFirestore.Firestore,
-): Promise<void> {
+export async function ensureLegalDocumentsSeeded(db?: FirebaseFirestore.Firestore): Promise<void> {
   const firestore = db ?? getAdminFirestore();
   const snapshot = await firestore.collection("legalDocuments").limit(1).get();
   if (!snapshot.empty) return;

@@ -118,7 +118,9 @@ onMounted(fetchGroups);
               {{ group.isActive ? "有効" : "無効" }}
             </span>
           </div>
-          <p v-if="isSystemAdmin && group.organizationName" class="mb-1 text-xs text-gray-400">{{ group.organizationName }}</p>
+          <p v-if="isSystemAdmin && group.organizationName" class="mb-1 text-xs text-gray-400">
+            {{ group.organizationName }}
+          </p>
           <p class="mb-2 text-xs text-gray-500">{{ group.description || "-" }}</p>
           <button
             class="text-xs text-red-600 hover:text-red-800"
@@ -172,7 +174,9 @@ onMounted(fetchGroups);
                   {{ group.name }}
                 </NuxtLink>
               </td>
-              <td v-if="isSystemAdmin" class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ group.organizationName || "-" }}</td>
+              <td v-if="isSystemAdmin" class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                {{ group.organizationName || "-" }}
+              </td>
               <td class="px-6 py-4 text-sm text-gray-500">{{ group.description || "-" }}</td>
               <td class="px-6 py-4 text-sm">
                 <span

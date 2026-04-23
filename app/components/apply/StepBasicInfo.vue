@@ -39,11 +39,11 @@ const inputClass =
       <h2 class="mb-4 text-lg font-semibold text-gray-800">契約者区分</h2>
       <div class="flex flex-wrap gap-4">
         <label
-          v-for="opt in ([
+          v-for="opt in [
             { value: 'individual', label: '個人' },
             { value: 'sole_proprietor', label: '個人事業主' },
             { value: 'corporation', label: '法人' },
-          ] as const)"
+          ] as const"
           :key="opt.value"
           class="flex cursor-pointer items-center gap-2 rounded-md border px-4 py-2 transition-colors"
           :class="
@@ -184,9 +184,7 @@ const inputClass =
             />
           </div>
           <div>
-            <label for="repName" class="block text-sm font-medium text-gray-700">
-              代表者名
-            </label>
+            <label for="repName" class="block text-sm font-medium text-gray-700"> 代表者名 </label>
             <input
               id="repName"
               v-model="representativeName"
@@ -196,9 +194,7 @@ const inputClass =
             />
           </div>
           <div>
-            <label for="corpNum" class="block text-sm font-medium text-gray-700">
-              法人番号
-            </label>
+            <label for="corpNum" class="block text-sm font-medium text-gray-700"> 法人番号 </label>
             <input
               id="corpNum"
               v-model="corporateNumber"

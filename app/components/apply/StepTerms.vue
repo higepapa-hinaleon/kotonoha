@@ -26,7 +26,11 @@ defineExpose({ isValid });
           class="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
         />
         <span>
-          <NuxtLink to="/terms" target="_blank" class="text-primary-600 underline hover:text-primary-700">
+          <NuxtLink
+            to="/terms"
+            target="_blank"
+            class="text-primary-600 underline hover:text-primary-700"
+          >
             利用規約
           </NuxtLink>
           <span class="ml-1 text-xs text-gray-400">(v{{ termsVersion }})</span>
@@ -40,7 +44,11 @@ defineExpose({ isValid });
           class="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
         />
         <span>
-          <NuxtLink to="/privacy" target="_blank" class="text-primary-600 underline hover:text-primary-700">
+          <NuxtLink
+            to="/privacy"
+            target="_blank"
+            class="text-primary-600 underline hover:text-primary-700"
+          >
             プライバシーポリシー
           </NuxtLink>
           <span class="ml-1 text-xs text-gray-400">(v{{ privacyVersion }})</span>

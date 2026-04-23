@@ -76,7 +76,13 @@ export function useAuth() {
       }
       await fetchGroups();
       // owner / system_admin / org_admin: グループ未選択時に最初のグループを自動選択
-      if ((userData.role === "owner" || userData.role === "system_admin" || userData.role === "org_admin") && !userData.activeGroupId && groups.value.length > 0) {
+      if (
+        (userData.role === "owner" ||
+          userData.role === "system_admin" ||
+          userData.role === "org_admin") &&
+        !userData.activeGroupId &&
+        groups.value.length > 0
+      ) {
         setActiveGroupId(groups.value[0].id);
       }
     };
@@ -85,12 +91,11 @@ export function useAuth() {
   async function fetchUser(options?: { organizationName?: string }) {
     try {
       const token = await getIdToken();
-      const data = await $fetch<User & { groupMemberships?: UserGroupMembership[]; hasPendingPayment?: boolean }>(
-        "/api/auth/me",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const data = await $fetch<
+        User & { groupMemberships?: UserGroupMembership[]; hasPendingPayment?: boolean }
+      >("/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const { groupMemberships, hasPendingPayment, ...userData } = data;
       authState.user = userData;
       authState.hasPendingPayment = hasPendingPayment ?? false;
@@ -106,7 +111,9 @@ export function useAuth() {
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
-            ...(options?.organizationName ? { body: { organizationName: options.organizationName } } : {}),
+            ...(options?.organizationName
+              ? { body: { organizationName: options.organizationName } }
+              : {}),
           },
         );
         const { groupMemberships, ...userData } = data;
@@ -121,7 +128,11 @@ export function useAuth() {
     }
   }
 
-  async function signupWithEmail(email: string, password: string, options?: { organizationName?: string }) {
+  async function signupWithEmail(
+    email: string,
+    password: string,
+    options?: { organizationName?: string },
+  ) {
     authState.loading = true;
     explicitAuthInProgress = true;
     try {
@@ -206,7 +217,8 @@ export function useAuth() {
     isAdmin: computed(() => {
       const user = authState.user;
       if (!user) return false;
-      if (user.role === "owner" || user.role === "system_admin" || user.role === "org_admin") return true;
+      if (user.role === "owner" || user.role === "system_admin" || user.role === "org_admin")
+        return true;
       // グループレベルの admin チェック
       const { isGroupAdmin } = useGroup();
       return isGroupAdmin.value;

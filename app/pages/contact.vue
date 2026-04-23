@@ -54,7 +54,9 @@ async function handleSubmit() {
   } catch (e: unknown) {
     const err = e as { data?: { message?: string }; statusMessage?: string };
     errorMessage.value =
-      err.data?.message || err.statusMessage || "送信に失敗しました。時間を置いて再度お試しください。";
+      err.data?.message ||
+      err.statusMessage ||
+      "送信に失敗しました。時間を置いて再度お試しください。";
   } finally {
     submitting.value = false;
   }

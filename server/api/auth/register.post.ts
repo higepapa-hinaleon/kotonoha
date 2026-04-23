@@ -38,7 +38,8 @@ export default defineEventHandler(async (event) => {
     consentVersion = body?.consentVersion;
     const rawGroupName = typeof body?.groupName === "string" ? body.groupName.trim() : undefined;
     groupName = rawGroupName && rawGroupName.length <= 100 ? rawGroupName : undefined;
-    const rawOrgName = typeof body?.organizationName === "string" ? body.organizationName.trim() : undefined;
+    const rawOrgName =
+      typeof body?.organizationName === "string" ? body.organizationName.trim() : undefined;
     organizationName = rawOrgName && rawOrgName.length <= 100 ? rawOrgName : undefined;
   } catch (err) {
     // ボディなしの場合は無視
@@ -76,7 +77,8 @@ export default defineEventHandler(async (event) => {
   if (isFirstUser) {
     // 初回ユーザー: owner + デフォルト組織 + デフォルトグループ
     const displayName = decodedToken.name || decodedToken.email || "";
-    const defaultGroupName = groupName || (displayName ? `${displayName}の組織` : "デフォルトグループ");
+    const defaultGroupName =
+      groupName || (displayName ? `${displayName}の組織` : "デフォルトグループ");
     const defaultGroupId = await findOrCreateDefaultGroup(orgId, db, defaultGroupName);
 
     const newUser: Omit<User, "id"> = {

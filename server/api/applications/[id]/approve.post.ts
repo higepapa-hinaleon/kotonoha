@@ -3,10 +3,7 @@ import { getAdminFirestore } from "~~/server/utils/firebase-admin";
 import { createOrganizationFromApplication } from "~~/server/utils/organization";
 import { findOrCreateDefaultGroup, addUserToGroup } from "~~/server/utils/group";
 import { createSubscription } from "~~/server/utils/stripe";
-import {
-  sendApplicationApprovedEmail,
-  sendInvoiceEmail,
-} from "~~/server/utils/email";
+import { sendApplicationApprovedEmail, sendInvoiceEmail } from "~~/server/utils/email";
 import { PLAN_DEFINITIONS } from "~~/shared/plans";
 import type { Application, ContractStatus, PaymentMethod } from "~~/shared/types/models";
 

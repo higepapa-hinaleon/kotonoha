@@ -73,7 +73,10 @@ export default defineEventHandler(async (event) => {
     const finalStartDate = (updates.startDate as string) || existingData.startDate;
     const finalEndDate = (updates.endDate as string) || existingData.endDate;
     if (finalStartDate > finalEndDate) {
-      throw createError({ statusCode: 400, statusMessage: "開始日は終了日以前である必要があります" });
+      throw createError({
+        statusCode: 400,
+        statusMessage: "開始日は終了日以前である必要があります",
+      });
     }
 
     await contractRef.update(updates);

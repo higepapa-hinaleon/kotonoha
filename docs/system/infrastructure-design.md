@@ -61,15 +61,15 @@ graph TB
 
 ### 1.2 リージョン
 
-| サービス                | リージョン             | 備考                         |
-| ----------------------- | ---------------------- | ---------------------------- |
-| Cloud Run               | asia-northeast1 (東京) | メインアプリケーション       |
+| サービス                | リージョン             | 備考                           |
+| ----------------------- | ---------------------- | ------------------------------ |
+| Cloud Run               | asia-northeast1 (東京) | メインアプリケーション         |
 | Cloud Firestore         | asia-northeast1        | 名前付きDB: `kotonoha-ai-chat` |
-| Cloud Storage           | asia-northeast1        | バケット: `kotonoha-ai-chat` |
-| Vertex AI               | asia-northeast1        | Gemini + Embedding           |
-| Artifact Registry       | asia-northeast1        | Docker イメージ保管          |
-| Firebase Hosting        | グローバル CDN         | -                            |
-| Firebase Authentication | グローバル             | -                            |
+| Cloud Storage           | asia-northeast1        | バケット: `kotonoha-ai-chat`   |
+| Vertex AI               | asia-northeast1        | Gemini + Embedding             |
+| Artifact Registry       | asia-northeast1        | Docker イメージ保管            |
+| Firebase Hosting        | グローバル CDN         | -                              |
+| Firebase Authentication | グローバル             | -                              |
 
 ---
 
@@ -117,11 +117,11 @@ Startup Probe の初期遅延は30秒。Nuxt のビルド出力起動とFirebase
 
 ### 3.1 Cloud Firestore
 
-| 項目           | 値              |
-| -------------- | --------------- |
+| 項目           | 値                 |
+| -------------- | ------------------ |
 | データベースID | `kotonoha-ai-chat` |
-| モード         | Native mode     |
-| ロケーション   | asia-northeast1 |
+| モード         | Native mode        |
+| ロケーション   | asia-northeast1    |
 
 **ベクトル検索:**
 

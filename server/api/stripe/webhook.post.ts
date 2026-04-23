@@ -23,7 +23,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[stripe/webhook] 署名検証エラー:", message);
-    throw createError({ statusCode: 400, statusMessage: `Webhook 署名検証に失敗しました: ${message}` });
+    throw createError({
+      statusCode: 400,
+      statusMessage: `Webhook 署名検証に失敗しました: ${message}`,
+    });
   }
 
   const db = getAdminFirestore();
@@ -70,7 +73,9 @@ async function handleCheckoutSessionCompleted(
   const applicationId = session.metadata?.applicationId;
 
   if (!applicationId) {
-    console.warn("[stripe/webhook] checkout.session.completed: metadata に applicationId がありません");
+    console.warn(
+      "[stripe/webhook] checkout.session.completed: metadata に applicationId がありません",
+    );
     return;
   }
 
@@ -134,9 +139,7 @@ async function handleSubscriptionUpdated(
     updatedAt: new Date().toISOString(),
   });
 
-  console.log(
-    `[stripe/webhook] 契約 ${contractDoc.id} のステータスを ${newStatus} に更新しました`,
-  );
+  console.log(`[stripe/webhook] 契約 ${contractDoc.id} のステータスを ${newStatus} に更新しました`);
 }
 
 /**
@@ -176,7 +179,11 @@ function handleInvoicePaymentFailed(
   _db: FirebaseFirestore.Firestore,
   stripeEvent: Stripe.Event,
 ): void {
-  const invoice = stripeEvent.data.object as { id: string; subscription?: string | null; customer?: string | null };
+  const invoice = stripeEvent.data.object as {
+    id: string;
+    subscription?: string | null;
+    customer?: string | null;
+  };
 
   console.warn("[stripe/webhook] 支払い失敗:", {
     invoiceId: invoice.id,

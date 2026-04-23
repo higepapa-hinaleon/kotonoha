@@ -260,7 +260,7 @@ async function multiQuerySearch(query: string, options: {...}): Promise<RagResul
 
 ```typescript
 async function generateEmbedding(text: string): Promise<number[]>; // 単一テキスト
-async function generateEmbeddings(texts: string[]): Promise<number[][]>; // バッチ（最大250件）
+async function generateEmbeddings(texts: string[]): Promise<number[][]>; // バッチ（最大250件 / 合計18,000トークン以下）
 ```
 
 **内部関数:**
@@ -368,7 +368,11 @@ async function generateStructuredJson<T>(systemPrompt: string, userMessage: stri
 **責務:** グループ管理ユーティリティ。
 
 ```typescript
-async function findOrCreateDefaultGroup(organizationId: string, db?: Firestore, groupName?: string): Promise<string>;
+async function findOrCreateDefaultGroup(
+  organizationId: string,
+  db?: Firestore,
+  groupName?: string,
+): Promise<string>;
 async function getUserGroupMemberships(
   userId: string,
   db?: Firestore,

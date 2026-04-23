@@ -9,7 +9,10 @@ export default defineEventHandler(async (event) => {
   const version = getRouterParam(event, "version");
 
   if (!type || !["terms", "privacy"].includes(type)) {
-    throw createError({ statusCode: 400, statusMessage: "type は terms または privacy を指定してください" });
+    throw createError({
+      statusCode: 400,
+      statusMessage: "type は terms または privacy を指定してください",
+    });
   }
 
   if (!version) {

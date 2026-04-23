@@ -100,15 +100,16 @@ async function handleSave() {
   saving.value = true;
   try {
     // 空文字列・NaN は未設定（グループ設定フォールバック）として扱う
-    const ct = typeof formConfidenceThreshold.value === "number" && !isNaN(formConfidenceThreshold.value)
-      ? formConfidenceThreshold.value
-      : null;
-    const topK = typeof formRagTopK.value === "number" && !isNaN(formRagTopK.value)
-      ? formRagTopK.value
-      : null;
-    const sp = formSystemPrompt.value && formSystemPrompt.value.trim()
-      ? formSystemPrompt.value.trim()
-      : null;
+    const ct =
+      typeof formConfidenceThreshold.value === "number" && !isNaN(formConfidenceThreshold.value)
+        ? formConfidenceThreshold.value
+        : null;
+    const topK =
+      typeof formRagTopK.value === "number" && !isNaN(formRagTopK.value) ? formRagTopK.value : null;
+    const sp =
+      formSystemPrompt.value && formSystemPrompt.value.trim()
+        ? formSystemPrompt.value.trim()
+        : null;
 
     const botConfig = formUseCustomBotConfig.value
       ? {
@@ -123,11 +124,7 @@ async function handleSave() {
       description: formDescription.value,
       isActive: formIsActive.value,
       googleFormUrl: formGoogleFormUrl.value,
-      ...(editingService.value
-        ? { botConfig }
-        : botConfig
-          ? { botConfig }
-          : {}),
+      ...(editingService.value ? { botConfig } : botConfig ? { botConfig } : {}),
     };
 
     if (editingService.value) {

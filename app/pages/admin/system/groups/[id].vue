@@ -96,8 +96,9 @@ async function saveGroup() {
 }
 
 async function openAddDialog() {
-  const users =
-    await apiFetch<{ id: string; email: string; displayName: string }[]>(`/api/system/users?organizationId=${group.value!.organizationId}`);
+  const users = await apiFetch<{ id: string; email: string; displayName: string }[]>(
+    `/api/system/users?organizationId=${group.value!.organizationId}`,
+  );
   // 既にメンバーのユーザーを除外
   const memberIds = new Set(members.value.map((m) => m.userId));
   allUsers.value = users.filter((u) => !memberIds.has(u.id));
@@ -181,7 +182,11 @@ onMounted(fetchData);
           <div>
             <label class="block text-sm font-medium text-gray-700">状態</label>
             <label class="mt-2 inline-flex cursor-pointer items-center gap-2">
-              <input v-model="editIsActive" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+              <input
+                v-model="editIsActive"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
               <span class="text-sm text-gray-700">{{ editIsActive ? "有効" : "無効" }}</span>
             </label>
           </div>

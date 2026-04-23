@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { DashboardSummary, ServiceDashboardSummary } from "~~/shared/types/api";
-import type { Conversation, Message, ImprovementRequest, Application } from "~~/shared/types/models";
+import type {
+  Conversation,
+  Message,
+  ImprovementRequest,
+  Application,
+} from "~~/shared/types/models";
 import { PLAN_DEFINITIONS } from "~~/shared/plans";
 import { BANK_TRANSFER_INFO } from "~~/shared/bank-transfer";
 
@@ -13,7 +18,14 @@ const { apiFetch } = useApi();
 const { show } = useNotification();
 const { currentGroup, activeGroupId } = useGroup();
 const route = useRoute();
-const { user, hasOrganization, isPendingPayment, hasPendingApplication, fetchPendingApplication, fetchUser } = useAuth();
+const {
+  user,
+  hasOrganization,
+  isPendingPayment,
+  hasPendingApplication,
+  fetchPendingApplication,
+  fetchUser,
+} = useAuth();
 
 // --- 承認待ちビュー ---
 const pendingApp = ref<Application | null>(null);
@@ -33,13 +45,25 @@ const pendingStatusDisplay = computed(() => {
   if (!app) return null;
 
   if (app.status === "pending") {
-    return { type: "pending" as const, title: "申請を受け付けました", message: "審査完了までお待ちください。" };
+    return {
+      type: "pending" as const,
+      title: "申請を受け付けました",
+      message: "審査完了までお待ちください。",
+    };
   }
   if (app.status === "approved" && app.paymentMethod === "bank_transfer") {
-    return { type: "payment" as const, title: "申請が承認されました", message: "お振込みの確認をお待ちしています。" };
+    return {
+      type: "payment" as const,
+      title: "申請が承認されました",
+      message: "お振込みの確認をお待ちしています。",
+    };
   }
   if (app.status === "rejected") {
-    return { type: "rejected" as const, title: "申請が承認されませんでした", message: app.reviewNote || "審査の結果、今回はご利用いただけません。" };
+    return {
+      type: "rejected" as const,
+      title: "申請が承認されませんでした",
+      message: app.reviewNote || "審査の結果、今回はご利用いただけません。",
+    };
   }
   return null;
 });
@@ -50,7 +74,10 @@ async function fetchPendingApp() {
     pendingApp.value = app;
 
     // 承認された場合、ユーザー情報を更新して通常ダッシュボードに切替
-    if (pendingApp.value?.status === "approved" && pendingApp.value.paymentMethod !== "bank_transfer") {
+    if (
+      pendingApp.value?.status === "approved" &&
+      pendingApp.value.paymentMethod !== "bank_transfer"
+    ) {
       stopPendingRefresh();
       await fetchUser();
     }
@@ -234,24 +261,32 @@ function formatDateShort(dateStr: string): string {
 }
 
 // 承認待ちビューの初期化: isPendingView が true になったら開始、false になったら停止して通常ダッシュボードを取得
-watch(isPendingView, (pending, oldPending) => {
-  if (pending) {
-    fetchPendingApp().then(() => startPendingRefresh());
-  } else {
-    stopPendingRefresh();
-    // 初回ロード時（oldPending === undefined）は activeGroupId watcher が fetchDashboard を呼ぶため除外
-    if (oldPending) {
-      fetchDashboard();
+watch(
+  isPendingView,
+  (pending, oldPending) => {
+    if (pending) {
+      fetchPendingApp().then(() => startPendingRefresh());
+    } else {
+      stopPendingRefresh();
+      // 初回ロード時（oldPending === undefined）は activeGroupId watcher が fetchDashboard を呼ぶため除外
+      if (oldPending) {
+        fetchDashboard();
+      }
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true },
+);
 
 // 初回マウント時＋グループ切替時にダッシュボードを取得（通常ビューのみ）
-watch(activeGroupId, () => {
-  if (!isPendingView.value) {
-    fetchDashboard();
-  }
-}, { immediate: true });
+watch(
+  activeGroupId,
+  () => {
+    if (!isPendingView.value) {
+      fetchDashboard();
+    }
+  },
+  { immediate: true },
+);
 
 onUnmounted(() => {
   stopPendingRefresh();
@@ -294,12 +329,20 @@ onUnmounted(() => {
               <div class="flex justify-between">
                 <dt class="text-sm text-gray-500">契約者区分</dt>
                 <dd class="text-sm font-medium text-gray-900">
-                  {{ pendingApp.organizationType === "individual" ? "個人" : pendingApp.organizationType === "sole_proprietor" ? "個人事業主" : "法人" }}
+                  {{
+                    pendingApp.organizationType === "individual"
+                      ? "個人"
+                      : pendingApp.organizationType === "sole_proprietor"
+                        ? "個人事業主"
+                        : "法人"
+                  }}
                 </dd>
               </div>
               <div class="flex justify-between">
                 <dt class="text-sm text-gray-500">選択プラン</dt>
-                <dd class="text-sm font-medium text-gray-900">{{ pendingPlan?.displayName || pendingApp.planId }}</dd>
+                <dd class="text-sm font-medium text-gray-900">
+                  {{ pendingPlan?.displayName || pendingApp.planId }}
+                </dd>
               </div>
               <div v-if="pendingApp.invoiceNumber" class="flex justify-between">
                 <dt class="text-sm text-gray-500">請求番号</dt>
@@ -311,12 +354,20 @@ onUnmounted(() => {
                   <span
                     class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
                     :class="
-                      pendingApp.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      pendingApp.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                      'bg-red-100 text-red-800'
+                      pendingApp.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : pendingApp.status === 'approved'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-red-100 text-red-800'
                     "
                   >
-                    {{ pendingApp.status === "pending" ? "審査中" : pendingApp.status === "approved" ? "入金待ち" : "却下" }}
+                    {{
+                      pendingApp.status === "pending"
+                        ? "審査中"
+                        : pendingApp.status === "approved"
+                          ? "入金待ち"
+                          : "却下"
+                    }}
                   </span>
                 </dd>
               </div>
@@ -328,45 +379,106 @@ onUnmounted(() => {
             <div class="text-center">
               <!-- 審査待ち -->
               <template v-if="pendingStatusDisplay.type === 'pending'">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100">
-                  <svg class="h-7 w-7 animate-spin text-yellow-500" style="animation-duration: 3s" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <div
+                  class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100"
+                >
+                  <svg
+                    class="h-7 w-7 animate-spin text-yellow-500"
+                    style="animation-duration: 3s"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                 </div>
-                <h3 class="mb-1 text-base font-semibold text-gray-900">{{ pendingStatusDisplay.title }}</h3>
+                <h3 class="mb-1 text-base font-semibold text-gray-900">
+                  {{ pendingStatusDisplay.title }}
+                </h3>
                 <p class="text-sm text-gray-600">{{ pendingStatusDisplay.message }}</p>
                 <p class="mt-3 text-xs text-gray-400">ステータスは自動的に更新されます</p>
               </template>
 
               <!-- 入金待ち -->
               <template v-else-if="pendingStatusDisplay.type === 'payment'">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-                  <svg class="h-7 w-7 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                <div
+                  class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100"
+                >
+                  <svg
+                    class="h-7 w-7 text-blue-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"
+                    />
                   </svg>
                 </div>
-                <h3 class="mb-1 text-base font-semibold text-gray-900">{{ pendingStatusDisplay.title }}</h3>
+                <h3 class="mb-1 text-base font-semibold text-gray-900">
+                  {{ pendingStatusDisplay.title }}
+                </h3>
                 <p class="text-sm text-gray-600">{{ pendingStatusDisplay.message }}</p>
 
                 <!-- 振込先情報 -->
-                <div class="mx-auto mt-5 max-w-sm rounded-md border border-blue-200 bg-blue-50 p-4 text-left text-sm">
+                <div
+                  class="mx-auto mt-5 max-w-sm rounded-md border border-blue-200 bg-blue-50 p-4 text-left text-sm"
+                >
                   <h4 class="mb-3 font-semibold text-gray-900">お振込先</h4>
                   <dl class="space-y-1.5 text-gray-700">
-                    <div class="flex justify-between"><dt>銀行</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.bankName }}</dd></div>
-                    <div class="flex justify-between"><dt>支店</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.branchName }}</dd></div>
-                    <div class="flex justify-between"><dt>口座種別</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountType }}</dd></div>
-                    <div class="flex justify-between"><dt>口座番号</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountNumber }}</dd></div>
-                    <div class="flex justify-between"><dt>口座名義</dt><dd class="font-medium">{{ BANK_TRANSFER_INFO.accountHolder }}</dd></div>
+                    <div class="flex justify-between">
+                      <dt>銀行</dt>
+                      <dd class="font-medium">{{ BANK_TRANSFER_INFO.bankName }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                      <dt>支店</dt>
+                      <dd class="font-medium">{{ BANK_TRANSFER_INFO.branchName }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                      <dt>口座種別</dt>
+                      <dd class="font-medium">{{ BANK_TRANSFER_INFO.accountType }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                      <dt>口座番号</dt>
+                      <dd class="font-medium">{{ BANK_TRANSFER_INFO.accountNumber }}</dd>
+                    </div>
+                    <div class="flex justify-between">
+                      <dt>口座名義</dt>
+                      <dd class="font-medium">{{ BANK_TRANSFER_INFO.accountHolder }}</dd>
+                    </div>
                   </dl>
-                  <div v-if="pendingApp?.invoiceNumber" class="mt-3 rounded bg-white p-2 text-center">
+                  <div
+                    v-if="pendingApp?.invoiceNumber"
+                    class="mt-3 rounded bg-white p-2 text-center"
+                  >
                     <p class="text-xs text-gray-500">請求番号</p>
                     <p class="text-base font-bold text-gray-900">{{ pendingApp.invoiceNumber }}</p>
                   </div>
                   <ul class="mt-3 space-y-1 text-xs text-gray-600">
                     <li>※ 振込手数料はお客様負担となります。</li>
                     <li>※ お振込の際は、登録時のお名前と同一の名義でお願いします。</li>
-                    <li v-if="pendingApp?.invoiceNumber">※ 振込人名の前に請求番号「{{ pendingApp.invoiceNumber }}」を付けてください。<br>&nbsp;&nbsp;例: {{ pendingApp.invoiceNumber }} ヤマダタロウ</li>
+                    <li v-if="pendingApp?.invoiceNumber">
+                      ※ 振込人名の前に請求番号「{{
+                        pendingApp.invoiceNumber
+                      }}」を付けてください。<br />&nbsp;&nbsp;例:
+                      {{ pendingApp.invoiceNumber }} ヤマダタロウ
+                    </li>
                   </ul>
                 </div>
 
@@ -375,14 +487,32 @@ onUnmounted(() => {
 
               <!-- 却下 -->
               <template v-else-if="pendingStatusDisplay.type === 'rejected'">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-                  <svg class="h-7 w-7 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                <div
+                  class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100"
+                >
+                  <svg
+                    class="h-7 w-7 text-red-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    />
                   </svg>
                 </div>
-                <h3 class="mb-1 text-base font-semibold text-gray-900">{{ pendingStatusDisplay.title }}</h3>
+                <h3 class="mb-1 text-base font-semibold text-gray-900">
+                  {{ pendingStatusDisplay.title }}
+                </h3>
                 <p class="text-sm text-gray-600">{{ pendingStatusDisplay.message }}</p>
-                <NuxtLink to="/apply" class="mt-4 inline-block rounded-md bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700">
+                <NuxtLink
+                  to="/apply"
+                  class="mt-4 inline-block rounded-md bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                >
                   再申請する
                 </NuxtLink>
               </template>
@@ -391,28 +521,77 @@ onUnmounted(() => {
 
           <!-- プラン詳細 -->
           <div v-if="pendingPlan" class="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 class="mb-4 text-sm font-semibold text-gray-900">プラン詳細: {{ pendingPlan.displayName }}</h2>
+            <h2 class="mb-4 text-sm font-semibold text-gray-900">
+              プラン詳細: {{ pendingPlan.displayName }}
+            </h2>
             <div class="mb-4">
               <span class="text-2xl font-bold text-gray-900">
-                {{ pendingPlan.priceMonthly === 0 ? "無料" : pendingPlan.priceMonthly === -1 ? "個別見積" : `\u00A5${pendingPlan.price}/月` }}
+                {{
+                  pendingPlan.priceMonthly === 0
+                    ? "無料"
+                    : pendingPlan.priceMonthly === -1
+                      ? "個別見積"
+                      : `\u00A5${pendingPlan.price}/月`
+                }}
               </span>
             </div>
             <div class="grid gap-3 sm:grid-cols-2">
               <div class="text-sm">
                 <p class="font-medium text-gray-700">リソース上限</p>
                 <ul class="mt-1 space-y-1 text-gray-500">
-                  <li>グループ数: {{ pendingPlan.limits.maxGroups === -1 ? "無制限" : pendingPlan.limits.maxGroups }}</li>
-                  <li>サービス数: {{ pendingPlan.limits.maxServices === -1 ? "無制限" : pendingPlan.limits.maxServices }}</li>
-                  <li>ドキュメント: {{ pendingPlan.limits.maxDocuments === -1 ? "無制限" : `${pendingPlan.limits.maxDocuments}件` }}</li>
-                  <li>月間チャット: {{ pendingPlan.limits.maxMonthlyChats === -1 ? "無制限" : `${pendingPlan.limits.maxMonthlyChats.toLocaleString()}回` }}</li>
-                  <li>ユーザー数: {{ pendingPlan.limits.maxUsers === -1 ? "無制限" : pendingPlan.limits.maxUsers }}</li>
+                  <li>
+                    グループ数:
+                    {{
+                      pendingPlan.limits.maxGroups === -1 ? "無制限" : pendingPlan.limits.maxGroups
+                    }}
+                  </li>
+                  <li>
+                    サービス数:
+                    {{
+                      pendingPlan.limits.maxServices === -1
+                        ? "無制限"
+                        : pendingPlan.limits.maxServices
+                    }}
+                  </li>
+                  <li>
+                    ドキュメント:
+                    {{
+                      pendingPlan.limits.maxDocuments === -1
+                        ? "無制限"
+                        : `${pendingPlan.limits.maxDocuments}件`
+                    }}
+                  </li>
+                  <li>
+                    月間チャット:
+                    {{
+                      pendingPlan.limits.maxMonthlyChats === -1
+                        ? "無制限"
+                        : `${pendingPlan.limits.maxMonthlyChats.toLocaleString()}回`
+                    }}
+                  </li>
+                  <li>
+                    ユーザー数:
+                    {{
+                      pendingPlan.limits.maxUsers === -1 ? "無制限" : pendingPlan.limits.maxUsers
+                    }}
+                  </li>
                 </ul>
               </div>
               <div class="text-sm">
                 <p class="font-medium text-gray-700">機能</p>
                 <ul class="mt-1 space-y-1">
-                  <li v-for="feature in pendingPlan.landingFeatures" :key="feature" class="flex items-start gap-1.5 text-gray-500">
-                    <svg class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <li
+                    v-for="feature in pendingPlan.landingFeatures"
+                    :key="feature"
+                    class="flex items-start gap-1.5 text-gray-500"
+                  >
+                    <svg
+                      class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-primary-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                     {{ feature }}

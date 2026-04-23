@@ -33,7 +33,9 @@ const orgTypeLabel = computed(() => {
   return map[props.organizationType];
 });
 
-const planName = computed(() => PLAN_DEFINITIONS[props.selectedPlanId]?.displayName ?? props.selectedPlanId);
+const planName = computed(
+  () => PLAN_DEFINITIONS[props.selectedPlanId]?.displayName ?? props.selectedPlanId,
+);
 
 const paymentMethodLabel = computed(() => {
   const map: Record<PaymentMethod, string> = {
@@ -161,8 +163,19 @@ const paymentMethodLabel = computed(() => {
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
         </svg>
         {{ submitting ? "送信中..." : "確定して利用開始" }}
       </button>

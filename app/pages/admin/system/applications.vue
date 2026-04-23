@@ -206,10 +206,7 @@ onMounted(() => {
           :key="app.id"
           class="rounded-lg border border-gray-200 bg-white"
         >
-          <button
-            class="w-full p-4 text-left"
-            @click="toggleExpand(app.id)"
-          >
+          <button class="w-full p-4 text-left" @click="toggleExpand(app.id)">
             <div class="flex items-start justify-between">
               <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium text-gray-900">{{ app.applicantEmail }}</p>
@@ -312,38 +309,51 @@ onMounted(() => {
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 申請者メール
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 契約者区分
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 組織名
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 プラン
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 支払方法
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 申請日
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 ステータス
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 操作
               </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             <template v-for="app in filteredApplications" :key="app.id">
-              <tr
-                class="cursor-pointer hover:bg-gray-50"
-                @click="toggleExpand(app.id)"
-              >
+              <tr class="cursor-pointer hover:bg-gray-50" @click="toggleExpand(app.id)">
                 <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                   {{ app.applicantEmail }}
                 </td>
@@ -485,9 +495,7 @@ onMounted(() => {
     >
       <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <h3 class="mb-4 text-lg font-semibold text-gray-900">申請を却下</h3>
-        <p class="mb-4 text-sm text-gray-600">
-          この申請を却下しますか？申請者に通知されます。
-        </p>
+        <p class="mb-4 text-sm text-gray-600">この申請を却下しますか？申請者に通知されます。</p>
         <div>
           <label class="block text-sm font-medium text-gray-700">却下理由（任意）</label>
           <textarea

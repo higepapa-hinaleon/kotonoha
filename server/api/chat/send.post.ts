@@ -1,5 +1,10 @@
 import { getAdminFirestore } from "~~/server/utils/firebase-admin";
-import { verifyAuthOptional, verifyActiveContract, resolveGroupId, resolveExternalUser } from "~~/server/utils/auth";
+import {
+  verifyAuthOptional,
+  verifyActiveContract,
+  resolveGroupId,
+  resolveExternalUser,
+} from "~~/server/utils/auth";
 import { processChatMessage } from "~~/server/utils/chat";
 import { checkMonthlyChats } from "~~/server/utils/plan-limit";
 import type { ChatSendRequest, ChatSendResponse } from "~~/shared/types/api";

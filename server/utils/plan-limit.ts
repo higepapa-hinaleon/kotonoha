@@ -70,11 +70,7 @@ export async function checkPlanLimit(
   if (resource === "users") {
     // ユーザー数 = 既存ユーザー + pending 招待
     const [usersSnap, invitationsSnap] = await Promise.all([
-      firestore
-        .collection("users")
-        .where("organizationId", "==", organizationId)
-        .count()
-        .get(),
+      firestore.collection("users").where("organizationId", "==", organizationId).count().get(),
       firestore
         .collection("invitations")
         .where("organizationId", "==", organizationId)

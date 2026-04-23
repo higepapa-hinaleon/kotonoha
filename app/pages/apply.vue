@@ -6,7 +6,15 @@ import type { ApplicationSubmitRequest } from "~~/shared/types/api";
 definePageMeta({ layout: false, middleware: [] });
 
 const route = useRoute();
-const { initializing, isAuthenticated, hasOrganization, hasConsent, getIdToken, fetchUser, invalidatePendingApplicationCache } = useAuth();
+const {
+  initializing,
+  isAuthenticated,
+  hasOrganization,
+  hasConsent,
+  getIdToken,
+  fetchUser,
+  invalidatePendingApplicationCache,
+} = useAuth();
 const { apiFetch } = useApi();
 const { show } = useNotification();
 
@@ -37,9 +45,8 @@ const applicationSubmitted = ref(false);
 
 // クエリパラメータからプラン初期値を取得
 const queryPlan = route.query.plan as string | undefined;
-const initialPlanId: PlanId = queryPlan && VALID_PLAN_IDS.includes(queryPlan as PlanId)
-  ? (queryPlan as PlanId)
-  : "free";
+const initialPlanId: PlanId =
+  queryPlan && VALID_PLAN_IDS.includes(queryPlan as PlanId) ? (queryPlan as PlanId) : "free";
 
 watch(
   [() => initializing.value, () => isAuthenticated.value],
@@ -60,7 +67,9 @@ watch(
     }
     // Check pending application
     try {
-      const res = await apiFetch<{ application: { status: string } | null }>("/api/applications/mine");
+      const res = await apiFetch<{ application: { status: string } | null }>(
+        "/api/applications/mine",
+      );
       if (res?.application?.status === "pending") {
         hasPendingApplication.value = true;
         await navigateTo("/admin");
@@ -139,9 +148,7 @@ const canProceedFromStep = computed(() => {
 
 // --- Computed ---
 const selectedPlan = computed(() => PLAN_LIST.find((p) => p.id === selectedPlanId.value));
-const isPaidPlan = computed(
-  () => selectedPlan.value && selectedPlan.value.priceMonthly > 0,
-);
+const isPaidPlan = computed(() => selectedPlan.value && selectedPlan.value.priceMonthly > 0);
 
 const resolvedOrganizationName = computed(() => {
   if (organizationType.value === "corporation") return organizationName.value;
@@ -244,7 +251,7 @@ const userEmail = computed(() => user.value?.email ?? "");
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-gray-50 px-4 py-8">
     <!-- Loading -->
     <div
       v-if="initializing || checkingApplication"
@@ -350,10 +357,7 @@ const userEmail = computed(() => user.value?.email ?? "");
       </template>
 
       <!-- Navigation buttons (Steps 2-4) -->
-      <div
-        v-if="currentStep >= 1 && currentStep <= 3"
-        class="mt-6 flex justify-between"
-      >
+      <div v-if="currentStep >= 1 && currentStep <= 3" class="mt-6 flex justify-between">
         <button
           type="button"
           class="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -372,10 +376,7 @@ const userEmail = computed(() => user.value?.email ?? "");
       </div>
 
       <!-- Back button for Step 5 -->
-      <div
-        v-if="currentStep === 4"
-        class="mt-4 text-center"
-      >
+      <div v-if="currentStep === 4" class="mt-4 text-center">
         <button
           type="button"
           class="text-sm text-gray-500 underline hover:text-gray-700"
