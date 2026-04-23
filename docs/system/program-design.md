@@ -260,7 +260,7 @@ async function multiQuerySearch(query: string, options: {...}): Promise<RagResul
 
 ```typescript
 async function generateEmbedding(text: string): Promise<number[]>; // 単一テキスト
-async function generateEmbeddings(texts: string[]): Promise<number[][]>; // バッチ（最大250件）
+async function generateEmbeddings(texts: string[]): Promise<number[][]>; // バッチ（最大250件 / 合計18,000トークン以下）
 ```
 
 **内部関数:**
